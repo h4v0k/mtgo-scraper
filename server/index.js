@@ -314,6 +314,30 @@ app.get('/api/ping', (req, res) => {
     res.json({ message: 'Pong from Express', timestamp: new Date() });
 });
 
+// Full Database Connection Check
+app.get('/api/debug', async (req, res) => {
+    try {
+        const decks = await db.execute("SELECT COUNT(*) as c FROM decks");
+        const archetypes = await db.execute("SELECT COUNT(*) as c FROM archetypes");
+        const sample = await db.execute("SELECT * FROM decks LIMIT 1");
+
+        res.json({
+            status: 'ok',
+            decks_count: decks.rows[0].c,
+            archetypes_count: archetypes.rows[0].c,
+            sample_deck: sample.rows[0],
+            db_url_configured: !!process.env.TURSO_DATABASE_URL,
+            server_time: new Date().toISOString()
+        });
+    } catch (err) {
+        res.status(500).json({
+            error: 'DB Connection Failed',
+            details: err.message,
+            stack: err.stack
+        });
+    }
+});
+
 // Initialize and Start (Standalone only)
 if (require.main === module) {
     initDB().then(() => {
