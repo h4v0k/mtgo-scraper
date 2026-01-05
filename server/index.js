@@ -18,6 +18,21 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+// --- Lazy Database Initialization Middleware ---
+let dbInitialized = false;
+app.use(async (req, res, next) => {
+    if (!dbInitialized) {
+        try {
+            await initDB();
+            dbInitialized = true;
+        } catch (err) {
+            console.error("DB Init Failed during request:", err);
+            return res.status(500).json({ error: 'Database Initialization Failed', details: err.message });
+        }
+    }
+    next();
+});
+
 // --- Authentication Middleware ---
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -294,12 +309,14 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date() });
 });
 
-// Initialize and Start
-initDB().then(() => {
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
+// Initialize and Start (Standalone only)
+if (require.main === module) {
+    initDB().then(() => {
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
     });
-});
+}
 
 // Export app for Vercel
 module.exports = app;

@@ -33,7 +33,8 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 setError(errData.message || 'Login failed');
             }
         } catch (error) {
-            setError('Connection refused');
+            console.error("Login Exception:", error);
+            setError('Connection Error: ' + (error instanceof Error ? error.message : String(error)));
         }
     };
 
