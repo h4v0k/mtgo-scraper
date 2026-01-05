@@ -2,7 +2,7 @@
     "name": "mtgo-scraper-monorepo",
     "private": true,
     "scripts": {
-        "test": "echo 'No build script'"
+        "build": "cd client && npm install && npm run build && cd .. && rm -rf dist && mv client/dist dist"
     },
     "devDependencies": {
         "vercel": "^32.0.0",
