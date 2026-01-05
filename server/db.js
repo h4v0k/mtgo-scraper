@@ -50,7 +50,8 @@ async function initDB() {
             rank INTEGER,
             archetype_id INTEGER,
             source_url TEXT,
-            raw_decklist TEXT, -- JSON or text representation
+            raw_decklist TEXT,
+            sideboard TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(archetype_id) REFERENCES archetypes(id)
         );
@@ -60,10 +61,16 @@ async function initDB() {
         CREATE INDEX IF NOT EXISTS idx_decks_format ON decks(format);
     `;
 
-    // LibSQL executeMultiple might be needed, or split by ;
-    // The client supports .executeMultiple(sql)
     try {
         await db.executeMultiple(schema);
+
+        // Auto-Migration for existing databases (adds sideboard if missing)
+        try {
+            await db.execute("ALTER TABLE decks ADD COLUMN sideboard TEXT");
+        } catch (e) {
+            // Ignore error if column already exists
+        }
+
         console.log('Database initialized successfully.');
     } catch (err) {
         console.error('Failed to initialize database:', err);
