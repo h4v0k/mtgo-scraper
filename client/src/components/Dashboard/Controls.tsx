@@ -14,7 +14,7 @@ interface DashboardControlsProps {
     setSelectedEvents: (e: string[]) => void;
 }
 
-const FORMATS = ['Modern', 'Pioneer', 'Standard', 'Legacy', 'Pauper'];
+const FORMATS = ['Standard', 'Modern', 'Legacy', 'Pauper', 'Pioneer'];
 const DAY_OPTIONS = [3, 7, 14, 30];
 
 export const DashboardControls: React.FC<DashboardControlsProps> = ({

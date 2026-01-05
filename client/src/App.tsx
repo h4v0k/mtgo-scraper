@@ -15,7 +15,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<'meta' | 'analytics'>('meta');
 
   // Dashboard State
-  const [format, setFormat] = useState('Modern');
+  const [format, setFormat] = useState('Standard');
   const [days, setDays] = useState(7);
   const [top8, setTop8] = useState(false);
   const [data, setData] = useState<MetaData[]>([]);
