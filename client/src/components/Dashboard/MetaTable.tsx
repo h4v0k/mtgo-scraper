@@ -1,4 +1,5 @@
 import { downloadMetagameCSV } from '../../utils/export';
+import type { MetaData } from '../../services/api';
 
 interface MetaTableProps {
     data: MetaData[];

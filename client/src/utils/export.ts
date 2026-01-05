@@ -1,4 +1,4 @@
-import { MetaData } from '../services/api';
+import type { MetaData } from '../services/api';
 
 /**
  * Converts metagame data to CSV and triggers a browser download.
