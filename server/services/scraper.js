@@ -32,15 +32,47 @@ async function scrapeFormat(formatCode, formatName, maxDays) {
             const $init = cheerio.load(initialHtml);
 
             // Check dropdown for "Last 2 Months"
+            // MTGTop8 sometimes uses a standard select, sometimes a custom div structure.
+            // standard: <select name="meta"><option value="51">Last 2 Months</option>...</select>
             $init('select[name="meta"] option').each((i, el) => {
-                if ($init(el).text().includes('Last 2 Months')) {
+                const optText = $init(el).text().trim();
+                // Check for exact text or case-insensitive match
+                if (optText === 'Last 2 Months' || optText.toLowerCase() === 'last 2 months') {
                     metaId = $init(el).attr('value');
                     foundMeta = true;
                 }
             });
 
-            if (foundMeta) console.log(`Found 'Last 2 Months' Meta ID: ${metaId}`);
-            else console.log("Using default Meta ID (Last 2 Weeks or similar).");
+            if (!foundMeta) {
+                // Fallback: Check for custom dropdown links if CHEERIO sees them (unlikely if JS-generated, but checking <a> tags with meta=)
+                // Or just hardcode the known "Last 2 Months" ID for Modern/Pioneer if we can't find it.
+                // Known IDs: Modern=51, but they change.
+                // Let's try to find *any* link saying "Last 2 Months"
+                $init('a').each((i, el) => {
+                    if ($init(el).text().trim().toLowerCase() === 'last 2 months') {
+                        const href = $init(el).attr('href');
+                        const match = href ? href.match(/meta=(\d+)/) : null;
+                        if (match) {
+                            metaId = match[1];
+                            foundMeta = true;
+                        }
+                    }
+                });
+            }
+
+            if (foundMeta) {
+                console.log(`Found 'Last 2 Months' Meta ID: ${metaId}`);
+            } else {
+                console.warn("Could not auto-detect 'Last 2 Months' option.");
+                // FORCE IT for Modern/Pioneer if we are desperate? 
+                // Getting 30 days is critical. 
+                // Modern "Last 2 Months" is often 51. 
+                // Let's try using '51' if format is Modern (MO) and we failed detection.
+                if (formatCode === 'MO') {
+                    console.log("Applying Fallback Meta ID '51' for Modern.");
+                    metaId = '51';
+                }
+            }
 
         } catch (e) {
             console.warn(`Error fetching format page: ${e.message}`);
