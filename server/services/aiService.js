@@ -20,6 +20,11 @@ async function classifyDeck(format, decklist) {
     const prompt = `
     You are an expert Magic: The Gathering meta analyst for the **Winter 2025/2026 Season**.
     Classify this ${format} deck based on these key cards into a single competitive archetype name (e.g. "Boros Energy", "Dimir Midrange").
+    
+    Specific Rules:
+    1. Distinguish "Allies" from "Landfall" (e.g. if key cards are Allies, call it "Naya Allies" or "Selesnya Allies").
+    2. Be precise with "Energy" variants.
+    
     Return ONLY the name.
     
     Cards:
@@ -57,6 +62,7 @@ async function clusterDecks(decks, format) {
     1. Group these decks into distinct competitive Archetypes.
     2. For each Archetype, identify the **8-10 defining cards** (Signature) that distinguish it from others.
     3. Be precise with split archetypes (e.g. "Izzet Otters" vs "Izzet Control" vs "Simic Quantum").
+    4. **CRITICAL:** Distinguish "Allies" from "Landfall". If decks rely on Ally synergies (e.g. Earthen Ally, Allies at Last), label them as "Allies".
     
     Input Decks:
     ${inputData}

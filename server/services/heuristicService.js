@@ -165,6 +165,15 @@ const RULES = [
     {
         target: 'Dimir Midrange',
         required: ['Kaito, Bane of Nightmares']
+    },
+    // USER REQUESTED MERGE: Sultai/Abzan Reanimator -> Reanimator (Superior Spiderman)
+    {
+        target: 'Reanimator (Superior Spiderman)',
+        required: ['Superior Spider-Man', 'Bringer of the Last Gift']
+    },
+    {
+        target: 'Reanimator (Superior Spiderman)',
+        required: ['Superior Spider-Man', 'Awaken the Honored Dead']
     }
 ];
 

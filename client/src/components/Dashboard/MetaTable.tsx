@@ -1,6 +1,4 @@
-import React from 'react';
-import type { MetaData } from '../../services/api';
-import './MetaTable.css';
+import { downloadMetagameCSV } from '../../utils/export';
 
 interface MetaTableProps {
     data: MetaData[];
@@ -24,6 +22,15 @@ export const MetaTable: React.FC<MetaTableProps> = ({ data, onSelectArchetype })
 
     return (
         <div className="meta-table-container card">
+            <div className="meta-table-header-actions">
+                <button
+                    className="export-csv-btn"
+                    onClick={() => downloadMetagameCSV(sortedData)}
+                    title="Download as CSV"
+                >
+                    ⬇ Export CSV
+                </button>
+            </div>
             <table className="meta-table">
                 <thead>
                     <tr>
