@@ -166,13 +166,13 @@ const RULES = [
         target: 'Dimir Midrange',
         required: ['Kaito, Bane of Nightmares']
     },
-    // USER REQUESTED MERGE: Sultai/Abzan Reanimator -> Reanimator (Superior Spiderman)
+    // USER REQUESTED MERGE: Sultai/Abzan Reanimator -> Superior Reanimator
     {
-        target: 'Reanimator (Superior Spiderman)',
+        target: 'Superior Reanimator',
         required: ['Superior Spider-Man', 'Bringer of the Last Gift']
     },
     {
-        target: 'Reanimator (Superior Spiderman)',
+        target: 'Superior Reanimator',
         required: ['Superior Spider-Man', 'Awaken the Honored Dead']
     },
     // Fix for Allies being misclassified as Landfall
