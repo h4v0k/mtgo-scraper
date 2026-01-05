@@ -1,9 +1,25 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { db } = require('../db');
 
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+// Initialize Gemini Lazily
+let genAI = null;
+let model = null;
+
+function getModel() {
+    if (model) return model;
+    if (!process.env.GEMINI_API_KEY) {
+        console.warn("⚠️ Warning: GEMINI_API_KEY is missing. AI features will be disabled.");
+        return null;
+    }
+    try {
+        genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        return model;
+    } catch (e) {
+        console.error("Failed to initialize Gemini:", e.message);
+        return null;
+    }
+}
 
 /**
  * Classifies a decklist into an archetype using Gemini.
@@ -31,8 +47,11 @@ async function classifyDeck(format, decklist) {
     ${decklist}
     `;
 
+    const aiModel = getModel();
+    if (!aiModel) return "Unknown Archetype";
+
     try {
-        const result = await model.generateContent(prompt);
+        const result = await aiModel.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
         return text.trim();
@@ -78,8 +97,11 @@ async function clusterDecks(decks, format) {
     ]
     `;
 
+    const aiModel = getModel();
+    if (!aiModel) return "Unknown Archetype";
+
     try {
-        const result = await model.generateContent(prompt);
+        const result = await aiModel.generateContent(prompt);
         const response = await result.response;
         let text = response.text();
         text = text.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -154,8 +176,11 @@ async function normalizeArchetypeNames(names, format = 'Modern') {
     }
     `;
 
+    const aiModel = getModel();
+    if (!aiModel) return "Unknown Archetype";
+
     try {
-        const result = await model.generateContent(prompt);
+        const result = await aiModel.generateContent(prompt);
         const response = await result.response;
         let text = response.text();
 
