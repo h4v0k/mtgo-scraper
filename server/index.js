@@ -304,9 +304,14 @@ app.get('/api/events', authenticateToken, async (req, res) => {
     }
 });
 
-// Health Check
+// Health Check (Root)
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date() });
+});
+
+// Ping Check (API-specific for Vercel debugging)
+app.get('/api/ping', (req, res) => {
+    res.json({ message: 'Pong from Express', timestamp: new Date() });
 });
 
 // Initialize and Start (Standalone only)
