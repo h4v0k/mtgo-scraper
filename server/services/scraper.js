@@ -22,272 +22,283 @@ async function scrapeFormat(formatCode, formatName, maxDays) {
     const formatUrl = `${BASE_URL}/format?f=${formatCode}`;
 
     try {
-        // 1. Get Recent Events
-        console.log(`Fetching Format Page: ${formatUrl}`);
-        const { data: formatHtml } = await axios.get(formatUrl);
-        const $ = cheerio.load(formatHtml);
+        // 1. Determine Meta ID (Timeframe)
+        let metaId = '54'; // Default "Last 2 Weeks"
+        let foundMeta = false;
 
+        try {
+            console.log(`Fetching Format Page: ${formatUrl}`);
+            const { data: initialHtml } = await axios.get(formatUrl);
+            const $init = cheerio.load(initialHtml);
+
+            // Check dropdown for "Last 2 Months"
+            $init('select[name="meta"] option').each((i, el) => {
+                if ($init(el).text().includes('Last 2 Months')) {
+                    metaId = $init(el).attr('value');
+                    foundMeta = true;
+                }
+            });
+
+            if (foundMeta) console.log(`Found 'Last 2 Months' Meta ID: ${metaId}`);
+            else console.log("Using default Meta ID (Last 2 Weeks or similar).");
+
+        } catch (e) {
+            console.warn(`Error fetching format page: ${e.message}`);
+        }
+
+        // 2. Pagination Loop to find Events
         let events = [];
-        // Look for "Last Events" table (often has class 'hover_tr') and links inside
-        const eventsTableRows = $('tr.hover_tr');
-        eventsTableRows.each((i, el) => {
-            const tds = $(el).find('td');
-            const fullText = $(el).text();
-            const linkEl = $(el).find('a').first();
-            const href = linkEl.attr('href');
-            const text = linkEl.text().trim();
+        let pageNum = 1;
+        let reachedCutoff = false;
+        const MAX_PAGES = 10;
 
-            const dateMatch = $(el).text().match(/(\d{2}\/\d{2}\/\d{2})/);
-            let eventDateStr = new Date().toISOString();
-            if (dateMatch) {
-                const [day, month, year] = dateMatch[1].split('/');
-                const fullYear = '20' + year;
-                eventDateStr = `${fullYear}-${month}-${day}T12:00:00.000Z`; // Noon UTC
-            }
-
-            if (href && (text.includes('Challenge') || text.includes('League') || text.includes('Qualifier') || text.includes('Championship'))) {
-                events.push({
-                    text: text.trim(),
-                    href: BASE_URL + '/' + href,
-                    date: eventDateStr
-                });
-            }
-        });
-
-        // Filter duplicates and by date
         const cutoffDate = new Date();
         cutoffDate.setDate(cutoffDate.getDate() - maxDays);
+        console.log(`Cutoff Date: ${cutoffDate.toISOString()}`);
 
-        events = events.filter((v, i, a) => {
-            const isUnique = a.findIndex(t => (t.href === v.href)) === i;
-            const isRecent = new Date(v.date) >= cutoffDate;
-            return isUnique && isRecent;
-        });
+        while (!reachedCutoff && pageNum <= MAX_PAGES) {
+            // Delay between pages
+            if (pageNum > 1) await delay(1500);
 
-        console.log(`Found ${events.length} target events for ${formatName}.`);
+            // Construct URL
+            // If page 1 and we didn't find specific meta, standard URL is fine/safer
+            // But if we want 30 days, we MUST use the found meta if possible.
+            let pagedUrl = `${BASE_URL}/format?f=${formatCode}&meta=${metaId}&cp=${pageNum}`;
+            if (pageNum === 1 && !foundMeta) {
+                // Stick to base for safety if detection failed
+                pagedUrl = formatUrl;
+            }
 
+            console.log(`Scraping Page ${pageNum}: ${pagedUrl}`);
+
+            try {
+                const { data: pageHtml } = await axios.get(pagedUrl);
+                const $ = cheerio.load(pageHtml);
+
+                const rows = $('tr.hover_tr');
+                if (rows.length === 0) {
+                    console.log("No event rows found. Stopping.");
+                    break;
+                }
+
+                let addedOnThisPage = 0;
+
+                rows.each((i, el) => {
+                    const linkEl = $(el).find('a').first();
+                    const href = linkEl.attr('href');
+                    const text = linkEl.text().trim();
+                    const fullText = $(el).text();
+
+                    // Date Parse: 20/12/24
+                    const dateMatch = fullText.match(/(\d{2}\/\d{2}\/\d{2})/);
+                    let eventDateObj = new Date();
+                    let eventDateStr = eventDateObj.toISOString();
+
+                    if (dateMatch) {
+                        const [day, month, year] = dateMatch[1].split('/');
+                        const fullYear = '20' + year;
+                        eventDateObj = new Date(parseInt(fullYear), parseInt(month) - 1, parseInt(day));
+                        eventDateStr = `${fullYear}-${month}-${day}T12:00:00.000Z`;
+                    }
+
+                    if (eventDateObj < cutoffDate) {
+                        reachedCutoff = true;
+                        // Don't return false to break cheerio loop, just ignore
+                        return;
+                    }
+
+                    if (href && (text.includes('Challenge') || text.includes('League') || text.includes('Qualifier') || text.includes('Championship'))) {
+                        events.push({
+                            text: text.trim(),
+                            href: BASE_URL + '/' + href,
+                            date: eventDateStr
+                        });
+                        addedOnThisPage++;
+                    }
+                });
+
+                if (addedOnThisPage === 0 && reachedCutoff) {
+                    break;
+                }
+
+            } catch (pageErr) {
+                console.error(`Error on page ${pageNum}: ${pageErr.message}`);
+                break;
+            }
+
+            pageNum++;
+        }
+
+        // Filter duplicates
+        events = events.filter((v, i, a) => a.findIndex(t => (t.href === v.href)) === i);
+        console.log(`Found ${events.length} target events for ${formatName} within ${maxDays} days.`);
+
+        // 3. Process Events (Detailed Scraping)
         for (const event of events) {
             console.log(`Processing Event: ${event.text} (${event.date})`);
+            await delay(1000);
 
-            // 2. Fetch Event Page
-            const { data: eventHtml } = await axios.get(event.href);
-            const $e = cheerio.load(eventHtml);
+            try {
+                const { data: eventHtml } = await axios.get(event.href);
+                const $e = cheerio.load(eventHtml);
 
-            // 3. Find Deck Links (Row-based approach)
-            const deckLinks = [];
-            const seenUrls = new Set();
-            const eventIdMatch = event.href.match(/e=(\d+)/);
-            const currentEventId = eventIdMatch ? eventIdMatch[1] : null;
+                // Parse Decks (Winners + Top 8)
+                const deckLinks = [];
+                const seenUrls = new Set();
+                const eventIdMatch = event.href.match(/e=(\d+)/);
+                const currentEventId = eventIdMatch ? eventIdMatch[1] : null;
 
-            const hoverTrs = $e('.hover_tr');
-            hoverTrs.each((i, el) => {
-                const links = $e(el).find('a');
-                let deckHref = null;
+                // Table Rows
+                $e('.hover_tr').each((i, el) => {
+                    const links = $e(el).find('a');
+                    let deckHref = null;
+                    links.each((j, link) => {
+                        const h = $e(link).attr('href');
+                        if (h && h.includes('&d=') && !h.includes('process_deletion')) {
+                            // Check event ID match
+                            if (currentEventId) {
+                                const lEvent = h.match(/e=(\d+)/);
+                                if (lEvent && lEvent[1] === currentEventId) deckHref = h;
+                            } else {
+                                deckHref = h;
+                            }
+                        }
+                    });
 
-                links.each((j, link) => {
-                    const h = $e(link).attr('href');
+                    if (!deckHref) return;
+                    const fullHref = BASE_URL + '/event' + deckHref;
+                    if (seenUrls.has(fullHref)) return;
+                    seenUrls.add(fullHref);
+
+                    const rowText = $e(el).text().trim();
+                    let rank = 1;
+                    // Try to parse rank "5-8" or "1"
+                    const rankMatch = rowText.match(/^(\d+)/);
+                    if (rankMatch) rank = parseInt(rankMatch[1], 10);
+                    if (event.text.includes('League')) rank = 1;
+
+                    deckLinks.push({ url: fullHref, rank });
+                });
+
+                // Top Winner sometimes separate
+                $e('a').each((i, el) => {
+                    const h = $e(el).attr('href');
                     if (h && h.includes('&d=') && !h.includes('process_deletion')) {
                         if (currentEventId) {
                             const lEvent = h.match(/e=(\d+)/);
-                            if (lEvent && lEvent[1] === currentEventId) {
-                                deckHref = h;
-                            }
-                        } else {
-                            deckHref = h;
+                            if (lEvent && lEvent[1] !== currentEventId) return;
+                        }
+                        const fullHref = BASE_URL + '/event' + h;
+                        if (!seenUrls.has(fullHref)) {
+                            seenUrls.add(fullHref);
+                            deckLinks.push({ url: fullHref, rank: 1 });
                         }
                     }
                 });
 
-                if (!deckHref) return;
+                // 4. Process Each Deck
+                for (const deckObj of deckLinks) {
+                    const deckUrl = deckObj.url;
+                    try {
+                        // Minimal delay inside event
+                        await delay(500);
+                        const { data: deckHtml } = await axios.get(deckUrl);
+                        const $d = cheerio.load(deckHtml);
 
-                const fullHref = BASE_URL + '/event' + deckHref;
-                if (seenUrls.has(fullHref)) return;
-                seenUrls.add(fullHref);
+                        const player = $d('.player_big').text().trim() || 'Unknown Player';
 
-                const rowText = $e(el).text().replace(/\s+/g, ' ').trim();
-                let rank = 1;
-                const rankMatch = rowText.match(/^(\d+)(?:-\d+)?\s+/);
-                if (rankMatch) {
-                    rank = parseInt(rankMatch[1], 10);
-                } else if (event.text.includes('League')) {
-                    rank = 1;
-                }
-
-                deckLinks.push({
-                    url: fullHref,
-                    rank: rank
-                });
-            });
-
-            // Special Case: The Winner (Rank 1) often outside table
-            $e('a').each((i, el) => {
-                const href = $e(el).attr('href');
-                if (href && href.includes('&d=') && !href.includes('process_deletion')) {
-                    if (currentEventId) {
-                        const lEvent = href.match(/e=(\d+)/);
-                        if (lEvent && lEvent[1] !== currentEventId) return;
-                    }
-
-                    const fullHref = BASE_URL + '/event' + href;
-                    if (!seenUrls.has(fullHref)) {
-                        seenUrls.add(fullHref);
-                        deckLinks.push({
-                            url: fullHref,
-                            rank: 1
-                        });
-                    }
-                }
-            });
-
-            // 4. Process Decks
-            for (const deckObj of deckLinks) {
-                const deckUrl = deckObj.url;
-                await delay(1000); // Politeness delay
-                try {
-                    const { data: deckHtml } = await axios.get(deckUrl);
-                    const $d = cheerio.load(deckHtml);
-
-                    const player = $d('.player_big').text().trim() || 'Unknown Player';
-
-                    // Extract Archetype
-                    let extractedArchetype = 'Unknown';
-                    const headerText = $d('.w_title').first().text();
-
-                    if (headerText && !headerText.startsWith('@')) {
-                        let temp = headerText;
-                        temp = temp.replace(/←/g, '').replace(/→/g, '');
-                        const parts = temp.split('-');
-                        if (parts.length > 1) {
-                            extractedArchetype = parts[0].trim();
+                        // Archetype Extraction
+                        let extractedArchetype = 'Unknown';
+                        const headerText = $d('.w_title').first().text();
+                        if (headerText && !headerText.startsWith('@')) {
+                            let temp = headerText.replace(/←|→/g, '').trim();
+                            const parts = temp.split('-');
+                            extractedArchetype = parts.length > 1 ? parts[0].trim() : temp;
                         } else {
-                            extractedArchetype = temp.trim();
+                            const t = $d('title').text();
+                            const tp = t.split('-');
+                            if (tp.length >= 3) extractedArchetype = tp[tp.length - 1].trim();
                         }
-                    } else {
-                        const pageTitle = $d('title').text();
-                        const titleParts = pageTitle.split('-');
-                        if (titleParts.length >= 3) {
-                            extractedArchetype = titleParts[titleParts.length - 1].trim();
-                        }
-                    }
 
-                    // Clean Names
-                    extractedArchetype = extractedArchetype.replace(event.text, '')
-                        .replace('MTG Top8', '')
-                        .replace(/^\s*@.*$/gm, '') // Remove lines starting with @ (Location data), handle multiline/whitespace
-                        .replace(/#\d+/g, '')
-                        .replace(/MTGO?\s+(League|Challenge|Preliminary|Qualifier|Showcase)( \d+)?/gi, '')
-                        .replace(new RegExp(`${formatName}\\s+`, 'gi'), '') // Remove format prefix e.g. "Modern"
-                        .replace(/\n/g, '')
-                        .replace(/[-–—]/g, '')
-                        .replace(/\s+/g, ' ')
-                        .trim();
+                        // Clean Arch Name
+                        extractedArchetype = extractedArchetype
+                            .replace(event.text, '')
+                            .replace(/MTGO?\s+(League|Challenge|Preliminary|Qualifier|Showcase)( \d+)?/gi, '')
+                            .replace(new RegExp(`${formatName}\\s+`, 'gi'), '')
+                            .replace(/#\d+/, '')
+                            .trim();
 
-                    if (!extractedArchetype || extractedArchetype.length < 3) extractedArchetype = 'Unknown';
+                        if (extractedArchetype.length < 3) extractedArchetype = 'Unknown';
 
-                    // Save Archetype
-                    let archId = null;
-                    if (extractedArchetype && extractedArchetype !== 'Unknown') {
+                        // Resolve/Insert Archetype
+                        let archId = null;
                         try {
-                            const result = await db.execute({
+                            // Find existing
+                            const existing = await db.execute({
                                 sql: 'SELECT id FROM archetypes WHERE name = ? AND format = ?',
                                 args: [extractedArchetype, formatName]
                             });
-                            if (result.rows.length > 0) {
-                                archId = result.rows[0].id; // Assuming object rows
+                            if (existing.rows.length > 0) {
+                                archId = existing.rows[0].id;
                             } else {
-                                const insertResult = await db.execute({
+                                // Create
+                                const ins = await db.execute({
                                     sql: 'INSERT INTO archetypes (name, format) VALUES (?, ?) RETURNING id',
                                     args: [extractedArchetype, formatName]
                                 });
-                                // Handle potential difference in returning: some setups return rows for RETURNING, others result properties
-                                if (insertResult.rows.length > 0) {
-                                    archId = insertResult.rows[0].id;
-                                } else {
-                                    // Fallback if RETURNING not supported or weird (shouldn't happen on modern sqlite)
-                                    archId = insertResult.lastInsertRowid.toString();
-                                }
+                                if (ins.rows.length > 0) archId = ins.rows[0].id;
+                                else archId = ins.lastInsertRowid.toString();
                             }
                         } catch (e) {
-                            // Fallback to Unknown if unique constraint or other error
+                            // Fallback unknown
                             try {
-                                await db.execute({
-                                    sql: 'INSERT OR IGNORE INTO archetypes (name, format) VALUES (?, ?)',
-                                    args: ['Unknown', formatName]
-                                });
-                                const unk = await db.execute({
-                                    sql: 'SELECT id FROM archetypes WHERE name = ? AND format = ?',
-                                    args: ['Unknown', formatName]
-                                });
+                                await db.execute({ sql: 'INSERT OR IGNORE INTO archetypes (name, format) VALUES (?, ?)', args: ['Unknown', formatName] });
+                                const unk = await db.execute({ sql: 'SELECT id FROM archetypes WHERE name = ? AND format = ?', args: ['Unknown', formatName] });
                                 archId = unk.rows[0].id;
-                            } catch (err2) {
-                                console.error("Critical Arch Error:", err2);
+                            } catch (e2) { }
+                        }
+
+                        // Extract Cards
+                        const mainDeck = [];
+                        const sideboard = [];
+                        let sbMode = false;
+                        $d('div').each((i, el) => {
+                            const txt = $d(el).text().trim();
+                            const cls = $d(el).attr('class') || '';
+                            if (cls.includes('O14') && txt === 'SIDEBOARD') sbMode = true;
+                            if (cls.includes('deck_line')) {
+                                if (sbMode) sideboard.push(txt);
+                                else mainDeck.push(txt);
                             }
-                        }
-                    } else {
-                        try {
-                            await db.execute({
-                                sql: 'INSERT OR IGNORE INTO archetypes (name, format) VALUES (?, ?)',
-                                args: ['Unknown', formatName]
-                            });
-                            const info = await db.execute({
-                                sql: 'SELECT id FROM archetypes WHERE name = ? AND format = ?',
-                                args: ['Unknown', formatName]
-                            });
-                            archId = info.rows[0].id;
-                        } catch (e) { console.error(e); }
+                        });
+
+                        const deckText = mainDeck.join('\n');
+                        const sideboardText = sideboard.join('\n');
+                        if (deckText.length < 10) continue;
+
+                        // Check Deck Duplicate
+                        const dupCheck = await db.execute({
+                            sql: 'SELECT id FROM decks WHERE player_name = ? AND event_name = ?',
+                            args: [player, event.text]
+                        });
+                        if (dupCheck.rows.length > 0) continue;
+
+                        // Insert Deck
+                        await db.execute({
+                            sql: `INSERT INTO decks (player_name, format, event_name, event_date, rank, archetype_id, raw_decklist, sideboard, source_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            args: [player, formatName, event.text, event.date, deckObj.rank, archId, deckText, sideboardText, deckUrl]
+                        });
+
+                    } catch (deckErr) {
+                        console.error(`Error parsing deck ${deckUrl}:`, deckErr.message);
                     }
-
-                    // Extract Cards
-                    const mainDeck = [];
-                    const sideboard = [];
-                    let sbMode = false;
-                    $d('div').each((i, el) => {
-                        const txt = $d(el).text().trim();
-                        const cls = $d(el).attr('class') || '';
-                        if (cls.includes('O14') && txt === 'SIDEBOARD') sbMode = true;
-                        if (cls.includes('deck_line')) {
-                            if (sbMode) sideboard.push(txt);
-                            else mainDeck.push(txt);
-                        }
-                    });
-
-                    const deckText = mainDeck.join('\n');
-                    const sideboardText = sideboard.join('\n');
-
-                    if (deckText.length < 10) continue;
-
-                    // Check duplicate
-                    const existingDeckRes = await db.execute({
-                        sql: 'SELECT id FROM decks WHERE player_name = ? AND event_name = ?',
-                        args: [player, event.text]
-                    });
-                    if (existingDeckRes.rows.length > 0) {
-                        continue;
-                    }
-
-                    await db.execute({
-                        sql: `
-                        INSERT INTO decks (player_name, format, event_name, event_date, rank, archetype_id, raw_decklist, sideboard, source_url)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                       `,
-                        args: [
-                            player,
-                            formatName,
-                            event.text,
-                            event.date,
-                            deckObj.rank,
-                            archId,
-                            deckText,
-                            sideboardText,
-                            deckUrl
-                        ]
-                    });
-
-                } catch (err) {
-                    console.error(`Error parsing deck ${deckUrl}: ${err.message}`);
                 }
+
+            } catch (evErr) {
+                console.error(`Error parsing event ${event.href}: ${evErr.message}`);
             }
         }
+
     } catch (err) {
         console.error(`Error scraping format ${formatName}: ${err.message}`);
     }
