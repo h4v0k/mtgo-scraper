@@ -1,15 +1,15 @@
 const path = require('path');
 const dotenv = require('dotenv');
 
-// Load production secrets explicitly
+// Load production secrets explicitly (Local Mode)
 const prodEnvPath = path.resolve(__dirname, '.env.production');
 const result = dotenv.config({ path: prodEnvPath });
 
-if (result.error) {
-    console.error("\n❌ Error: Could not find '.env.production' file.");
-    console.error("Please create a file named '.env.production' in the server/ directory with your Turso credentials:");
-    console.error("\nTURSO_DATABASE_URL=libsql://...");
-    console.error("TURSO_AUTH_TOKEN=...\n");
+// Check if we have what we need (either from file OR environment)
+if (!process.env.TURSO_DATABASE_URL) {
+    console.error("\n❌ Error: TURSO_DATABASE_URL is missing.");
+    console.error("  - Local: Ensure server/.env.production exists.");
+    console.error("  - GitHub: Ensure Secrets are set.");
     process.exit(1);
 }
 
