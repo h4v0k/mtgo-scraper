@@ -1,0 +1,42 @@
+name: Daily Scraper
+
+on:
+  schedule:
+    # Run at 8:00 AM and 8:00 PM UTC
+    - cron: '0 8,20 * * *'
+  workflow_dispatch:
+    inputs:
+        days:
+            description: 'Days to scrape'
+            required: false
+            default: '2'
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    env:
+      TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+      TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          # Install root dependencies (including devDependencies like puppeteer)
+          npm install
+
+      - name: Run Scraper
+        # If manually triggered, use input. If scheduled, default to 2.
+        run: |
+          DAYS="${{ github.event.inputs.days || 2 }}"
+          echo "Running scraper for last $DAYS days..."
+          node server/seed_remote.js --days=$DAYS

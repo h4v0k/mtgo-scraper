@@ -26,7 +26,13 @@ const { initDB } = require('./db');
         await initDB();
 
         console.log("🚀 Starting Remote Seed Job...");
-        await scraper.scrapeMTGTop8();
+
+        // Check for days argument
+        const args = process.argv.slice(2);
+        const daysArg = args.find(a => a.startsWith('--days='));
+        const days = daysArg ? parseInt(daysArg.split('=')[1]) : 2; // Default to 2 days
+
+        await scraper.scrapeMTGTop8(days);
         console.log("✅ Seed Complete!");
         process.exit(0);
     } catch (err) {

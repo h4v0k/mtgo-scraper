@@ -17,7 +17,7 @@ const FORMATS = [
 // Helper to delay
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-async function scrapeFormat(formatCode, formatName) {
+async function scrapeFormat(formatCode, formatName, maxDays) {
     console.log(`\n--- Scraping Format: ${formatName} (${formatCode}) ---`);
     const formatUrl = `${BASE_URL}/format?f=${formatCode}`;
 
@@ -54,8 +54,15 @@ async function scrapeFormat(formatCode, formatName) {
             }
         });
 
-        // Filter duplicates and take top 30 (approx last 30 days)
-        events = events.filter((v, i, a) => a.findIndex(t => (t.href === v.href)) === i).slice(0, 30);
+        // Filter duplicates and by date
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - maxDays);
+
+        events = events.filter((v, i, a) => {
+            const isUnique = a.findIndex(t => (t.href === v.href)) === i;
+            const isRecent = new Date(v.date) >= cutoffDate;
+            return isUnique && isRecent;
+        });
 
         console.log(`Found ${events.length} target events for ${formatName}.`);
 
@@ -286,12 +293,12 @@ async function scrapeFormat(formatCode, formatName) {
     }
 }
 
-async function scrapeMTGTop8() {
-    console.log('Starting Scraper Job (All Formats)...');
+async function scrapeMTGTop8(maxDays = 2) {
+    console.log(`Starting Scraper Job (History: ${maxDays} days)...`);
 
     // Run formats in parallel
     try {
-        await Promise.all(FORMATS.map(fmt => scrapeFormat(fmt.code, fmt.name)));
+        await Promise.all(FORMATS.map(fmt => scrapeFormat(fmt.code, fmt.name, maxDays)));
     } catch (err) {
         console.error("Parallel scraping error:", err);
     }
