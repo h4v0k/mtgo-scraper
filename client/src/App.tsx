@@ -13,7 +13,6 @@ import type { MetaData } from './services/api'
 
 function App() {
   const [activeTab, setActiveTab] = useState<'meta' | 'analytics'>('meta');
-  const [token, setToken] = useState<string | null>(localStorage.getItem('spyglass_token'));
 
   // Dashboard State
   const [format, setFormat] = useState('Modern');
@@ -28,11 +27,6 @@ function App() {
 
   // Event Filter State
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
-
-  const handleLogin = (newToken: string) => {
-    localStorage.setItem('spyglass_token', newToken);
-    setToken(newToken);
-  };
 
   useEffect(() => {
     // Only fetch meta if we are at the root level
