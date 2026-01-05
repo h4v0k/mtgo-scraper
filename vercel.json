@@ -1,5 +1,18 @@
 {
     "version": 2,
+    "builds": [
+        {
+            "src": "api/*.js",
+            "use": "@vercel/node"
+        },
+        {
+            "src": "package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "dist"
+            }
+        }
+    ],
     "rewrites": [
         {
             "source": "/api/test_canary",
