@@ -42,7 +42,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     return (
         <div className="login-container">
             <div className="login-card card">
-                <h2>Identify Yourself</h2>
+                <h2>Spyglass Access</h2>
                 {error && <div className="error-msg">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
