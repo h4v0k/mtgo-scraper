@@ -23,11 +23,13 @@
 /* Cosmic Logo Area */
 .logo-container {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: var(--space-md);
-  margin-bottom: var(--space-lg);
-  padding: var(--space-md);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm);
   position: relative;
 }
 
@@ -35,52 +37,26 @@
   content: '';
   position: absolute;
   bottom: 0;
-  width: 150px;
+  width: 80%;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
   box-shadow: 0 0 10px var(--color-primary);
 }
 
-.logo-img {
-  height: 180px;
-  /* Large and in charge */
-  width: auto;
-  border-radius: 4px;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-  /* Deep shadow to pop against void */
+.banner-img {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
   border: 1px solid var(--color-primary-dim);
   transition: transform 0.5s ease, box-shadow 0.5s ease;
 }
 
-.logo-img:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 50px rgba(255, 215, 0, 0.15);
-}
-
-.logo-text {
-  font-family: var(--font-family-heading);
-  font-size: 3rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  /* Gold Gradient */
-  background: linear-gradient(to bottom, #ffd700, #b8860b);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
-  letter-spacing: 8px;
-  margin-top: var(--space-xs);
-}
-
-.logo-text::after {
-  content: 'ADVANCED METAGAME ENGINE';
-  display: block;
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-  letter-spacing: 10px;
-  text-align: center;
-  margin-top: 5px;
-  text-shadow: none;
+.banner-img:hover {
+  transform: scale(1.01);
+  box-shadow: 0 0 80px rgba(255, 215, 0, 0.15);
 }
 
 .main-nav {

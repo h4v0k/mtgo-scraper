@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import './styles/variables.css'
 import './App.css'
-import logo from './assets/logo.jpg'
+import logo from './assets/banner.jpg'
 import { DashboardControls } from './components/Dashboard/Controls'
 import { MetaTable } from './components/Dashboard/MetaTable'
 import { ArchetypeView } from './components/Dashboard/ArchetypeView'
@@ -99,8 +99,7 @@ function App() {
     <div className="app-container">
       <header className="app-header">
         <div className="logo-container">
-          <img src={logo} alt="Havok's Spyglass" className="logo-img" />
-          <div className="logo-text">HAVOK'S SPYGLASS</div>
+          <img src={logo} alt="Havok's Spyglass" className="banner-img" />
         </div>
         <nav className="main-nav">
           <button
