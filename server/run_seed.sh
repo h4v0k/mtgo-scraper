@@ -1,0 +1,6 @@
+#!/bin/bash
+export TURSO_DATABASE_URL='libsql://mtgo-scraper-h4v0k.aws-us-east-1.turso.io'
+export TURSO_AUTH_TOKEN='eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3Njc1ODExNDMsImlkIjoiOTM4NWE5YWQtM2YwNy00ZmViLWFmMGYtMWQzZjI2ZTg3NmIwIiwicmlkIjoiNGUzZjY2YjYtNDE1NC00OGMzLThjZjMtOGViNThmYzdjMzI4In0.i5NQHQ6ICS0Bk7_rWnZLgKPXthM-tzFPzF1bgyj3C1mwTjsOiN745kDvxa2ft3h9aPfwpnnT8HMfV-Gmz4e9CQ'
+
+echo "Running seed with configured credentials..."
+node seed.js
