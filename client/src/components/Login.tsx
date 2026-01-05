@@ -66,6 +66,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
                         Access Spyglass
                     </button>
+                    <div className="debug-info" style={{ marginTop: '20px', fontSize: '0.8rem', color: '#666', textAlign: 'center' }}>
+                        <p>Hostname: {window.location.hostname}</p>
+                        <p>Target API: {import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3001/api' : '/api')}</p>
+                        <p>Is Local: {String(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')}</p>
+                    </div>
                 </form>
             </div>
         </div>
