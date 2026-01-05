@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: mtgo-scraper-api
+    env: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: DB_PATH
+        value: /var/data/spyglass.db
+      - key: NODE_VERSION
+        value: 20
+    disk:
+      name: sqlite-data
+      mountPath: /var/data
+      sizeGB: 1
+
+  - type: static
+    name: mtgo-scraper-ui
+    env: static
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: mtgo-scraper-api
+          property: url

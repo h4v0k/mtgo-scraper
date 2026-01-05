@@ -1,0 +1,95 @@
+.meta-table-container {
+    /* Inherits .card styles from React component */
+    overflow: hidden;
+    /* For rounded corners on table */
+}
+
+.meta-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.meta-table th {
+    text-align: left;
+    padding: var(--space-lg) var(--space-md);
+    color: var(--color-primary);
+    border-bottom: 2px solid rgba(0, 243, 255, 0.1);
+    font-family: var(--font-family-heading);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, rgba(0, 243, 255, 0.05), transparent);
+    font-size: 1.1rem;
+    text-shadow: var(--glow-text-primary);
+}
+
+.meta-table td {
+    padding: var(--space-lg) var(--space-md);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    font-size: 1rem;
+    font-family: var(--font-family-base);
+}
+
+.meta-table tbody tr {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.meta-table tbody tr:hover {
+    background: rgba(65, 105, 225, 0.1);
+    transform: translateX(4px);
+    box-shadow: -4px 0 10px rgba(65, 105, 225, 0.3);
+}
+
+.arch-name {
+    font-weight: bold;
+    color: #fff;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+}
+
+.share-bar-container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+}
+
+.share-bar {
+    height: 8px;
+    background: linear-gradient(90deg, var(--color-accent-blue), var(--color-accent-purple));
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle shine animation on bars */
+.share-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transform: translateX(-100%);
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.share-text {
+    min-width: 50px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-accent-blue);
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(0, 188, 212, 0.3);
+}

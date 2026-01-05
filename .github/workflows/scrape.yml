@@ -1,0 +1,32 @@
+name: Daily Scraper
+
+on:
+  schedule:
+    # Run at 2:00 AM, 8:00 AM, 2:00 PM, 8:00 PM UTC
+    - cron: '0 2,8,14,20 * * *'
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install Dependencies
+      working-directory: ./server
+      run: npm install
+
+    - name: Run Scraper
+      working-directory: ./server
+      env:
+        TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+        TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        # Run manually via command line require, relying on the fact that scrapeMTGTop8 is the entry point
+      run: node -e "require('./services/scraper').scrapeMTGTop8()"

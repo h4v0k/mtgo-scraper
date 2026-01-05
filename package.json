@@ -1,0 +1,14 @@
+{
+    "name": "mtgo-scraper-monorepo",
+    "private": true,
+    "scripts": {
+        "build": "cd client && npm install && npm run build"
+    },
+    "devDependencies": {
+        "vercel": "^32.0.0"
+    },
+    "workspaces": [
+        "client",
+        "server"
+    ]
+}

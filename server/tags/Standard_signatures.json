@@ -1,0 +1,784 @@
+[
+  {
+    "name": "Jeskai Control",
+    "signature": [
+      "Jeskai Revelation",
+      "Lightning Helix",
+      "No More Lies",
+      "Get Lost",
+      "Day of Judgment",
+      "Ancient Cornucopia",
+      "Seam Rip",
+      "Floodfarm Verge",
+      "Riverpyre Verge"
+    ],
+    "deckIds": [
+      2174,
+      2214
+    ]
+  },
+  {
+    "name": "Dimir Midrange",
+    "signature": [
+      "Deep-Cavern Bat",
+      "Spyglass Siren",
+      "Tishana's Tidebinder",
+      "Floodpits Drowner",
+      "Enduring Curiosity",
+      "Kaito, Bane of Nightmares",
+      "Watery Grave",
+      "Gloomlake Verge",
+      "Cecil, Dark Knight"
+    ],
+    "deckIds": [
+      2175,
+      2177,
+      2199,
+      2202,
+      2204,
+      2213
+    ]
+  },
+  {
+    "name": "Simic Landfall",
+    "signature": [
+      "Omniscience",
+      "Roiling Dragonstorm",
+      "Lost in the Maze",
+      "Consult the Star Charts",
+      "Stock Up",
+      "Evendo, Waking Haven",
+      "Uthros, Titanic Godcore",
+      "Kona, Rescue Beastie",
+      "Breeding Pool",
+      "Cavern of Souls"
+    ],
+    "deckIds": [
+      2176,
+      2190
+    ]
+  },
+  {
+    "name": "Selesnya Landfall",
+    "signature": [
+      "Aang, Swift Savior",
+      "Earth Kingdom Protectors",
+      "Earth King's Lieutenant",
+      "Earthen Ally",
+      "Great Divide Guide",
+      "Katara, the Fearless",
+      "South Pole Voyager",
+      "Allies at Last",
+      "Breeding Pool",
+      "Cavern of Souls"
+    ],
+    "deckIds": [
+      2178,
+      2183
+    ]
+  },
+  {
+    "name": "Izzet Lessons",
+    "signature": [
+      "Gran-Gran",
+      "Combustion Technique",
+      "Firebending Lesson",
+      "Stormchaser's Talent",
+      "Boomerang Basics",
+      "Accumulate Wisdom",
+      "Riverpyre Verge",
+      "Spirebluff Canal",
+      "Multiversal Passage"
+    ],
+    "deckIds": [
+      2179,
+      2198,
+      2205,
+      2207,
+      2219,
+      2221
+    ]
+  },
+  {
+    "name": "Selesnya Landfall",
+    "signature": [
+      "Badgermole Cub",
+      "Icetill Explorer",
+      "Llanowar Elves",
+      "Mightform Harmonizer",
+      "Esper Origins",
+      "Earthbender Ascension",
+      "Escape Tunnel",
+      "Fabled Passage",
+      "Sazh's Chocobo"
+    ],
+    "deckIds": [
+      2180,
+      2182,
+      2184,
+      2185,
+      2187,
+      2189,
+      2191,
+      2192,
+      2194,
+      2196,
+      2200,
+      2201,
+      2206,
+      2210,
+      2211,
+      2212,
+      2216,
+      2217,
+      2220,
+      2223
+    ]
+  },
+  {
+    "name": "Golgari Midrange",
+    "signature": [
+      "Badgermole Cub",
+      "Llanowar Elves",
+      "Overlord of the Balemurk",
+      "Ouroboroid",
+      "Esper Origins",
+      "Blooming Marsh",
+      "Wastewood Verge",
+      "Deep-Cavern Bat",
+      "Gene Pollinator"
+    ],
+    "deckIds": [
+      2181,
+      2193
+    ]
+  },
+  {
+    "name": "Sultai Reanimator",
+    "signature": [
+      "Bringer of the Last Gift",
+      "Broodspinner",
+      "Harvester of Misery",
+      "Overlord of the Balemurk",
+      "Oblivious Bookworm",
+      "Awaken the Honored Dead",
+      "Bitter Triumph",
+      "Blooming Marsh",
+      "Watery Grave"
+    ],
+    "deckIds": [
+      2188
+    ]
+  },
+  {
+    "name": "Mono-Red Aggro",
+    "signature": [
+      "Burnout Bashtronaut",
+      "Hired Claw",
+      "Nova Hellkite",
+      "Ojer Axonil, Deepest Might",
+      "Razorkin Needlehead",
+      "Scalding Viper",
+      "Burst Lightning",
+      "Lightning Strike",
+      "Riverpyre Verge"
+    ],
+    "deckIds": [
+      2195,
+      2215
+    ]
+  },
+  {
+    "name": "Simic Landfall",
+    "signature": [
+      "Llanowar Elves",
+      "Badgermole Cub",
+      "Ouroboroid",
+      "Gene Pollinator",
+      "Spider Manifestation",
+      "Quantum Riddler",
+      "Nature's Rhythm",
+      "Breeding Pool",
+      "Botanical Sanctum"
+    ],
+    "deckIds": [
+      2197,
+      2208
+    ]
+  },
+  {
+    "name": "Izzet Lessons",
+    "signature": [
+      "Duelist of the Mind",
+      "Quantum Riddler",
+      "Tiger-Seal",
+      "Boomerang Basics",
+      "Torch the Tower",
+      "Winternight Stories",
+      "Spirebluff Canal",
+      "Riverpyre Verge",
+      "Multiversal Passage"
+    ],
+    "deckIds": [
+      2209
+    ]
+  },
+  {
+    "name": "Selesnya Landfall",
+    "signature": [
+      "Badgermole Cub",
+      "Llanowar Elves",
+      "Bristly Bill, Spine Sower",
+      "Mossborn Hydra",
+      "Tifa Lockhart",
+      "Traveling Chocobo",
+      "Earthbender Ascension",
+      "Escape Tunnel",
+      "Fabled Passage",
+      "Snakeskin Veil"
+    ],
+    "deckIds": [
+      2222
+    ]
+  },
+  {
+    "name": "Selesnya Landfall",
+    "signature": [
+      "Badgermole Cub",
+      "Llanowar Elves",
+      "Icetill Explorer",
+      "Mightform Harmonizer",
+      "Archdruid's Charm",
+      "Earthbender Ascension",
+      "Felidar Retreat",
+      "Escape Tunnel",
+      "Fabled Passage"
+    ],
+    "deckIds": [
+      2218
+    ]
+  },
+  {
+    "name": "Selesnya Landfall",
+    "signature": [
+      "Llanowar Elves",
+      "Mightform Harmonizer",
+      "Earthbender Ascension",
+      "Lumbering Worldwagon",
+      "Esper Origins",
+      "Icetill Explorer",
+      "Badgermole Cub",
+      "Sazh's Chocobo"
+    ],
+    "deckIds": [
+      2224,
+      2228,
+      2160,
+      2163,
+      2164,
+      2165,
+      2170,
+      2172,
+      2229,
+      2234,
+      2236,
+      2245
+    ]
+  },
+  {
+    "name": "Boros Aggro",
+    "signature": [
+      "Inspiring Vantage",
+      "Sacred Foundry",
+      "Sunbillow Verge",
+      "Nova Hellkite",
+      "Sarkhan, Dragon Ascendant",
+      "Twinmaw Stormbrood",
+      "Burst Lightning",
+      "Magmatic Hellkite"
+    ],
+    "deckIds": [
+      2225
+    ]
+  },
+  {
+    "name": "Dimir Midrange",
+    "signature": [
+      "Watery Grave",
+      "Tishana's Tidebinder",
+      "Deep-Cavern Bat",
+      "Spyglass Siren",
+      "Kaito, Bane of Nightmares",
+      "Enduring Curiosity",
+      "Floodpits Drowner",
+      "Bitter Triumph"
+    ],
+    "deckIds": [
+      2226,
+      2158,
+      2230,
+      2239,
+      2243
+    ]
+  },
+  {
+    "name": "Boros Aggro",
+    "signature": [
+      "Inspiring Vantage",
+      "Sacred Foundry",
+      "Sunbillow Verge",
+      "Burnout Bashtronaut",
+      "Emberheart Challenger",
+      "Hired Claw",
+      "Nova Hellkite",
+      "Slickshot Show-Off",
+      "Boros Charm",
+      "Burst Lightning"
+    ],
+    "deckIds": [
+      2227,
+      2255
+    ]
+  },
+  {
+    "name": "Izzet Lessons",
+    "signature": [
+      "Gran-Gran",
+      "Accumulate Wisdom",
+      "Combustion Technique",
+      "Firebending Lesson",
+      "Artist's Talent",
+      "Stormchaser's Talent",
+      "Boomerang Basics",
+      "Monument to Endurance"
+    ],
+    "deckIds": [
+      2159,
+      2161,
+      2166,
+      2168,
+      2233,
+      2251,
+      2253
+    ]
+  },
+  {
+    "name": "Jeskai Control",
+    "signature": [
+      "Consult the Star Charts",
+      "Lightning Helix",
+      "Get Lost",
+      "No More Lies",
+      "Floodfarm Verge",
+      "Sacred Foundry",
+      "Jeskai Revelation",
+      "Marang River Regent"
+    ],
+    "deckIds": [
+      2162,
+      2231,
+      2242,
+      2250,
+      2248,
+      2257
+    ]
+  },
+  {
+    "name": "Golgari Midrange",
+    "signature": [
+      "Blooming Marsh",
+      "Wastewood Verge",
+      "Ouroboroid",
+      "Gene Pollinator",
+      "Overlord of the Balemurk",
+      "Llanowar Elves",
+      "Badgermole Cub",
+      "Nature's Rhythm"
+    ],
+    "deckIds": [
+      2169,
+      2171,
+      2235,
+      2241,
+      2249
+    ]
+  },
+  {
+    "name": "Abzan Reanimator",
+    "signature": [
+      "Blooming Marsh",
+      "Bringer of the Last Gift",
+      "Broodspinner",
+      "Oblivious Bookworm",
+      "Overlord of the Balemurk",
+      "Superior Spider-Man",
+      "Analyze the Pollen",
+      "Awaken the Honored Dead"
+    ],
+    "deckIds": [
+      2167,
+      2256
+    ]
+  },
+  {
+    "name": "Izzet Looting",
+    "signature": [
+      "Quantum Riddler",
+      "Thundertrap Trainer",
+      "Spirebluff Canal",
+      "Stormchaser's Talent",
+      "Boomerang Basics",
+      "Torch the Tower",
+      "Riverpyre Verge",
+      "Roaring Furnace / Steaming Sauna"
+    ],
+    "deckIds": [
+      2232,
+      2237,
+      2238,
+      2246,
+      2247,
+      2254
+    ]
+  },
+  {
+    "name": "Selesnya Landfall",
+    "signature": [
+      "Aang, Swift Savior",
+      "Earth King's Lieutenant",
+      "Earth Kingdom Protectors",
+      "Earthen Ally",
+      "Allies at Last",
+      "Breeding Pool",
+      "Botanical Sanctum",
+      "Cavern of Souls"
+    ],
+    "deckIds": [
+      2173,
+      2240,
+      2244,
+      2252
+    ]
+  },
+  {
+    "name": "Mono-Red Aggro",
+    "signature": [
+      "Burnout Bashtronaut",
+      "Emberheart Challenger",
+      "Hired Claw",
+      "Nova Hellkite",
+      "Burst Lightning",
+      "Full Bore",
+      "Rockface Village",
+      "Lightning Strike"
+    ],
+    "deckIds": [
+      2260,
+      2280,
+      2299
+    ]
+  },
+  {
+    "name": "Dimir Midrange",
+    "signature": [
+      "Gloomlake Verge",
+      "Watery Grave",
+      "Deep-Cavern Bat",
+      "Floodpits Drowner",
+      "Spyglass Siren",
+      "Tishana's Tidebinder",
+      "Kaito, Bane of Nightmares",
+      "Strategic Betrayal",
+      "Enduring Curiosity"
+    ],
+    "deckIds": [
+      2261,
+      2265,
+      2269,
+      2274,
+      2285,
+      2291,
+      2300,
+      2303
+    ]
+  },
+  {
+    "name": "Sultai Reanimator",
+    "signature": [
+      "Overlord of the Balemurk",
+      "Bringer of the Last Gift",
+      "Broodspinner",
+      "Awaken the Honored Dead",
+      "Bitter Triumph",
+      "Superior Spider-Man",
+      "Blooming Marsh",
+      "Wastewood Verge"
+    ],
+    "deckIds": [
+      2263,
+      2264,
+      2296
+    ]
+  },
+  {
+    "name": "Selesnya Landfall",
+    "signature": [
+      "Badgermole Cub",
+      "Llanowar Elves",
+      "Ouroboroid",
+      "Wildfire Wickerfolk",
+      "Break Out",
+      "Stomping Ground",
+      "Thornspire Verge",
+      "Fear of Missing Out"
+    ],
+    "deckIds": [
+      2267,
+      2283
+    ]
+  },
+  {
+    "name": "Simic Landfall",
+    "signature": [
+      "Llanowar Elves",
+      "Quantum Riddler",
+      "Temur Battlecrier",
+      "Devastating Onslaught",
+      "Interdimensional Web Watch",
+      "Spider Manifestation",
+      "Breeding Pool",
+      "Botanical Sanctum"
+    ],
+    "deckIds": [
+      2268,
+      2284
+    ]
+  },
+  {
+    "name": "Simic Landfall",
+    "signature": [
+      "Badgermole Cub",
+      "Gene Pollinator",
+      "Keen-Eyed Curator",
+      "Llanowar Elves",
+      "Ouroboroid",
+      "Breeding Pool",
+      "Botanical Sanctum",
+      "Nature's Rhythm"
+    ],
+    "deckIds": [
+      2258,
+      2262,
+      2295
+    ]
+  },
+  {
+    "name": "Golgari Midrange",
+    "signature": [
+      "Badgermole Cub",
+      "Frenzied Baloth",
+      "Gene Pollinator",
+      "Keen-Eyed Curator",
+      "Llanowar Elves",
+      "Ouroboroid",
+      "Archdruid's Charm",
+      "Ba Sing Se"
+    ],
+    "deckIds": [
+      2266,
+      2282
+    ]
+  },
+  {
+    "name": "Selesnya Landfall",
+    "signature": [
+      "Icetill Explorer",
+      "Llanowar Elves",
+      "Mightform Harmonizer",
+      "Sazh's Chocobo",
+      "Earthbender Ascension",
+      "Lumbering Worldwagon",
+      "Escape Tunnel",
+      "Fabled Passage"
+    ],
+    "deckIds": [
+      2272,
+      2278,
+      2281,
+      2288,
+      2293,
+      2302,
+      2307
+    ]
+  },
+  {
+    "name": "Jeskai Control",
+    "signature": [
+      "Lightning Helix",
+      "No More Lies",
+      "Get Lost",
+      "Consult the Star Charts",
+      "Sacred Foundry",
+      "Sunbillow Verge",
+      "Floodfarm Verge",
+      "Day of Judgment"
+    ],
+    "deckIds": [
+      2276
+    ]
+  },
+  {
+    "name": "Azorius Tempo",
+    "signature": [
+      "Aang, Swift Savior",
+      "Aven Interrupter",
+      "Floodpits Drowner",
+      "Lightstall Inquisitor",
+      "High Noon",
+      "Voice of Victory",
+      "Restless Anchorage",
+      "Starting Town"
+    ],
+    "deckIds": [
+      2277
+    ]
+  },
+  {
+    "name": "Simic Landfall",
+    "signature": [
+      "Botanical Sanctum",
+      "Breeding Pool",
+      "Llanowar Elves",
+      "Badgermole Cub",
+      "Ouroboroid",
+      "Molt Tender",
+      "Conduit Pylons",
+      "Winternight Stories"
+    ],
+    "deckIds": [
+      2279
+    ]
+  },
+  {
+    "name": "Izzet Looting",
+    "signature": [
+      "Quantum Riddler",
+      "Thundertrap Trainer",
+      "Stormchaser's Talent",
+      "Torch the Tower",
+      "Boomerang Basics",
+      "Spirebluff Canal",
+      "Riverpyre Verge",
+      "Splash Portal"
+    ],
+    "deckIds": [
+      2271,
+      2273,
+      2287,
+      2289,
+      2294,
+      2301,
+      2305
+    ]
+  },
+  {
+    "name": "Izzet Lessons",
+    "signature": [
+      "Gran-Gran",
+      "Combustion Technique",
+      "Firebending Lesson",
+      "Artist's Talent",
+      "Monument to Endurance",
+      "Stormchaser's Talent",
+      "Riverpyre Verge",
+      "Spirebluff Canal"
+    ],
+    "deckIds": [
+      2259,
+      2270,
+      2275,
+      2286,
+      2304
+    ]
+  },
+  {
+    "name": "Simic Landfall",
+    "signature": [
+      "Blazemire Verge",
+      "Gloomlake Verge",
+      "Quantum Riddler",
+      "Overlord of the Balemurk",
+      "Superior Spider-Man",
+      "Ardyn, the Usurper",
+      "Bringer of the Last Gift",
+      "Fear of Missing Out"
+    ],
+    "deckIds": [
+      2290
+    ]
+  },
+  {
+    "name": "Mono-Red Aggro",
+    "signature": [
+      "Nova Hellkite",
+      "Hired Claw",
+      "Razorkin Needlehead",
+      "Ojer Axonil, Deepest Might",
+      "Burst Lightning",
+      "Lightning Strike",
+      "Scalding Viper",
+      "Riverpyre Verge"
+    ],
+    "deckIds": [
+      2292
+    ]
+  },
+  {
+    "name": "Boros Aggro",
+    "signature": [
+      "Burnout Bashtronaut",
+      "Emberheart Challenger",
+      "Hired Claw",
+      "Nova Hellkite",
+      "Slickshot Show-Off",
+      "Burst Lightning",
+      "Lightning Helix",
+      "Sacred Foundry"
+    ],
+    "deckIds": [
+      2306
+    ]
+  },
+  {
+    "name": "Boros Tokens",
+    "signature": [
+      "Inspiring Vantage",
+      "Sacred Foundry",
+      "Sunbillow Verge",
+      "Torch the Tower",
+      "United Battlefront",
+      "Caretaker's Talent",
+      "Carrot Cake",
+      "Dusk Rose Reliquary"
+    ],
+    "deckIds": [
+      2298
+    ]
+  },
+  {
+    "name": "Selesnya Landfall",
+    "signature": [
+      "Badgermole Cub",
+      "Llanowar Elves",
+      "Ouroboroid",
+      "Keen-Eyed Curator",
+      "Patchwork Beastie",
+      "Wildfire Wickerfolk",
+      "Break Out",
+      "Stomping Ground"
+    ],
+    "deckIds": [
+      2297
+    ]
+  }
+]

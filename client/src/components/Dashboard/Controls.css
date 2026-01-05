@@ -1,0 +1,105 @@
+.dashboard-controls {
+    /* Using global glass utility now via .card class in React */
+    display: flex;
+    gap: var(--space-xl);
+    align-items: center;
+    margin-bottom: var(--space-lg);
+    flex-wrap: wrap;
+    padding: var(--space-lg) !important;
+    /* Override default card padding if needed */
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.control-group label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--color-primary);
+    font-weight: bold;
+    text-shadow: var(--glow-text-primary);
+}
+
+select {
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    min-width: 180px;
+    font-size: 1rem;
+    font-family: var(--font-family-base);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--glow-box-primary);
+}
+
+.btn-group {
+    display: flex;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
+    padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-group button {
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.btn-group button:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-group button.active {
+    background: var(--color-primary);
+    color: #000;
+    font-weight: bold;
+    box-shadow: var(--glow-box-primary);
+}
+
+.radio-options {
+    display: flex;
+    gap: var(--space-lg);
+    align-items: center;
+    height: 100%;
+    padding-top: 0.25rem;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 243, 255, 0.1);
+}
+
+.radio-options label {
+    color: var(--color-text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-transform: none;
+    font-size: 0.95rem;
+    text-shadow: none;
+    /* Reset label shadow for radio text */
+}
+
+input[type="radio"] {
+    accent-color: var(--color-primary);
+    width: 1.2em;
+    height: 1.2em;
+}

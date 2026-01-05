@@ -1,0 +1,157 @@
+:root {
+  /* Theme: Cosmic Regency / High Tech Magic */
+
+  /* Backgrounds */
+  --color-bg-deep: #02010a;
+  /* Deepest Void */
+  --color-bg-glass: rgba(15, 20, 35, 0.6);
+  --color-bg-glass-heavy: rgba(5, 8, 15, 0.9);
+
+  /* Primary Colors - Starlight Gold & Nebula Blue */
+  --color-primary: #ffd700;
+  /* Starlight Gold */
+  --color-primary-dim: #b8860b;
+  --color-primary-glow: rgba(255, 215, 0, 0.5);
+
+  --color-secondary: #4169e1;
+  /* Royal Nebula Blue */
+  --color-secondary-glow: rgba(65, 105, 225, 0.6);
+
+  --color-accent: #9370db;
+  /* Medium Purple */
+  --color-accent-glow: rgba(147, 112, 219, 0.5);
+
+  --color-success: #00ff9d;
+
+  /* Text */
+  --color-text-main: #ffffff;
+  --color-text-muted: #8a9bb8;
+  /* Blue-grey */
+
+  /* Typography */
+  --font-family-base: 'Rajdhani', sans-serif;
+  /* High tech legibility */
+  --font-family-heading: 'Orbitron', serif;
+  /* Futuristic header */
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 3rem;
+
+  /* Effects */
+  --glass-blur: blur(16px);
+  --glass-border: 1px solid rgba(255, 215, 0, 0.15);
+  /* Gold border */
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+
+  --glow-text-primary: 0 0 15px var(--color-primary-glow);
+  --glow-box-primary: 0 0 20px rgba(255, 215, 0, 0.15);
+  --glow-box-secondary: 0 0 20px var(--color-secondary-glow);
+}
+
+body {
+  background-color: var(--color-bg-deep);
+  /* Cosmic Nebula Background */
+  background-image:
+    radial-gradient(circle at 15% 50%, rgba(65, 105, 225, 0.15) 0%, transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(255, 215, 0, 0.05) 0%, transparent 25%),
+    radial-gradient(at 50% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%);
+  background-attachment: fixed;
+  background-size: cover;
+  color: var(--color-text-main);
+  font-family: var(--font-family-base);
+  margin: 0;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-family-heading);
+  color: var(--color-primary);
+  margin-top: 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+a {
+  color: var(--color-secondary);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  text-shadow: 0 0 10px var(--color-secondary);
+  color: #fff;
+}
+
+/* Cosmic Card */
+.card {
+  background: linear-gradient(135deg, rgba(20, 25, 40, 0.4) 0%, rgba(10, 12, 20, 0.6) 100%);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  padding: var(--space-md);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Gold Corner Accents */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 2px;
+  background: var(--color-primary);
+  box-shadow: 0 0 10px var(--color-primary);
+  opacity: 0.5;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 20px;
+  background: var(--color-primary);
+  box-shadow: 0 0 10px var(--color-primary);
+  opacity: 0.5;
+}
+
+.card:hover {
+  border-color: rgba(255, 215, 0, 0.3);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(255, 215, 0, 0.05);
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8));
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary-dim);
+  padding: 0.75rem 2rem;
+  font-family: var(--font-family-heading);
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: rgba(255, 215, 0, 0.1);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+  border-color: var(--color-primary);
+  color: #fff;
+}
