@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
 const { db, initDB } = require('./db'); // Import db and init helper
-require('./services/scraper'); // Initialize scraper
+// require('./services/scraper'); // DISABLE SCRAPER IN VERCEL (Running manually via seed script)
 
 dotenv.config();
 
