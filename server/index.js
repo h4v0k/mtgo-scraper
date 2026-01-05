@@ -113,7 +113,7 @@ app.post('/api/admin/create-user', async (req, res) => {
 
 // Dashboard Data
 // Dashboard Data
-app.get('/api/meta', authenticateToken, async (req, res) => {
+app.get('/api/meta', async (req, res) => {
     const { format, days, top8, events } = req.query; // events is array or string
     const eventList = events ? (Array.isArray(events) ? events : [events]) : null;
 
@@ -166,7 +166,7 @@ app.get('/api/meta', authenticateToken, async (req, res) => {
 
 // Get Decks for an Archetype
 // Get Decks for an Archetype
-app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
+app.get('/api/meta/archetype/:name', async (req, res) => {
     const { name } = req.params;
     const { format, days, top8, events } = req.query;
     const eventList = events ? (Array.isArray(events) ? events : [events]) : null;
@@ -206,7 +206,7 @@ app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
 
 // Get Single Deck with Spice Analysis
 // Get Single Deck with Spice Analysis
-app.get('/api/deck/:id', authenticateToken, async (req, res) => {
+app.get('/api/deck/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -281,7 +281,7 @@ app.get('/api/deck/:id', authenticateToken, async (req, res) => {
 
 // Get Available Events
 // Get Available Events
-app.get('/api/events', authenticateToken, async (req, res) => {
+app.get('/api/events', async (req, res) => {
     const { format, days } = req.query;
 
     // Get unique event names for this format/timeframe

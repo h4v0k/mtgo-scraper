@@ -8,7 +8,6 @@ import { DashboardControls } from './components/Dashboard/Controls'
 import { MetaTable } from './components/Dashboard/MetaTable'
 import { ArchetypeView } from './components/Dashboard/ArchetypeView'
 import { DeckView } from './components/Dashboard/DeckView'
-import { Login } from './components/Login'
 import { fetchMeta } from './services/api'
 import type { MetaData } from './services/api'
 
@@ -36,8 +35,6 @@ function App() {
   };
 
   useEffect(() => {
-    if (!token) return;
-
     // Only fetch meta if we are at the root level
     if (selectedArchetype === null && selectedDeckId === null) {
       async function loadData() {
@@ -47,11 +44,6 @@ function App() {
           setData(result);
         } catch (err) {
           console.error(err);
-          // If 401, logout
-          if (err instanceof Error && err.message === 'Unauthorized') {
-            localStorage.removeItem('spyglass_token');
-            setToken(null);
-          }
           setData([]);
         } finally {
           setLoading(false);
@@ -59,7 +51,7 @@ function App() {
       }
       loadData();
     }
-  }, [format, days, top8, selectedEvents, selectedArchetype, selectedDeckId, token]);
+  }, [format, days, top8, selectedEvents, selectedArchetype, selectedDeckId]);
 
   const renderDashboardContent = () => {
     // 1. Deck View
@@ -108,20 +100,6 @@ function App() {
       </>
     );
   };
-
-  if (!token) {
-    return (
-      <div className="app-container">
-        <header className="app-header">
-          <div className="logo-container">
-            <img src={logo} alt="Havok's Spyglass" className="logo-img" />
-            <div className="logo-text">HAVOK'S SPYGLASS</div>
-          </div>
-        </header>
-        <Login onLogin={handleLogin} />
-      </div>
-    );
-  }
 
   return (
     <div className="app-container">
