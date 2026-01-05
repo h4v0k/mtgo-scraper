@@ -262,6 +262,19 @@ async function scrapeFormat(formatCode, formatName, maxDays) {
 
                         if (extractedArchetype.length < 3) extractedArchetype = 'Unknown';
 
+                        // FILTER: Reject meta-data strings often confused as archetypes
+                        // e.g., "@ Osu (Japan)", "@ Dream Project", or names starting with @
+                        if (extractedArchetype.startsWith('@') || extractedArchetype.includes(' @ ')) {
+                            console.log(`Skipping metadata/location row detected as archetype: ${extractedArchetype}`);
+                            continue; // Skip this deck entirely, it's likely a header or location row
+                        }
+
+                        // Fallback for players/locations showing up as archetypes
+                        if (extractedArchetype.match(/^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i)) {
+                            // Sometimes dates get parsed
+                            continue;
+                        }
+
                         // Resolve/Insert Archetype
                         let archId = null;
                         try {
