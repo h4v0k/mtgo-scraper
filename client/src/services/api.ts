@@ -1,5 +1,7 @@
-// Intelligent API URL: Use Env Var if set -> else localhost (Dev) -> else relative (Prod)
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001/api' : '/api');
+// Intelligent API URL: Runtime detection to be bulletproof
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+// If VITE_API_URL is explicitly set (and not empty), use it. Otherwise adapt to environment.
+const API_URL = import.meta.env.VITE_API_URL || (isLocal ? 'http://localhost:3001/api' : '/api');
 
 export interface DeckSummary {
     id: number;

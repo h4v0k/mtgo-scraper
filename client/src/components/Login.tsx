@@ -15,8 +15,9 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         setError('');
 
         try {
-            // Direct fetch to avoid circular dependency
-            const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001/api' : '/api');
+            // Runtime detection
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const API_URL = import.meta.env.VITE_API_URL || (isLocal ? 'http://localhost:3001/api' : '/api');
             const response = await fetch(`${API_URL}/login`, {
                 method: 'POST',
                 headers: {
