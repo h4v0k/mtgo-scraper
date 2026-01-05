@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// Intelligent API URL: Use Env Var if set -> else localhost (Dev) -> else relative (Prod)
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001/api' : '/api');
 
 export interface DeckSummary {
     id: number;
