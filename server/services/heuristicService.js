@@ -174,6 +174,23 @@ const RULES = [
     {
         target: 'Reanimator (Superior Spiderman)',
         required: ['Superior Spider-Man', 'Awaken the Honored Dead']
+    },
+    // Fix for Allies being misclassified as Landfall
+    {
+        target: 'Naya Allies',
+        required: ['Hada Freeblade', 'Kazandu Blademaster']
+    },
+    {
+        target: 'Naya Allies',
+        required: ['Hada Freeblade', 'Oran-Rief Survivalist']
+    },
+    {
+        target: 'Naya Allies',
+        required: ['Akoum Battlesinger', 'Hada Freeblade']
+    },
+    {
+        target: 'Naya Allies',
+        required: ['Kabira Evangel', 'Hada Freeblade']
     }
 ];
 
