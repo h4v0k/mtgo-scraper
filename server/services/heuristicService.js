@@ -151,15 +151,15 @@ const RULES = [
         required: ['Earthbender Ascension']
     },
     {
-        target: 'Izzet Otters',
+        target: 'Izzet Looting',
         required: ['Thundertrap Trainer', 'Stormchaser\'s Talent']
     },
     {
-        target: 'Izzet Otters',
+        target: 'Izzet Looting',
         required: ['Quantum Riddler', 'Spirebluff Canal']
     },
     {
-        target: 'Simic Quantum',
+        target: 'Simic Ouroboroid',
         required: ['Quantum Riddler', 'Llanowar Elves']
     },
     {
