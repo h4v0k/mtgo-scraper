@@ -260,8 +260,9 @@ app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
             processList(d.sideboard);
         });
 
-        // Dynamic Spice Threshold: Max 3 or 5% of decks
-        const frequencyThreshold = Math.max(3, Math.ceil(totalDecks * 0.05));
+        // Dynamic Spice Threshold: Max 1 or 15% of decks (Strict)
+        // For N=6, threshold=1 (Unique only). For N=20, threshold=3.
+        const frequencyThreshold = Math.max(1, Math.floor(totalDecks * 0.15));
 
         // Calculate Score per Deck
         const processedDecks = decks.map(deck => {
