@@ -1,78 +1,63 @@
-import React, { useState } from 'react';
+
+import { useState } from 'react';
+import { login } from '../services/api';
 import './Login.css';
 
 interface LoginProps {
-    onLogin: (token: string) => void;
+    onLoginSuccess: (token: string, username: string) => void;
 }
 
-export const Login: React.FC<LoginProps> = ({ onLogin }) => {
+export function Login({ onLoginSuccess }: LoginProps) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true);
         setError('');
 
         try {
-            // Runtime detection
-            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const API_URL = import.meta.env.VITE_API_URL || (isLocal ? 'http://localhost:3001/api' : '/api');
-            const response = await fetch(`${API_URL}/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                onLogin(data.token);
-            } else {
-                const errData = await response.json();
-                setError(errData.message || 'Login failed');
-            }
-        } catch (error) {
-            console.error("Login Exception:", error);
-            setError('Connection Error: ' + (error instanceof Error ? error.message : String(error)));
+            const data = await login(username, password);
+            onLoginSuccess(data.token, data.username);
+        } catch (err) {
+            setError('Invalid credentials');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <div className="login-container">
-            <div className="login-card card">
-                <h2>Spyglass Access</h2>
-                {error && <div className="error-msg">{error}</div>}
+            <div className="login-card">
+                <h2>Havok's Spyglass</h2>
+                <h3>Restricted Access</h3>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label>Codename</label>
+                        <label>Username</label>
                         <input
                             type="text"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            placeholder="Enter username"
+                            disabled={loading}
                         />
                     </div>
                     <div className="form-group">
-                        <label>Passphrase</label>
+                        <label>Password</label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Enter password"
+                            disabled={loading}
                         />
                     </div>
-                    <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
-                        Access Spyglass
+                    {error && <div className="error-message">{error}</div>}
+                    <button type="submit" disabled={loading}>
+                        {loading ? 'Accessing...' : 'Enter System'}
                     </button>
-                    <div className="debug-info" style={{ marginTop: '20px', fontSize: '0.8rem', color: '#666', textAlign: 'center' }}>
-                        <p>Hostname: {window.location.hostname}</p>
-                        <p>Target API: {import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3001/api' : '/api')}</p>
-                        <p>Is Local: {String(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')}</p>
-                    </div>
                 </form>
             </div>
         </div>
     );
-};
+}

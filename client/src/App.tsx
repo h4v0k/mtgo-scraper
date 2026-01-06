@@ -8,11 +8,16 @@ import { DashboardControls } from './components/Dashboard/Controls'
 import { MetaTable } from './components/Dashboard/MetaTable'
 import { ArchetypeView } from './components/Dashboard/ArchetypeView'
 import { DeckView } from './components/Dashboard/DeckView'
+import { Login } from './components/Login'
+import { AdminPanel } from './components/Admin/AdminPanel'
 import { fetchMeta } from './services/api'
 import type { MetaData } from './services/api'
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'meta' | 'analytics'>('meta');
+  const [token, setToken] = useState<string | null>(localStorage.getItem('spyglass_token'));
+  const [username, setUsername] = useState<string | null>(localStorage.getItem('spyglass_username'));
+
+  const [activeTab, setActiveTab] = useState<'meta' | 'analytics' | 'admin'>('meta');
 
   // Dashboard State
   const [format, setFormat] = useState('Standard');
@@ -29,8 +34,24 @@ function App() {
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
 
   useEffect(() => {
-    // Only fetch meta if we are at the root level
-    if (selectedArchetype === null && selectedDeckId === null) {
+    if (token) {
+      localStorage.setItem('spyglass_token', token);
+    } else {
+      localStorage.removeItem('spyglass_token');
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (username) {
+      localStorage.setItem('spyglass_username', username);
+    } else {
+      localStorage.removeItem('spyglass_username');
+    }
+  }, [username]);
+
+  useEffect(() => {
+    // Only fetch meta if we are at the root level and logged in
+    if (token && selectedArchetype === null && selectedDeckId === null && activeTab === 'meta') {
       async function loadData() {
         setLoading(true);
         try {
@@ -39,13 +60,27 @@ function App() {
         } catch (err) {
           console.error(err);
           setData([]);
+          if ((err as Error).message === 'Unauthorized') {
+            setToken(null);
+          }
         } finally {
           setLoading(false);
         }
       }
       loadData();
     }
-  }, [format, days, top8, selectedEvents, selectedArchetype, selectedDeckId]);
+  }, [format, days, top8, selectedEvents, selectedArchetype, selectedDeckId, token, activeTab]);
+
+  const handleLoginSuccess = (newToken: string, newUsername: string) => {
+    setToken(newToken);
+    setUsername(newUsername);
+  };
+
+  const handleLogout = () => {
+    setToken(null);
+    setUsername(null);
+    setActiveTab('meta');
+  };
 
   const renderDashboardContent = () => {
     // 1. Deck View
@@ -95,6 +130,10 @@ function App() {
     );
   };
 
+  if (!token) {
+    return <Login onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
     <div className="app-container">
       <header className="app-header">
@@ -118,6 +157,15 @@ function App() {
           >
             Advanced Analytics
           </button>
+          <button
+            className={activeTab === 'admin' ? 'active' : ''}
+            onClick={() => setActiveTab('admin')}
+          >
+            Admin
+          </button>
+          <button onClick={handleLogout} className="logout-btn">
+            Logout ({username})
+          </button>
         </nav>
       </header>
 
@@ -126,6 +174,8 @@ function App() {
           <div className="dashboard-view">
             {renderDashboardContent()}
           </div>
+        ) : activeTab === 'admin' ? (
+          <AdminPanel />
         ) : (
           <div className="analytics-view">
             <h1>Advanced Analytics</h1>

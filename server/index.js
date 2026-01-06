@@ -111,10 +111,38 @@ app.post('/api/admin/create-user', async (req, res) => {
     }
 });
 
+// Protected: Create User (For Admin Dashboard)
+app.post('/api/users', authenticateToken, async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ message: 'Username and password required' });
+    }
+
+    try {
+        const hash = bcrypt.hashSync(password, 10);
+        const result = await db.execute({
+            sql: 'INSERT INTO users (username, password_hash) VALUES (?, ?)',
+            args: [username, hash]
+        });
+        res.json({ id: result.lastInsertRowid.toString(), username });
+    } catch (err) {
+        if (err.message.includes('UNIQUE constraint failed')) {
+            return res.status(400).json({ message: 'Username already exists' });
+        }
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Dashboard Data
 // Dashboard Data
-app.get('/api/meta', async (req, res) => {
-    const { format, days, top8, events } = req.query; // events is array or string
+app.get('/api/meta', authenticateToken, async (req, res) => {
+    let { format, days, top8, events } = req.query; // events is array or string
+
+    // Defaults
+    if (!days) days = '7';
+    if (!format) format = 'Standard';
+
     const eventList = events ? (Array.isArray(events) ? events : [events]) : null;
 
     // Calculate date threshold
@@ -166,9 +194,14 @@ app.get('/api/meta', async (req, res) => {
 
 // Get Decks for an Archetype
 // Get Decks for an Archetype
-app.get('/api/meta/archetype/:name', async (req, res) => {
+app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
     const { name } = req.params;
-    const { format, days, top8, events } = req.query;
+    let { format, days, top8, events } = req.query;
+
+    // Defaults
+    if (!days) days = '7';
+    if (!format) format = 'Standard';
+
     const eventList = events ? (Array.isArray(events) ? events : [events]) : null;
 
     let query = `
@@ -206,7 +239,7 @@ app.get('/api/meta/archetype/:name', async (req, res) => {
 
 // Get Single Deck with Spice Analysis
 // Get Single Deck with Spice Analysis
-app.get('/api/deck/:id', async (req, res) => {
+app.get('/api/deck/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -281,8 +314,12 @@ app.get('/api/deck/:id', async (req, res) => {
 
 // Get Available Events
 // Get Available Events
-app.get('/api/events', async (req, res) => {
-    const { format, days } = req.query;
+app.get('/api/events', authenticateToken, async (req, res) => {
+    let { format, days } = req.query;
+
+    // Defaults
+    if (!days) days = '7';
+    if (!format) format = 'Standard';
 
     // Get unique event names for this format/timeframe
     const query = `
