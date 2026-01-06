@@ -191,6 +191,28 @@ const RULES = [
     {
         target: 'Naya Allies',
         required: ['Kabira Evangel', 'Hada Freeblade']
+    },
+    // Standard Updates
+    {
+        target: 'Izzet Lessons',
+        required: ['Firebending Lesson']
+    },
+    {
+        target: 'Izzet Looting',
+        required: ['Inti, Seneschal of the Sun', 'Professional Face-Breaker']
+    },
+    {
+        target: 'GX Landfall',
+        required: ['Earthbender Ascension']
+    },
+    {
+        target: 'Simic Ouroboroid',
+        required: ['Ouroboros Tainted', 'Ouroboros, the Infinite']
+    },
+    {
+        // Fallback for Simic Landfall -> Simic Ouroboroid if specific card missing but clearly Simic Landfall
+        target: 'Simic Ouroboroid',
+        required: ['Tatyova, Benthic Druid', 'Growth Spiral']
     }
 ];
 
@@ -262,9 +284,31 @@ async function runHeuristicNormalization() {
     // Iterate sequentially
     for (const deck of decks) {
         const list = deck.raw_decklist || '';
-        const fmtSigs = signatures[deck.format];
+        // 1. Apply Rules (PRIORITY: Rules override AI)
+        let ruleApplied = false;
+        for (const rule of RULES) {
+            const match = rule.required.every(card => list.includes(card));
 
-        // If we have AI signatures for this format, use them preferentially
+            if (match) {
+                try {
+                    const targetId = await getArchId(rule.target, deck.format);
+
+                    if (deck.archetype_id !== targetId) {
+                        await db.execute({
+                            sql: 'UPDATE decks SET archetype_id = ? WHERE id = ?',
+                            args: [targetId, deck.id]
+                        });
+                        batchMoved++;
+                    }
+                    ruleApplied = true;
+                } catch (e) { console.error(e); }
+                break; // Stop after first matching rule
+            }
+        }
+        if (ruleApplied) continue;
+
+        // 2. If no rule matched, check AI signatures
+        const fmtSigs = signatures[deck.format];
         if (fmtSigs && fmtSigs.length > 0) {
             let bestMatch = null;
             let maxScore = 0;
@@ -295,26 +339,6 @@ async function runHeuristicNormalization() {
                     }
                 } catch (e) { console.error(e); }
                 continue;
-            }
-        }
-
-        // Apply Rules
-        for (const rule of RULES) {
-            const match = rule.required.every(card => list.includes(card));
-
-            if (match) {
-                try {
-                    const targetId = await getArchId(rule.target, deck.format);
-
-                    if (deck.archetype_id !== targetId) {
-                        await db.execute({
-                            sql: 'UPDATE decks SET archetype_id = ? WHERE id = ?',
-                            args: [targetId, deck.id]
-                        });
-                        batchMoved++;
-                    }
-                } catch (e) { console.error(e); }
-                break;
             }
         }
     }
