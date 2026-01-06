@@ -55,7 +55,15 @@ export const ArchetypeView: React.FC<ArchetypeViewProps> = ({
                         <tbody>
                             {decks.map(deck => (
                                 <tr key={deck.id} onClick={() => onSelectDeck(deck.id)}>
-                                    <td style={{ fontWeight: 'bold', color: 'var(--color-primary-gold)' }}>{deck.player_name}</td>
+                                    <td style={{ fontWeight: 'bold', color: 'var(--color-primary-gold)' }}>
+                                        {deck.player_name}
+                                        {deck.spice_count > 0 && (
+                                            <span
+                                                className="spice-indicator"
+                                                title={`Contains ${deck.spice_count} spicy (non-meta) cards`}
+                                            />
+                                        )}
+                                    </td>
                                     <td>{deck.event_name || 'League/Challenge'}</td>
                                     <td>{new Date(deck.event_date).toLocaleDateString()}</td>
                                     <td>{deck.rank ? getOrdinal(deck.rank) : '-'}</td>

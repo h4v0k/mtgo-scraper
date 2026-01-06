@@ -9,6 +9,7 @@ export interface DeckSummary {
     event_name: string;
     event_date: string;
     rank: number;
+    spice_count: number;
 }
 
 export interface Card {

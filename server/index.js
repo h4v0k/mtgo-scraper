@@ -205,7 +205,7 @@ app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
     const eventList = events ? (Array.isArray(events) ? events : [events]) : null;
 
     let query = `
-        SELECT d.id, d.player_name, d.event_name, d.event_date, d.rank
+        SELECT d.id, d.player_name, d.event_name, d.event_date, d.rank, d.raw_decklist, d.sideboard
         FROM decks d
         JOIN archetypes a ON d.archetype_id = a.id
         WHERE a.name = ? AND d.format = ?
@@ -231,7 +231,61 @@ app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
             sql: query,
             args: params
         });
-        res.json(result.rows);
+
+        const decks = result.rows;
+
+        // Spice Calculation
+        const cardCounts = {};
+        const totalDecks = decks.length;
+
+        const processList = (list) => {
+            if (!list) return;
+            const lines = list.split('\n');
+            lines.forEach(line => {
+                const parts = line.trim().split(' ');
+                const count = parseInt(parts[0]);
+                if (!isNaN(count)) {
+                    const cardName = parts.slice(1).join(' ');
+                    cardCounts[cardName] = (cardCounts[cardName] || 0) + 1;
+                }
+            });
+        };
+
+        // Build Frequency Map
+        decks.forEach(d => {
+            processList(d.raw_decklist);
+            processList(d.sideboard);
+        });
+
+        // Calculate Score per Deck
+        const processedDecks = decks.map(deck => {
+            let spiceCount = 0;
+            const checkSpice = (list) => {
+                if (!list) return;
+                list.split('\n').forEach(line => {
+                    const parts = line.trim().split(' ');
+                    if (parseInt(parts[0])) {
+                        const cardName = parts.slice(1).join(' ');
+                        const freq = (cardCounts[cardName] || 0) / (totalDecks || 1);
+                        if (freq < 0.20 && totalDecks > 5) spiceCount++;
+                    }
+                });
+            };
+            checkSpice(deck.raw_decklist);
+            checkSpice(deck.sideboard);
+
+            // Return summary without heavy text fields
+            return {
+                id: deck.id,
+                player_name: deck.player_name,
+                event_name: deck.event_name,
+                event_date: deck.event_date,
+                rank: deck.rank,
+                spice_count: spiceCount
+            };
+        });
+
+        res.json(processedDecks);
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
