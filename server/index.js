@@ -235,6 +235,7 @@ app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
         const decks = result.rows;
 
         // Spice Calculation
+        const LANDS = new Set(require('./constants/lands'));
         const cardCounts = {};
         const totalDecks = decks.length;
 
@@ -246,7 +247,9 @@ app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
                 const count = parseInt(parts[0]);
                 if (!isNaN(count)) {
                     const cardName = parts.slice(1).join(' ');
-                    cardCounts[cardName] = (cardCounts[cardName] || 0) + 1;
+                    if (!LANDS.has(cardName) && !cardName.includes('Verge') && !cardName.includes('Land')) {
+                        cardCounts[cardName] = (cardCounts[cardName] || 0) + 1;
+                    }
                 }
             });
         };
@@ -257,6 +260,9 @@ app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
             processList(d.sideboard);
         });
 
+        // Dynamic Spice Threshold: Max 3 or 5% of decks
+        const frequencyThreshold = Math.max(3, Math.ceil(totalDecks * 0.05));
+
         // Calculate Score per Deck
         const processedDecks = decks.map(deck => {
             let spiceCount = 0;
@@ -266,8 +272,10 @@ app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
                     const parts = line.trim().split(' ');
                     if (parseInt(parts[0])) {
                         const cardName = parts.slice(1).join(' ');
-                        const freq = (cardCounts[cardName] || 0) / (totalDecks || 1);
-                        if (freq < 0.20 && totalDecks > 5) spiceCount++;
+                        const deckCount = cardCounts[cardName] || 0;
+                        if (deckCount > 0 && deckCount <= frequencyThreshold && !LANDS.has(cardName) && !cardName.includes('Verge') && !cardName.includes('Land')) {
+                            spiceCount++;
+                        }
                     }
                 });
             };
