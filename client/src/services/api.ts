@@ -27,6 +27,7 @@ export interface DeckDetail {
     raw_decklist: string;
     cards: Card[];
     sideboard?: Card[];
+    spice_cards?: string[];
 }
 
 export interface MetaData {
@@ -130,5 +131,31 @@ export async function fetchDeck(id: number): Promise<DeckDetail> {
         }
     });
     if (!response.ok) throw new Error('Failed to fetch deck');
-    return response.json();
+    const data = await response.json();
+
+    // Parse the lists locally using spice_cards info
+    const parse = (list: string, spice: string[] = []) => {
+        if (!list) return [];
+        return list.split('\n')
+            .map(l => l.trim())
+            .filter(l => l)
+            .map(l => {
+                const parts = l.split(' ');
+                const count = parseInt(parts[0]);
+                const name = parts.slice(1).join(' ');
+                return {
+                    count: isNaN(count) ? 0 : count,
+                    name,
+                    isSpice: spice.includes(name),
+                    frequency: 0 // Not needed for display
+                };
+            })
+            .filter(c => c.count > 0);
+    };
+
+    return {
+        ...data,
+        cards: parse(data.raw_decklist, data.spice_cards),
+        sideboard: parse(data.sideboard, data.spice_cards)
+    };
 }

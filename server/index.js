@@ -301,79 +301,82 @@ app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
 });
 
 // Get Single Deck with Spice Analysis
-// Get Single Deck with Spice Analysis
 app.get('/api/deck/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
 
     try {
         const deckRes = await db.execute({
-            sql: 'SELECT * FROM decks WHERE id = ?',
+            sql: `SELECT d.*, a.name as archetype_name, a.id as archetype_id 
+                  FROM decks d 
+                  LEFT JOIN archetypes a ON d.archetype_id = a.id 
+                  WHERE d.id = ?`,
             args: [id]
         });
         const deck = deckRes.rows[0];
 
         if (!deck) return res.status(404).json({ message: 'Deck not found' });
 
-        const archetypeId = deck.archetype_id;
-        const otherDecksRes = await db.execute({
-            sql: `
-            SELECT raw_decklist, sideboard FROM decks 
-            WHERE archetype_id = ? AND id != ? 
-            AND event_date >= date('now', '-30 days')
-            `,
-            args: [archetypeId, id]
+        // Get context for spice
+        const contextRes = await db.execute({
+            sql: `SELECT raw_decklist, sideboard FROM decks 
+                  WHERE archetype_id = ? 
+                  AND event_date >= date('now', '-30 days')`,
+            args: [deck.archetype_id]
         });
-        const otherDecks = otherDecksRes.rows;
+        const contextDecks = contextRes.rows;
 
+        // Build Freq Map
+        const LANDS = new Set(require('./constants/lands'));
         const cardCounts = {};
-        let totalDecks = otherDecks.length;
+        const total = contextDecks.length;
 
         const processList = (list) => {
             if (!list) return;
-            const lines = list.split('\n');
-            lines.forEach(line => {
+            list.split('\n').forEach(line => {
                 const parts = line.trim().split(' ');
                 const count = parseInt(parts[0]);
                 if (!isNaN(count)) {
                     const cardName = parts.slice(1).join(' ');
-                    cardCounts[cardName] = (cardCounts[cardName] || 0) + 1;
+                    if (!LANDS.has(cardName) && !cardName.includes('Verge') && !cardName.includes('Land')) {
+                        cardCounts[cardName] = (cardCounts[cardName] || 0) + 1;
+                    }
                 }
             });
         };
 
-        otherDecks.forEach(row => {
-            processList(row.raw_decklist);
-            processList(row.sideboard);
+        contextDecks.forEach(d => {
+            processList(d.raw_decklist);
+            processList(d.sideboard);
         });
 
-        const analyzeList = (list) => {
-            if (!list) return [];
-            return list.split('\n').map(line => {
+        // Identify Spice Cards (Strict Logic)
+        const spiceCards = [];
+        const threshold = Math.max(1, Math.floor(total * 0.15));
+
+        const checkSpice = (list) => {
+            if (!list) return;
+            list.split('\n').forEach(line => {
                 const parts = line.trim().split(' ');
-                const count = parseInt(parts[0]);
-                if (!isNaN(count)) {
+                if (parseInt(parts[0])) {
                     const cardName = parts.slice(1).join(' ');
-                    const frequency = (cardCounts[cardName] || 0) / (totalDecks || 1);
-                    const isSpice = frequency < 0.20 && totalDecks > 5;
-                    return { count, name: cardName, isSpice, frequency };
+                    const count = cardCounts[cardName] || 0;
+                    if (count > 0 && count <= threshold && !LANDS.has(cardName) && !cardName.includes('Verge') && !cardName.includes('Land')) {
+                        if (!spiceCards.includes(cardName)) spiceCards.push(cardName);
+                    }
                 }
-                return null;
-            }).filter(Boolean);
+            });
         };
 
-        const mainCards = analyzeList(deck.raw_decklist);
-        const sideCards = analyzeList(deck.sideboard);
+        checkSpice(deck.raw_decklist);
+        checkSpice(deck.sideboard);
 
-        res.json({
-            ...deck,
-            cards: mainCards,
-            sideboard: sideCards
-        });
+        res.json({ ...deck, spice_cards: spiceCards });
     } catch (e) {
         console.error(e);
-        res.status(500).json({ error: 'DB Error' });
+        res.status(500).json({ error: e.message });
     }
 });
+
 
 // Get Available Events
 // Get Available Events
