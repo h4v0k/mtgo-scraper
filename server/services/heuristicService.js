@@ -30,7 +30,7 @@ const signatures = loadSignatures();
 // We keep the RULES array for manual overrides if needed, but prioritize signatures.
 const RULES = [
     {
-        target: 'Gruul Aggro',
+        target: 'Gruul Ouroboroid',
         required: ['Ouroboroid', 'Stomping Ground']
     },
     {
