@@ -192,6 +192,15 @@ const RULES = [
         target: 'Naya Allies',
         required: ['Kabira Evangel', 'Hada Freeblade']
     },
+    // Modern Allies (New Set)
+    {
+        target: 'Naya Allies',
+        required: ['Earthen Ally', 'Allies at Last']
+    },
+    {
+        target: 'Naya Allies',
+        required: ['South Pole Voyager', 'Earthen Ally']
+    },
     // Standard Updates
     {
         target: 'Izzet Lessons',
