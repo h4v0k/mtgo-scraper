@@ -222,6 +222,10 @@ const RULES = [
         // Fallback for Simic Landfall -> Simic Ouroboroid if specific card missing but clearly Simic Landfall
         target: 'Simic Ouroboroid',
         required: ['Tatyova, Benthic Druid', 'Growth Spiral']
+    },
+    {
+        target: 'Simic Ouroboroid',
+        required: ['Ouroboroid']
     }
 ];
 
