@@ -163,7 +163,7 @@ const RULES = [
         required: ['Quantum Riddler', 'Spirebluff Canal']
     },
     {
-        target: 'Simic Ouroboroid',
+        target: 'GX Ouroboroid',
         required: ['Quantum Riddler', 'Llanowar Elves']
     },
     {
