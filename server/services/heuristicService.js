@@ -219,6 +219,10 @@ const RULES = [
         required: ['Earthbender Ascension']
     },
     {
+        target: 'Kona Combo',
+        required: ['Kona, Rescue Beastie', 'Breeding Pool']
+    },
+    {
         target: 'GX Ouroboroid',
         required: ['Ouroboros Tainted', 'Ouroboros, the Infinite']
     },
