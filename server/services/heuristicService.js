@@ -30,7 +30,7 @@ const signatures = loadSignatures();
 // We keep the RULES array for manual overrides if needed, but prioritize signatures.
 const RULES = [
     {
-        target: 'Gruul Ouroboroid',
+        target: 'GX Ouroboroid',
         required: ['Ouroboroid', 'Stomping Ground']
     },
     {
@@ -219,21 +219,17 @@ const RULES = [
         required: ['Earthbender Ascension']
     },
     {
-        target: 'Simic Ouroboroid',
+        target: 'GX Ouroboroid',
         required: ['Ouroboros Tainted', 'Ouroboros, the Infinite']
     },
     {
-        // Fallback for Simic Landfall -> Simic Ouroboroid if specific card missing but clearly Simic Landfall
-        target: 'Simic Ouroboroid',
+        // Fallback for Simic Landfall -> GX Ouroboroid if specific card missing but clearly Simic Landfall
+        target: 'GX Ouroboroid',
         required: ['Tatyova, Benthic Druid', 'Growth Spiral']
     },
     {
-        target: 'Simic Ouroboroid',
-        required: ['Ouroboroid', 'Breeding Pool']
-    },
-    {
-        target: 'Gruul Aggro',
-        required: ['Ouroboroid', 'Stomping Ground']
+        target: 'GX Ouroboroid',
+        required: ['Ouroboroid']
     }
 ];
 
