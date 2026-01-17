@@ -139,7 +139,17 @@ async function scrapeFormat(formatCode, formatName, maxDays) {
                         return;
                     }
 
-                    if (href && (text.includes('Challenge') || text.includes('League') || text.includes('Qualifier') || text.includes('Championship'))) {
+                    if (href && (
+                        text.includes('Challenge') ||
+                        text.includes('League') ||
+                        text.includes('Qualifier') ||
+                        text.includes('Championship') ||
+                        text.includes('Showcase') ||
+                        text.includes('Spotlight') ||
+                        text.includes('SCG') ||
+                        text.includes('RCQ') ||
+                        text.includes('Open')
+                    )) {
                         events.push({
                             text: text.trim(),
                             href: BASE_URL + '/' + href,
@@ -258,21 +268,36 @@ async function scrapeFormat(formatCode, formatName, maxDays) {
                             .replace(/MTGO?\s+(League|Challenge|Preliminary|Qualifier|Showcase)( \d+)?/gi, '')
                             .replace(new RegExp(`${formatName}\\s+`, 'gi'), '')
                             .replace(/#\d+/, '')
+                            .replace(/\s*@\s*.*$/, '')
                             .trim();
 
                         if (extractedArchetype.length < 3) extractedArchetype = 'Unknown';
 
-                        // FILTER: Reject meta-data strings often confused as archetypes
-                        // e.g., "@ Osu (Japan)", "@ Dream Project", or names starting with @
-                        if (extractedArchetype.startsWith('@') || extractedArchetype.includes(' @ ')) {
-                            console.log(`Skipping metadata/location row detected as archetype: ${extractedArchetype}`);
-                            continue; // Skip this deck entirely, it's likely a header or location row
-                        }
+                        // Extract Cards
+                        const mainDeck = [];
+                        const sideboard = [];
+                        let sbMode = false;
+                        $d('div').each((i, el) => {
+                            const txt = $d(el).text().trim();
+                            const cls = $d(el).attr('class') || '';
+                            if (cls.includes('O14') && txt === 'SIDEBOARD') sbMode = true;
+                            if (cls.includes('deck_line')) {
+                                if (sbMode) sideboard.push(txt);
+                                else mainDeck.push(txt);
+                            }
+                        });
 
-                        // Fallback for players/locations showing up as archetypes
+                        const deckText = mainDeck.join('\n');
+                        const sideboardText = sideboard.join('\n');
+                        if (deckText.length < 10) continue;
+
+                        // FILTER: Check bad archetype names
+                        if (extractedArchetype.startsWith('@') || extractedArchetype.includes(' @ ')) {
+                            console.log(`Renaming metadata-like archetype to Unknown: ${extractedArchetype}`);
+                            extractedArchetype = 'Unknown';
+                        }
                         if (extractedArchetype.match(/^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i)) {
-                            // Sometimes dates get parsed
-                            continue;
+                            extractedArchetype = 'Unknown';
                         }
 
                         // Resolve/Insert Archetype
@@ -302,24 +327,6 @@ async function scrapeFormat(formatCode, formatName, maxDays) {
                                 archId = unk.rows[0].id;
                             } catch (e2) { }
                         }
-
-                        // Extract Cards
-                        const mainDeck = [];
-                        const sideboard = [];
-                        let sbMode = false;
-                        $d('div').each((i, el) => {
-                            const txt = $d(el).text().trim();
-                            const cls = $d(el).attr('class') || '';
-                            if (cls.includes('O14') && txt === 'SIDEBOARD') sbMode = true;
-                            if (cls.includes('deck_line')) {
-                                if (sbMode) sideboard.push(txt);
-                                else mainDeck.push(txt);
-                            }
-                        });
-
-                        const deckText = mainDeck.join('\n');
-                        const sideboardText = sideboard.join('\n');
-                        if (deckText.length < 10) continue;
 
                         // Check Deck Duplicate
                         const dupCheck = await db.execute({
