@@ -234,6 +234,22 @@ const RULES = [
     {
         target: 'GX Ouroboroid',
         required: ['Ouroboroid']
+    },
+    {
+        target: 'Naya Yuna Enchantments',
+        required: ['Yuna, Hope of Spira']
+    },
+    {
+        target: 'Naya Yuna Enchantments',
+        required: ['Yuna, Hope of Spira', 'Sacred Foundry']
+    },
+    {
+        target: 'Jeskai Artifacts',
+        required: ['Simulacrum Synthesizer', 'No More Lies']
+    },
+    {
+        target: 'Jeskai Artifacts',
+        required: ['Simulacrum Synthesizer', 'Island']
     }
 ];
 
