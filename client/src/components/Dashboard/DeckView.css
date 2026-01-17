@@ -90,6 +90,16 @@
 .card-name {
     flex: 1;
     font-size: 1rem;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.card-name:hover {
+    color: var(--color-primary);
+    text-shadow: 0 0 5px var(--color-primary-dim);
+    transform: translateX(2px);
 }
 
 /* Spice Styling - High Tech Holographic look */
@@ -117,6 +127,11 @@
     font-weight: bold;
     text-shadow: 0 0 8px rgba(255, 0, 255, 0.6);
     letter-spacing: 1px;
+}
+
+.spice-card .card-name:hover {
+    color: #fff;
+    text-shadow: 0 0 15px var(--color-accent);
 }
 
 .spice-badge {

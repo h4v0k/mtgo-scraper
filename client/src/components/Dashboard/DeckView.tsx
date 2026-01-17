@@ -50,7 +50,14 @@ export const DeckView: React.FC<DeckViewProps> = ({ deckId, onBack }) => {
                                 title={card.isSpice ? 'Spice: Low frequency card in this archetype!' : ''}
                             >
                                 <span className="card-count">{card.count}</span>
-                                <span className="card-name">{card.name}</span>
+                                <a
+                                    href={`https://scryfall.com/search?q=${encodeURIComponent(card.name)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="card-name"
+                                >
+                                    {card.name}
+                                </a>
                                 {card.isSpice && <span className="spice-badge">✦ SPICE</span>}
                             </div>
                         ))}
@@ -68,7 +75,14 @@ export const DeckView: React.FC<DeckViewProps> = ({ deckId, onBack }) => {
                                     title={card.isSpice ? 'Spice: Low frequency card in this archetype!' : ''}
                                 >
                                     <span className="card-count">{card.count}</span>
-                                    <span className="card-name">{card.name}</span>
+                                    <a
+                                        href={`https://scryfall.com/search?q=${encodeURIComponent(card.name)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="card-name"
+                                    >
+                                        {card.name}
+                                    </a>
                                     {card.isSpice && <span className="spice-badge">✦ SPICE</span>}
                                 </div>
                             ))}
