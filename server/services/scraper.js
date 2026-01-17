@@ -296,6 +296,10 @@ async function scrapeFormat(formatCode, formatName, maxDays) {
                             console.log(`Renaming metadata-like archetype to Unknown: ${extractedArchetype}`);
                             extractedArchetype = 'Unknown';
                         }
+                        if (extractedArchetype.includes('Destination Qualifier') || extractedArchetype === 'RCQ') {
+                            console.log(`Renaming event-like archetype to Unknown: ${extractedArchetype}`);
+                            extractedArchetype = 'Unknown';
+                        }
                         if (extractedArchetype.match(/^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i)) {
                             extractedArchetype = 'Unknown';
                         }
