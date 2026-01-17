@@ -47,6 +47,15 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// --- Admin Middleware ---
+const requireAdmin = (req, res, next) => {
+    if (req.user && req.user.username === 'havok') {
+        next();
+    } else {
+        res.status(403).json({ message: 'Admin access required' });
+    }
+};
+
 // --- Routes ---
 
 // Login
@@ -111,8 +120,18 @@ app.post('/api/admin/create-user', async (req, res) => {
     }
 });
 
-// Protected: Create User (For Admin Dashboard)
-app.post('/api/users', authenticateToken, async (req, res) => {
+// Protected: List Users (Admin Only)
+app.get('/api/users', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const result = await db.execute("SELECT id, username, created_at FROM users WHERE username != 'havok' ORDER BY created_at DESC");
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Protected: Create User (Admin Only)
+app.post('/api/users', authenticateToken, requireAdmin, async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
@@ -130,6 +149,20 @@ app.post('/api/users', authenticateToken, async (req, res) => {
         if (err.message.includes('UNIQUE constraint failed')) {
             return res.status(400).json({ message: 'Username already exists' });
         }
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Protected: Delete User (Admin Only)
+app.delete('/api/users/:id', authenticateToken, requireAdmin, async (req, res) => {
+    const { id } = req.params;
+    try {
+        await db.execute({
+            sql: 'DELETE FROM users WHERE id = ?',
+            args: [id]
+        });
+        res.json({ message: 'User deleted' });
+    } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
