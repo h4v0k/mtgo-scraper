@@ -33,11 +33,22 @@ async function runNormalizationJob() {
             const mapping = await normalizeArchetypeNames(chunk, format);
 
             // 3. Apply updates
-            // 3. Apply updates
-            // Transaction removed for HTTP compatibility
+            const PROTECTED_NAMES = [
+                'GX Ouroboroid',
+                'Naya Yuna Enchantments',
+                'Jeskai Artifacts',
+                'Superior Reanimator',
+                'Izzet Lessons',
+                'Naya Allies'
+            ];
+
             for (const [oldName, newName] of Object.entries(mapping)) {
                 if (oldName === newName) continue;
                 if (!newName || newName === 'Unknown') continue;
+                if (PROTECTED_NAMES.includes(oldName)) {
+                    console.log(`Skipping protected archetype: ${oldName}`);
+                    continue;
+                }
 
                 console.log(`[${format}] Normalizing: "${oldName}" -> "${newName}"`);
 
