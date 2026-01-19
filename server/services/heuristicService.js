@@ -150,10 +150,7 @@ const RULES = [
         target: 'Izzet Lessons',
         required: ['Firebending Lesson']
     },
-    {
-        target: 'Selesnya Landfall',
-        required: ['Earthbender Ascension']
-    },
+
     {
         target: 'Izzet Looting',
         required: ['Thundertrap Trainer', 'Stormchaser\'s Talent']

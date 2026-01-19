@@ -39,7 +39,8 @@ async function runNormalizationJob() {
                 'Jeskai Artifacts',
                 'Superior Reanimator',
                 'Izzet Lessons',
-                'Naya Allies'
+                'Naya Allies',
+                'GX Landfall'
             ];
 
             for (const [oldName, newName] of Object.entries(mapping)) {
