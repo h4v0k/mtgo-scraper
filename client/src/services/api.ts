@@ -159,3 +159,32 @@ export async function fetchDeck(id: number): Promise<DeckDetail> {
         sideboard: parse(data.sideboard, data.spice_cards)
     };
 }
+
+export interface ConversionMetric {
+    archetype: string;
+    total_count: number;
+    top8_count: number;
+    wins_count: number;
+    presence_pct: number;
+    conversion_rate: number;
+}
+
+export async function fetchConversionMetrics(format: string, days: number): Promise<ConversionMetric[]> {
+    const params = new URLSearchParams({
+        format,
+        days: days.toString()
+    });
+
+    const token = getToken();
+    const response = await fetch(`${API_URL}/analytics/conversion?${params}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!response.ok) {
+        if (response.status === 401) throw new Error('Unauthorized');
+        throw new Error('Failed to fetch conversion metrics');
+    }
+    return response.json();
+}

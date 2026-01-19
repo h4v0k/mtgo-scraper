@@ -57,6 +57,7 @@ const requireAdmin = (req, res, next) => {
 };
 
 // --- Routes ---
+app.use('/api/analytics', require('./routes/analytics'));
 
 // Login
 // Login

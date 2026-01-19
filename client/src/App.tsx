@@ -10,6 +10,7 @@ import { ArchetypeView } from './components/Dashboard/ArchetypeView'
 import { DeckView } from './components/Dashboard/DeckView'
 import { Login } from './components/Login'
 import { AdminPanel } from './components/Admin/AdminPanel'
+import { ConversionMatrix } from './components/Analytics/ConversionMatrix'
 import { fetchMeta } from './services/api'
 import type { MetaData } from './services/api'
 
@@ -178,8 +179,7 @@ function App() {
           <AdminPanel />
         ) : (
           <div className="analytics-view">
-            <h1>Advanced Analytics</h1>
-            <p>Coming Soon...</p>
+            <ConversionMatrix />
           </div>
         )}
       </main>
