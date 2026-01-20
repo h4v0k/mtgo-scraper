@@ -296,7 +296,12 @@ app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
 
         // Dynamic Spice Threshold: Max 1 or 15% of decks (Strict)
         // For N=6, threshold=1 (Unique only). For N=20, threshold=3.
-        const frequencyThreshold = Math.max(1, Math.floor(totalDecks * 0.15));
+        let frequencyThreshold = Math.max(1, Math.floor(totalDecks * 0.15));
+
+        // FIX: If sample size is too small, disable spice detection to avoid false positives
+        if (totalDecks < 5) {
+            frequencyThreshold = -1;
+        }
 
         // Calculate Score per Deck
         const processedDecks = decks.map(deck => {
@@ -385,7 +390,12 @@ app.get('/api/deck/:id', authenticateToken, async (req, res) => {
 
         // Identify Spice Cards (Strict Logic)
         const spiceCards = [];
-        const threshold = Math.max(1, Math.floor(total * 0.15));
+        let threshold = Math.max(1, Math.floor(total * 0.15));
+
+        // FIX: If sample size is too small, disable spice to avoid flagging entire deck
+        if (total < 5) {
+            threshold = -1;
+        }
 
         const checkSpice = (list) => {
             if (!list) return;
