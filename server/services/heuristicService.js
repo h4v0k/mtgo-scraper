@@ -375,7 +375,10 @@ async function runHeuristicNormalization() {
 
         // 0.5. Check for EXISTING Generic Names in DB (Cleanup)
         // If the deck is ALREADY named "UB", "UBG", etc., we force a re-check.
-        if (deck.current_arch_name && /^[WUBRGCc]{1,5}$/.test(deck.current_arch_name)) {
+        const isGeneric = /^[WUBRGCc]{1,5}$/.test(deck.current_arch_name) ||
+            /^(Azorius|Boros|Dimir|Golgari|Gruul|Izzet|Orzhov|Rakdos|Selesnya|Simic)$/i.test(deck.current_arch_name);
+
+        if (deck.current_arch_name && isGeneric) {
             // console.log(`[Generic Cleanup] Checking Deck ${deck.id} ("${deck.current_arch_name}")...`);
             let overrideMatch = null;
             let overrideScore = 0;
@@ -431,7 +434,8 @@ async function runHeuristicNormalization() {
                     // Refinement: Check for "Generic" names (e.g., "WU", "UBG", "WUBRG")
                     // Regex: String is only 2-5 chars long and contains only WUBRZGC
                     // Note: "Burn" is 4 chars but 'n' is not in set.
-                    const isGeneric = /^[WUBRGCc]{2,5}$/.test(goldfishName);
+                    const isGeneric = /^[WUBRGCc]{2,5}$/.test(goldfishName) ||
+                        /^(Azorius|Boros|Dimir|Golgari|Gruul|Izzet|Orzhov|Rakdos|Selesnya|Simic)$/i.test(goldfishName);
 
                     if (isGeneric) {
                         console.log(`[Goldfish Generic] Found "${goldfishName}" for Deck ${deck.id}. Attempting signature override...`);

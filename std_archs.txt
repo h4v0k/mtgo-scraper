@@ -1,0 +1,49 @@
+4/5C Control
+5-Color Ramp
+Abzan Reanimator
+Allies
+Azorious Control
+Azorius Aggro
+Azorius Control
+Azorius Tempo
+Bant Airbending
+Boros Aggro
+Boros Convoke
+Boros Dragons
+Boros Tokens
+Dimir Aggro
+Dimir Midrange
+Golgari Aggro
+Golgari Midrange
+Grixis Spider
+Gruul Aggro
+Izzet Control
+Izzet Lesson
+Izzet Lessons
+Izzet Looting
+Izzet Otters
+Izzet Prowess
+Jeskai Control
+Jund Midrange
+Mono Green Aggro
+Mono-Red Aggro
+Mono-Red Burn
+Naya Allies
+Naya/Gruul Beats
+Omniscience Combo
+Orzhov Control
+Red Deck Wins
+Selesnya Aggro
+Selesnya Landfall
+Selesnya/Bant Goodstuff
+Simic Aggro
+Simic Landfall
+Simic Omniscience Combo
+Simic Quantum
+Simic Ramp
+Sultai Reanimator
+Superior Reanimator
+Temur Aggro
+UR Aggro
+UW Control
+Unknown

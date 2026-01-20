@@ -361,50 +361,51 @@ async function processEvent(event, formatName) {
     } catch (evErr) {
         console.error(`Error parsing event ${event.href}: ${evErr.message}`);
     }
+}
 
-    async function scrapeMTGTop8(maxDays = 2) {
-        console.log(`Starting Scraper Job (History: ${maxDays} days)...`);
+async function scrapeMTGTop8(maxDays = 2) {
+    console.log(`Starting Scraper Job (History: ${maxDays} days)...`);
 
-        // Run formats in parallel
-        try {
-            await Promise.all(FORMATS.map(fmt => scrapeFormat(fmt.code, fmt.name, maxDays)));
-        } catch (err) {
-            console.error("Parallel scraping error:", err);
-        }
-
-        try {
-            console.log('Running Heuristic Normalization...');
-            const { runHeuristicNormalization } = require('./heuristicService');
-            await runHeuristicNormalization();
-
-            console.log('Running Similarity Classification...');
-            const { runSimilarityClassification } = require('./similarityService');
-            await runSimilarityClassification();
-
-            // AI Name Normalization (Batch)
-            console.log('Running AI Name Normalization...');
-            const { runNormalizationJob } = require('./normalizationService');
-            await runNormalizationJob();
-
-            // AI Deep Resolution for Unknowns
-            console.log('Running AI Unknown Resolution...');
-            const { resolveUnknownArchetypes } = require('./aiService');
-            await resolveUnknownArchetypes(50);
-
-        } catch (err) {
-            console.error('Normalization pipeline failed: ' + err.message);
-        }
-        console.log('Scraper job finished.');
+    // Run formats in parallel
+    try {
+        await Promise.all(FORMATS.map(fmt => scrapeFormat(fmt.code, fmt.name, maxDays)));
+    } catch (err) {
+        console.error("Parallel scraping error:", err);
     }
 
-    // Schedule: 2:00 AM and 2:00 PM
-    cron.schedule('0 2,14 * * *', () => {
-        scrapeMTGTop8();
-    });
+    try {
+        console.log('Running Heuristic Normalization...');
+        const { runHeuristicNormalization } = require('./heuristicService');
+        await runHeuristicNormalization();
 
-    // Allow manual trigger
-    if (process.env.RUN_SCRAPER === 'true') {
-        scrapeMTGTop8();
+        console.log('Running Similarity Classification...');
+        const { runSimilarityClassification } = require('./similarityService');
+        await runSimilarityClassification();
+
+        // AI Name Normalization (Batch)
+        console.log('Running AI Name Normalization...');
+        const { runNormalizationJob } = require('./normalizationService');
+        await runNormalizationJob();
+
+        // AI Deep Resolution for Unknowns
+        console.log('Running AI Unknown Resolution...');
+        const { resolveUnknownArchetypes } = require('./aiService');
+        await resolveUnknownArchetypes(50);
+
+    } catch (err) {
+        console.error('Normalization pipeline failed: ' + err.message);
     }
+    console.log('Scraper job finished.');
+}
 
-    module.exports = { scrapeMTGTop8, processEvent };
+// Schedule: 2:00 AM and 2:00 PM
+cron.schedule('0 2,14 * * *', () => {
+    scrapeMTGTop8();
+});
+
+// Allow manual trigger
+if (process.env.RUN_SCRAPER === 'true') {
+    scrapeMTGTop8();
+}
+
+module.exports = { scrapeMTGTop8, processEvent };
