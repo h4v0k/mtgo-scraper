@@ -648,5 +648,36 @@
       "Reality Acid"
     ],
     "deckIds": []
+  },
+  {
+    "name": "Infect",
+    "signature": [
+      "Glistener Elf",
+      "Blight Mamba",
+      "Ichorclaw Myr",
+      "Embiggen",
+      "Vines of Vastwood",
+      "Rancor",
+      "Scale Up",
+      "Snakeskin Veil",
+      "Mutagenic Growth"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono Black Sacrifice",
+    "signature": [
+      "Carrion Feeder",
+      "Mortician Beetle",
+      "Perilous Myr",
+      "Accursed Marauder",
+      "Unearth",
+      "Rite of Consumption",
+      "Village Rites",
+      "Corrupted Conviction",
+      "Nested Shambler",
+      "Supernatural Stamina"
+    ],
+    "deckIds": []
   }
 ]
