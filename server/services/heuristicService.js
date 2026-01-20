@@ -269,7 +269,11 @@ async function runHeuristicNormalization() {
     // 1. Get all decks with their format (Async)
     let decks = [];
     try {
-        const decksRes = await db.execute('SELECT id, raw_decklist, archetype_id, format, player_name, event_name, event_date FROM decks');
+        const decksRes = await db.execute(`
+            SELECT d.id, d.raw_decklist, d.archetype_id, d.format, d.player_name, d.event_name, d.event_date, a.name as current_arch_name 
+            FROM decks d
+            LEFT JOIN archetypes a ON d.archetype_id = a.id
+        `);
         decks = decksRes.rows;
     } catch (e) {
         console.error('Failed to fetch decks:', e);
@@ -368,6 +372,55 @@ async function runHeuristicNormalization() {
         }
 
         if (matched) continue;
+
+        // 0.5. Check for EXISTING Generic Names in DB (Cleanup)
+        // If the deck is ALREADY named "UB", "UBG", etc., we force a re-check.
+        if (deck.current_arch_name && /^[WUBRGCc]{1,5}$/.test(deck.current_arch_name)) {
+            // console.log(`[Generic Cleanup] Checking Deck ${deck.id} ("${deck.current_arch_name}")...`);
+            let overrideMatch = null;
+            let overrideScore = 0;
+            const fmtSigs = signatures[deck.format];
+
+            if (fmtSigs) {
+                for (const sig of fmtSigs) {
+                    let matchCount = 0;
+                    for (const card of sig.signature) {
+                        if (list.includes(card)) matchCount++;
+                    }
+                    const score = matchCount / sig.signature.length;
+                    if (score >= 0.50 && score > overrideScore) {
+                        overrideScore = score;
+                        overrideMatch = sig.name;
+                    }
+                }
+            }
+
+            let newName = deck.current_arch_name;
+            if (overrideMatch) {
+                console.log(`[Generic Cleanup] Replaced "${deck.current_arch_name}" with "${overrideMatch}" (${(overrideScore * 100).toFixed(1)}%)`);
+                newName = overrideMatch;
+            } else {
+                console.log(`[Generic Cleanup] No signature match > 50% for "${deck.current_arch_name}". Setting to "Unknown".`);
+                newName = 'Unknown';
+            }
+
+            if (newName !== deck.current_arch_name) {
+                try {
+                    const targetId = await getArchId(newName, deck.format);
+                    await db.execute({
+                        sql: 'UPDATE decks SET archetype_id = ? WHERE id = ?',
+                        args: [targetId, deck.id]
+                    });
+                    batchMoved++;
+                    matched = true;
+                    // Update local state to prevent downstream checks if we matched
+                    if (overrideMatch) continue;
+                    // If we set to Unknown, we might still want to try Goldfish Lookup below? 
+                    // The user said "put the deck in Unknown", so we should probably stop here.
+                    continue;
+                } catch (e) { console.error(e); }
+            }
+        }
 
         // 1. MTGGoldfish Lookup (Fallback for <75% match)
         // Only run if we actually have data to look up (player, event, date)
