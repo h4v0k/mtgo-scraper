@@ -129,9 +129,9 @@ export function ConversionMatrix() {
                     <thead>
                         <tr>
                             <th>Archetype</th>
-                            <th>Entries</th>
+                            <th>Observed (Top 16/32)</th>
                             <th>Top 8s</th>
-                            <th>Win Rate / Conversion</th>
+                            <th>Top 8 Rate</th>
                             <th>Presence</th>
                         </tr>
                     </thead>
@@ -212,7 +212,7 @@ export function ConversionMatrix() {
                             textAnchor="middle"
                             transform="rotate(-90)"
                         >
-                            Top 8 Conversion Rate (%)
+                            Top 8 Conversion (from Observed)
                         </text>
 
                         {/* Data Points */}
@@ -255,7 +255,7 @@ export function ConversionMatrix() {
                                 <span>{hoveredPoint.conversion_rate}%</span>
                             </div>
                             <div className="tooltip-stat">
-                                <span>Entries:</span>
+                                <span>Observed:</span>
                                 <span>{hoveredPoint.total_count}</span>
                             </div>
                             <div className="tooltip-stat">
@@ -271,10 +271,10 @@ export function ConversionMatrix() {
                 </div>
             )}
 
-            <p style={{ fontSize: '0.9em', color: 'var(--color-text-muted)', marginTop: '12px' }}>
-                * <strong>Conversion Rate</strong>: Percentage of entries that made Top 8.
-                <br />
-                * <strong>Expected Baseline (25%)</strong>: Assuming typical event structure (Challenge 32), 8 of 32 players (25%) make Top 8. Decks above this line are overperforming.
+            <p style={{ fontSize: '0.9em', color: 'var(--color-text-muted)', marginTop: '12px', lineHeight: '1.4' }}>
+                * <strong>Top 8 Rate</strong>: The percentage of <strong>observed decks</strong> (Top 16/32) that reached the Top 8. <br />
+                * <strong>Limitations</strong>: Since MTGO only publishes partial standings (Top 16 or Top 32), we cannot calculate the conversion rate from the <i>total tournament field</i>. This metric represents performance among the top finishers. <br />
+                * <strong>Expected Baseline (25%)</strong>: Based on a typical Top 32 publication, 8 decks make the Top 8 (25%). Rates above this indicate the archetype is over-represented in the Top 8 relative to the Top 32.
             </p>
         </div>
     );
