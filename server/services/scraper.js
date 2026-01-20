@@ -383,14 +383,14 @@ async function scrapeMTGTop8(maxDays = 2) {
         await runSimilarityClassification();
 
         // AI Name Normalization (Batch)
-        console.log('Running AI Name Normalization...');
-        const { runNormalizationJob } = require('./normalizationService');
-        await runNormalizationJob();
+        // console.log('Running AI Name Normalization...');
+        // const { runNormalizationJob } = require('./normalizationService');
+        // await runNormalizationJob();
 
         // AI Deep Resolution for Unknowns
-        console.log('Running AI Unknown Resolution...');
-        const { resolveUnknownArchetypes } = require('./aiService');
-        await resolveUnknownArchetypes(50);
+        // console.log('Running AI Unknown Resolution...');
+        // const { resolveUnknownArchetypes } = require('./aiService');
+        // await resolveUnknownArchetypes(50);
 
     } catch (err) {
         console.error('Normalization pipeline failed: ' + err.message);
