@@ -168,6 +168,23 @@ app.delete('/api/users/:id', authenticateToken, requireAdmin, async (req, res) =
     }
 });
 
+// Protected: Get Login Logs (Admin Only)
+app.get('/api/admin/logs', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const result = await db.execute(`
+            SELECT l.id, u.username, l.ip_address, l.user_agent, l.login_timestamp 
+            FROM login_logs l
+            JOIN users u ON l.user_id = u.id
+            ORDER BY l.login_timestamp DESC
+            LIMIT 50
+        `);
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Error fetching logs:", err);
+        res.status(500).json({ error: "Failed to fetch logs" });
+    }
+});
+
 // Dashboard Data
 // Dashboard Data
 app.get('/api/meta', authenticateToken, async (req, res) => {

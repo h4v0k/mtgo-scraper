@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './AdminPanel.css';
+import { LoginLogs } from './LoginLogs';
 
 interface User {
     id: number;
@@ -13,6 +14,7 @@ export function AdminPanel() {
     const [msg, setMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState<User[]>([]);
+    const [activeTab, setActiveTab] = useState<'users' | 'logs'>('users');
 
     useEffect(() => {
         fetchUsers();
@@ -97,67 +99,89 @@ export function AdminPanel() {
 
     return (
         <div className="admin-panel">
-            <h2>User Management</h2>
-            <div className="admin-grid">
-                <div className="admin-card">
-                    <h3>Add New User</h3>
-                    <form onSubmit={handleCreateUser}>
-                        <div className="form-group">
-                            <label>Username</label>
-                            <input
-                                type="text"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Password</label>
-                            <div className="password-input-group">
+            <h2>Admin Dashboard</h2>
+
+            <div className="admin-tabs">
+                <button
+                    className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('users')}
+                >
+                    Users
+                </button>
+                <button
+                    className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('logs')}
+                >
+                    Login Logs
+                </button>
+            </div>
+
+            {activeTab === 'logs' ? (
+                <LoginLogs />
+            ) : (
+                <div className="admin-grid">
+                    <div className="admin-card">
+                        <h3>Add New User</h3>
+                        <form onSubmit={handleCreateUser}>
+                            <div className="form-group">
+                                <label>Username</label>
                                 <input
                                     type="text"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
                                     required
                                 />
-                                <button type="button" onClick={generatePassword} className="secondary-btn">
-                                    Generate
-                                </button>
                             </div>
-                        </div>
-                        {msg && (
-                            <div className={`message ${msg.type}`}>
-                                {msg.text}
-                            </div>
-                        )}
-                        <button type="submit" disabled={loading} className="primary-btn">
-                            {loading ? 'Creating...' : 'Create User'}
-                        </button>
-                    </form>
-                </div>
-
-                <div className="admin-card">
-                    <h3>Existing Users</h3>
-                    {users.length === 0 ? (
-                        <p className="no-users">No other users found.</p>
-                    ) : (
-                        <ul className="user-list">
-                            {users.map(u => (
-                                <li key={u.id} className="user-item">
-                                    <span className="user-name">{u.username}</span>
-                                    <button
-                                        onClick={() => handleDeleteUser(u.id)}
-                                        className="delete-btn"
-                                        title="Delete User"
-                                    >
-                                        &times;
+                            <div className="form-group">
+                                <label>Password</label>
+                                <div className="password-input-group">
+                                    <input
+                                        type="text"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                    />
+                                    <button type="button" onClick={generatePassword} className="secondary-btn">
+                                        Generate
                                     </button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                                </div>
+                            </div>
+                            {msg && (
+                                <div className={`message ${msg.type}`}>
+                                    {msg.text}
+                                </div>
+                            )}
+                            <button type="submit" disabled={loading} className="primary-btn">
+                                {loading ? 'Creating...' : 'Create User'}
+                            </button>
+                        </form>
+                    </div>
+
+                    <div className="admin-card">
+                        <h3>Existing Users</h3>
+                        {users.length === 0 ? (
+                            <p className="no-users">No other users found.</p>
+                        ) : (
+                            <ul className="user-list">
+                                {users.map(u => (
+                                    <li key={u.id} className="user-item">
+                                        <span className="user-name">{u.username}</span>
+                                        <button
+                                            onClick={() => handleDeleteUser(u.id)}
+                                            className="delete-btn"
+                                            title="Delete User"
+                                        >
+                                            &times;
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
                 </div>
-            </div>
-        </div>
+                </div>
+    )
+}
+        </div >
     );
 }

@@ -188,3 +188,20 @@ export async function fetchConversionMetrics(format: string, days: number): Prom
     }
     return response.json();
 }
+
+export interface LoginLog {
+    id: number;
+    username: string;
+    ip_address: string;
+    user_agent: string;
+    login_timestamp: string;
+}
+
+export async function fetchLoginLogs(): Promise<LoginLog[]> {
+    const token = getToken();
+    const response = await fetch(`${API_URL}/admin/logs`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error('Failed to fetch logs');
+    return response.json();
+}
