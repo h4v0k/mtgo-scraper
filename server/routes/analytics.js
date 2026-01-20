@@ -13,7 +13,7 @@ router.get('/conversion', async (req, res) => {
         // SQLite: date('now', '-X days')
         const timeframe = `-${days} days`;
 
-        // Fetch all decks for the period
+        // Fetch all decks for the period (excluding Leagues to avoid 100% win-rate bias)
         // We only need name (archetype), rank, and total counts
         const query = `
             SELECT 
@@ -26,6 +26,7 @@ router.get('/conversion', async (req, res) => {
             WHERE d.format = ? 
             AND d.event_date >= date('now', ?)
             AND a.name != 'Unknown'
+            AND d.event_name NOT LIKE '%League%'
         `;
 
         const result = await db.execute({
