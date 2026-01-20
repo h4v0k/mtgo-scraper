@@ -137,6 +137,21 @@ function App() {
 
   return (
     <div className="app-container">
+      {/* Donation Banner - Fixed Top */}
+      <div className="donation-banner" style={{
+        backgroundColor: '#1f1f1f',
+        color: '#e0e0e0',
+        textAlign: 'center',
+        padding: '0.6rem',
+        fontSize: '0.9rem',
+        borderBottom: '1px solid #333',
+        width: '100%',
+        boxSizing: 'border-box',
+        display: 'block'
+      }}>
+        This project is self-funded. If you enjoy the application, <a href="https://paypal.me/mpr0317" target="_blank" rel="noopener noreferrer" style={{ color: '#88aaff', textDecoration: 'underline', fontWeight: 'bold' }}>feel free to donate</a>.
+      </div>
+
       <header className="app-header">
         <div className="logo-container">
           <img src={logo} alt="Havok's Spyglass" className="banner-img" />

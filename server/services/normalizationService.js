@@ -33,7 +33,25 @@ async function runNormalizationJob() {
             const mapping = await normalizeArchetypeNames(chunk, format);
 
             // 3. Apply updates
+
+            // Allow dynamic protection of scraped names
+            const fs = require('fs');
+            const path = require('path');
+            const tagsDir = path.resolve(__dirname, '../tags');
+            const protectedSignatures = [];
+            if (fs.existsSync(tagsDir)) {
+                fs.readdirSync(tagsDir).forEach(file => {
+                    if (file.endsWith('_signatures.json')) {
+                        try {
+                            const sigs = JSON.parse(fs.readFileSync(path.join(tagsDir, file), 'utf8'));
+                            sigs.forEach(s => protectedSignatures.push(s.name));
+                        } catch (e) { }
+                    }
+                });
+            }
+
             const PROTECTED_NAMES = [
+                ...protectedSignatures,
                 'GX Ouroboroid',
                 'Naya Yuna Enchantments',
                 'Jeskai Artifacts',
@@ -47,7 +65,10 @@ async function runNormalizationJob() {
                 if (oldName === newName) continue;
                 if (!newName || newName === 'Unknown') continue;
                 if (PROTECTED_NAMES.includes(oldName)) {
-                    console.log(`Skipping protected archetype: ${oldName}`);
+                    // console.log(`Skipping protected archetype: ${oldName}`); 
+                    // Verify if this is actually skipping AI renaming which is good.
+                    // I will uncomment the log to make it visible during verification.
+                    console.log(`[Protected] Skipping AI Rename for: ${oldName}`);
                     continue;
                 }
 

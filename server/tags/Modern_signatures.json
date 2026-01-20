@@ -1,0 +1,1077 @@
+[
+  {
+    "name": "Boros Energy",
+    "signature": [
+      "Guide of Souls",
+      "Ocelot Pride",
+      "Ragavan, Nimble Pilferer",
+      "Ajani, Nacatl Pariah",
+      "Phlage, Titan of Fire's Fury",
+      "Voice of Victory",
+      "Seasoned Pyromancer",
+      "Galvanic Discharge",
+      "Thraben Charm",
+      "Goblin Bombardment",
+      "Blood Moon"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Ruby Storm",
+    "signature": [
+      "Ral, Monsoon Mage",
+      "Desperate Ritual",
+      "Manamorphose",
+      "Pyretic Ritual",
+      "Reckless Impulse",
+      "Wrenn's Resolve",
+      "Wish",
+      "Past in Flames",
+      "Valakut Awakening",
+      "Grapeshot",
+      "Glimpse the Impossible",
+      "Strike It Rich",
+      "Ruby Medallion",
+      "Artist's Talent"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Eldrazi Tron",
+    "signature": [
+      "Thought-Knot Seer",
+      "Devourer of Destiny",
+      "Ulamog, the Ceaseless Hunger",
+      "Karn, the Great Creator",
+      "Ugin, Eye of the Storms",
+      "Kozilek's Command",
+      "Dismember",
+      "Expedition Map"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Jeskai Blink",
+    "signature": [
+      "Quantum Riddler",
+      "Solitude",
+      "Phlage, Titan of Fire's Fury",
+      "Phelia, Exuberant Shepherd",
+      "Ragavan, Nimble Pilferer",
+      "Teferi, Time Raveler",
+      "Consign to Memory",
+      "Prismatic Ending",
+      "Ephemerate",
+      "Galvanic Discharge",
+      "Wrath of the Skies",
+      "Fable of the Mirror-Breaker"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Affinity",
+    "signature": [
+      "Pinnacle Emissary",
+      "Kappa Cannoneer",
+      "Emry, Lurker of the Loch",
+      "Memnite",
+      "Sink into Stupor",
+      "Metallic Rebuke",
+      "Mishra's Bauble",
+      "Mox Opal",
+      "Tormod's Crypt",
+      "Lavaspur Boots",
+      "Engineered Explosives",
+      "Claws of Gix",
+      "Shadowspear",
+      "Pithing Needle",
+      "Weapons Manufacturing"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Amulet Titan",
+    "signature": [
+      "Arboreal Grazer",
+      "Aftermath Analyst",
+      "Primeval Titan",
+      "Summoner's Pact",
+      "Scapeshift",
+      "Green Sun's Zenith",
+      "Amulet of Vigor",
+      "Spelunking"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Domain Zoo",
+    "signature": [
+      "Ragavan, Nimble Pilferer",
+      "Territorial Kavu",
+      "Phlage, Titan of Fire's Fury",
+      "Scion of Draco",
+      "Doorkeeper Thrull",
+      "Lightning Bolt",
+      "Stubborn Denial",
+      "Consign to Memory",
+      "Leyline of the Guildpact",
+      "Leyline Binding"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Neobrand",
+    "signature": [
+      "Xenagos, God of Revels",
+      "Disciple of Freyalise",
+      "Generous Ent",
+      "Hooting Mandrills",
+      "Allosaurus Rider",
+      "Atraxa, Grand Unifier",
+      "Ghalta, Stampede Tyrant",
+      "Griselbrand",
+      "Ureni, the Song Unending",
+      "Endurance",
+      "Pact of Negation",
+      "Summoner's Pact",
+      "Consign to Memory",
+      "Neoform",
+      "Planar Genesis",
+      "Eldritch Evolution",
+      "Bridgeworks Battle",
+      "Veil of Summer",
+      "Nourishing Shoal"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Belcher",
+    "signature": [
+      "Hydroelectric Specimen",
+      "Tameshi, Reality Architect",
+      "Disrupting Shoal",
+      "Sink into Stupor",
+      "Whir of Invention",
+      "Waterlogged Teachings",
+      "Suppression Ray",
+      "Sea Gate Restoration",
+      "Jwari Disruption",
+      "Force of Negation",
+      "Stern Scolding",
+      "Goblin Charbelcher",
+      "Lotus Bloom"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Yawgmoth",
+    "signature": [
+      "Young Wolf",
+      "Yawgmoth, Thran Physician",
+      "Dryad Arbor",
+      "Endurance",
+      "Badgermole Cub",
+      "Walking Ballista",
+      "Delighted Halfling",
+      "Grist, the Hunger Tide",
+      "Green Sun's Zenith",
+      "Malevolent Rumble",
+      "Agatha's Soul Cauldron",
+      "Dredger's Insight"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Goryo's Vengeance",
+    "signature": [
+      "Psychic Frog",
+      "Solitude",
+      "Atraxa, Grand Unifier",
+      "Griselbrand",
+      "Quantum Riddler",
+      "Goryo's Vengeance",
+      "Ephemerate",
+      "Faithful Mending",
+      "Force of Negation",
+      "Prismatic Ending",
+      "Thoughtseize"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Eldrazi Ramp",
+    "signature": [
+      "Sowing Mycospawn",
+      "World Breaker",
+      "Emrakul, the Promised End",
+      "Devourer of Destiny",
+      "Sire of Seven Deaths",
+      "Writhing Chrysalis",
+      "Icetill Explorer",
+      "Ugin, Eye of the Storms",
+      "Kozilek's Command",
+      "Malevolent Rumble",
+      "Kozilek's Return",
+      "Talisman of Impulse",
+      "Utopia Sprawl"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Izzet Prowess",
+    "signature": [
+      "Dragon's Rage Channeler",
+      "Monastery Swiftspear",
+      "Slickshot Show-Off",
+      "Lava Dart",
+      "Lightning Bolt",
+      "Preordain",
+      "Expressive Iteration",
+      "Mutagenic Growth",
+      "Violent Urge",
+      "Mishra's Bauble",
+      "Cori-Steel Cutter"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Grixis Reanimator",
+    "signature": [
+      "Psychic Frog",
+      "Archon of Cruelty",
+      "Emperor of Bones",
+      "Abhorrent Oculus",
+      "Faithless Looting",
+      "Fatal Push",
+      "Unearth",
+      "Persist",
+      "Thoughtseize"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Jeskai Control",
+    "signature": [
+      "Solitude",
+      "Phlage, Titan of Fire's Fury",
+      "Teferi, Time Raveler",
+      "Narset, Parter of Veils",
+      "Prismatic Ending",
+      "Galvanic Discharge",
+      "Wrath of the Skies",
+      "Orim's Chant",
+      "Consult the Star Charts",
+      "Day's Undoing",
+      "Lorien Revealed",
+      "Spell Snare",
+      "Counterspell",
+      "March of Otherworldly Light",
+      "Isochron Scepter"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Living End",
+    "signature": [
+      "Endurance",
+      "Shardless Agent",
+      "Curator of Mysteries",
+      "Subtlety",
+      "Street Wraith",
+      "Generous Ent",
+      "Colossal Skyturtle",
+      "Waker of Waves",
+      "Striped Riverwinder",
+      "Living End",
+      "Force of Negation",
+      "Sink into Stupor",
+      "Press the Enemy",
+      "Ardent Plea"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Dimir Midrange",
+    "signature": [
+      "Orcish Bowmasters",
+      "Wan Shi Tong, Librarian",
+      "Subtlety",
+      "Psychic Frog",
+      "Quantum Riddler",
+      "Tamiyo, Inquisitive Student",
+      "Kaito, Bane of Nightmares",
+      "Fatal Push",
+      "Spell Snare",
+      "Counterspell",
+      "Cling to Dust",
+      "Thoughtseize",
+      "Force of Negation",
+      "Sink into Stupor"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Esper GenericBlink",
+    "signature": [
+      "Solitude",
+      "Witch Enchanter",
+      "Emperor of Bones",
+      "Boggart Trawler",
+      "Flickerwisp",
+      "Overlord of the Balemurk",
+      "Quantum Riddler",
+      "Phelia, Exuberant Shepherd",
+      "Teferi, Time Raveler",
+      "Ephemerate",
+      "Fatal Push",
+      "Thoughtseize",
+      "Prismatic Ending"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Izzet Steel-Cutter",
+    "signature": [
+      "Tamiyo, Inquisitive Student",
+      "Emry, Lurker of the Loch",
+      "Quantum Riddler",
+      "Haywire Mite",
+      "Unholy Heat",
+      "Metallic Rebuke",
+      "Flame of Anor",
+      "Preordain",
+      "Mishra's Bauble",
+      "Mox Amber",
+      "Mox Opal",
+      "Cori-Steel Cutter",
+      "Aether Spellbomb",
+      "Tormod's Crypt",
+      "Lavaspur Boots"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono-Black Midrange",
+    "signature": [
+      "Orcish Bowmasters",
+      "Emperor of Bones",
+      "Nethergoyf",
+      "Thought-Knot Seer",
+      "Graveyard Trespasser",
+      "Inquisition of Kozilek",
+      "Thoughtseize",
+      "Fatal Push",
+      "Kozilek's Command",
+      "Mishra's Bauble",
+      "Nihil Spellbomb",
+      "Pithing Needle",
+      "Shadowspear"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Azorius Control",
+    "signature": [
+      "Kaheera, the Orphanguard",
+      "Solitude",
+      "Teferi, Time Raveler",
+      "Narset, Parter of Veils",
+      "Prismatic Ending",
+      "Orim's Chant",
+      "Force of Negation",
+      "Counterspell",
+      "Isochron Scepter"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Sultai Midrange",
+    "signature": [
+      "Coiling Oracle",
+      "Fblthp, the Lost",
+      "Ice-Fang Coatl",
+      "Abhorrent Oculus",
+      "Endurance",
+      "Harbinger of the Seas",
+      "Shardless Agent",
+      "Subtlety",
+      "Flare of Denial",
+      "Force of Negation",
+      "Sink into Stupor",
+      "Birthing Ritual"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mill",
+    "signature": [
+      "Hedron Crab",
+      "Ruin Crab",
+      "Jace, the Perfected Mind",
+      "Surgical Extraction",
+      "Fractured Sanity",
+      "Tasha's Hideous Laughter",
+      "Archive Trap",
+      "Visions of Beyond",
+      "Fatal Push",
+      "Drown in the Loch"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Simic Midrange",
+    "signature": [
+      "Coiling Oracle",
+      "Ice-Fang Coatl",
+      "Abhorrent Oculus",
+      "Endurance",
+      "Harbinger of the Seas",
+      "Subtlety",
+      "Fblthp, the Lost",
+      "Shardless Agent",
+      "Flare of Denial",
+      "Force of Negation",
+      "Sink into Stupor",
+      "Dismember",
+      "Birthing Ritual"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Hammer Time",
+    "signature": [
+      "Ornithopter",
+      "Puresteel Paladin",
+      "Stoneforge Mystic",
+      "Esper Sentinel",
+      "Steelshaper's Gift",
+      "Mox Opal",
+      "Colossus Hammer",
+      "Shadowspear",
+      "Cori-Steel Cutter"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Gruul Basking Broodscale Combo",
+    "signature": [
+      "Haywire Mite",
+      "Basking Broodscale",
+      "Emrakul, the Promised End",
+      "Glaring Fleshraker",
+      "Walking Ballista",
+      "Kozilek's Command",
+      "Malevolent Rumble",
+      "Ancient Stirrings",
+      "Unholy Heat",
+      "Blade of the Bloodchief",
+      "Springleaf Drum",
+      "Soul-Guide Lantern",
+      "Vexing Bauble"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Eldrazi",
+    "signature": [
+      "Thought-Knot Seer",
+      "Glaring Fleshraker",
+      "Sire of Seven Deaths",
+      "Devourer of Destiny",
+      "Sowing Mycospawn",
+      "It That Heralds the End",
+      "Wastescape Battlemage",
+      "Eldrazi Linebreaker",
+      "Kozilek's Command",
+      "Vexing Bauble"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Rakdos Midrange",
+    "signature": [
+      "Orcish Bowmasters",
+      "Nethergoyf",
+      "Lightning Bolt",
+      "Thoughtseize",
+      "Unholy Heat"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Temur Prowess",
+    "signature": [
+      "Dragon's Rage Channeler",
+      "Monastery Swiftspear",
+      "Slickshot Show-Off",
+      "Lava Dart",
+      "Lightning Bolt",
+      "Preordain",
+      "Expressive Iteration",
+      "Mutagenic Growth",
+      "Violent Urge",
+      "Mishra's Bauble",
+      "Cori-Steel Cutter"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Azorius GenericBlink",
+    "signature": [
+      "Quantum Riddler",
+      "Solitude",
+      "Phelia, Exuberant Shepherd",
+      "White Orchid Phantom",
+      "Witch Enchanter",
+      "Starfield Shepherd",
+      "Teferi, Time Raveler",
+      "Ephemerate"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Esper Midrange",
+    "signature": [
+      "Orcish Bowmasters",
+      "Psychic Frog",
+      "Subtlety",
+      "Quantum Riddler",
+      "Wan Shi Tong, Librarian",
+      "Cling to Dust",
+      "Fatal Push",
+      "Spell Snare",
+      "Thoughtseize",
+      "Counterspell",
+      "Strategic Betrayal",
+      "Force of Negation",
+      "Sink into Stupor",
+      "Pest Control",
+      "Stern Scolding",
+      "Dreams of Steel and Oil"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Jeskai Energy",
+    "signature": [
+      "Guide of Souls",
+      "Ocelot Pride",
+      "Phelia, Exuberant Shepherd",
+      "Phlage, Titan of Fire's Fury",
+      "Seasoned Pyromancer",
+      "Quantum Riddler",
+      "Solitude",
+      "Ephemerate",
+      "Galvanic Discharge",
+      "Prismatic Ending"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Tron",
+    "signature": [
+      "Devourer of Destiny",
+      "Ugin, Eye of the Storms",
+      "Karn, the Great Creator",
+      "Kozilek's Command",
+      "All Is Dust",
+      "Expedition Map"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "4/5c Omnath",
+    "signature": [
+      "Omnath, Locus of Creation",
+      "Solitude",
+      "Teferi, Time Raveler",
+      "Wrenn and Six",
+      "Prismatic Ending",
+      "Ephemerate",
+      "Orim's Chant",
+      "Wrath of the Skies"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Kethis Combo",
+    "signature": [
+      "Tamiyo, Inquisitive Student",
+      "Emry, Lurker of the Loch",
+      "Kethis, the Hidden Hand",
+      "Teferi, Time Raveler",
+      "Jace, the Perfected Mind",
+      "Malevolent Rumble",
+      "Mishra's Bauble",
+      "Mox Amber",
+      "Mox Opal",
+      "Agatha's Soul Cauldron",
+      "Lavaspur Boots",
+      "Grinding Station"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono-Green Basking Broodscale Combo",
+    "signature": [
+      "Walking Ballista",
+      "Haywire Mite",
+      "Basking Broodscale",
+      "Glaring Fleshraker",
+      "Devourer of Destiny",
+      "Emrakul, the Promised End",
+      "Ancient Stirrings",
+      "Kozilek's Command",
+      "Malevolent Rumble",
+      "Blade of the Bloodchief",
+      "Soul-Guide Lantern",
+      "Springleaf Drum",
+      "Vexing Bauble"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "IzzetControl",
+    "signature": [
+      "Snapcaster Mage",
+      "Tishana's Tidebinder",
+      "Subtlety",
+      "Tamiyo, Inquisitive Student",
+      "Wan Shi Tong, Librarian",
+      "Galvanic Discharge",
+      "Lightning Bolt",
+      "Spell Snare",
+      "Counterspell",
+      "Flame of Anor",
+      "Sink into Stupor",
+      "Preordain"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Esper Murktide",
+    "signature": [
+      "Psychic Frog",
+      "Murktide Regent",
+      "Abhorrent Oculus",
+      "Boggart Trawler",
+      "Graveyard Trespasser",
+      "Ketramose, the New Dawn",
+      "Fatal Push",
+      "Thoughtseize",
+      "Counterspell",
+      "Force of Negation",
+      "Sink into Stupor",
+      "Dreams of Steel and Oil",
+      "Thought Scour",
+      "Unearth",
+      "Strategic Betrayal",
+      "Tainted Indulgence",
+      "Spell Snare"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Living End",
+    "signature": [
+      "Bloodbraid Marauder",
+      "Architects of Will",
+      "Oliphaunt",
+      "Fear of Missing Out",
+      "Deceiver Exarch",
+      "Endurance",
+      "Generous Ent",
+      "Arcane Proxy",
+      "Colossal Skyturtle",
+      "Living End",
+      "Malevolent Rumble",
+      "Force of Negation",
+      "Incubation // Incongruity",
+      "Splinter Twin"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "4c Midrange",
+    "signature": [
+      "Endurance",
+      "Shardless Agent",
+      "Magmatic Hellkite",
+      "Omnath, Locus of Creation",
+      "Subtlety",
+      "Witch Enchanter",
+      "Elesh Norn, Mother of Machines",
+      "Quantum Riddler",
+      "Solitude",
+      "Force of Negation",
+      "Fire // Ice",
+      "Birthing Ritual",
+      "Leyline Binding"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono-Red Burn",
+    "signature": [
+      "Goblin Guide",
+      "Monastery Swiftspear",
+      "Chandra's Incinerator",
+      "Boltwave",
+      "Lava Spike",
+      "Lightning Bolt",
+      "Rift Bolt",
+      "Skewer the Critics",
+      "Skullcrack",
+      "Shard Volley",
+      "Seal of Fire"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "5c Midrange",
+    "signature": [
+      "Endurance",
+      "Shardless Agent",
+      "Magmatic Hellkite",
+      "Omnath, Locus of Creation",
+      "Subtlety",
+      "Superior Spider-Man",
+      "Witch Enchanter",
+      "Elesh Norn, Mother of Machines",
+      "Quantum Riddler",
+      "Solitude",
+      "Force of Negation",
+      "Birthing Ritual",
+      "Leyline Binding"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Boros Midrange",
+    "signature": [
+      "Guide of Souls",
+      "Ocelot Pride",
+      "Ragavan, Nimble Pilferer",
+      "Ajani, Nacatl Pariah",
+      "Phlage, Titan of Fire's Fury",
+      "Seasoned Pyromancer",
+      "Voice of Victory",
+      "Ranger-Captain of Eos",
+      "Thraben Charm",
+      "Galvanic Discharge",
+      "Goblin Bombardment",
+      "Blood Moon"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Miracles",
+    "signature": [
+      "Solitude",
+      "Teferi, Time Raveler",
+      "Jace, the Mind Sculptor",
+      "Teferi, Hero of Dominaria",
+      "Counterspell",
+      "Brainsurge",
+      "Terminus",
+      "Orim's Chant",
+      "Path to Exile",
+      "Telling Time",
+      "Isochron Scepter"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Bant GenericBlink",
+    "signature": [
+      "Abhorrent Oculus",
+      "Witch Enchanter",
+      "Quantum Riddler",
+      "Solitude",
+      "Slippery Bogle",
+      "Coiling Oracle",
+      "Ice-Fang Coatl",
+      "Thundertrap Trainer",
+      "Endurance",
+      "Glasspool Mimic",
+      "Knight of Autumn",
+      "Teferi, Time Raveler",
+      "Force of Negation",
+      "Consign to Memory",
+      "Ephemerate",
+      "Prismatic Ending",
+      "Flare of Denial",
+      "Birthing Ritual"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Grixis Midrange",
+    "signature": [
+      "Ragavan, Nimble Pilferer",
+      "Tamiyo, Inquisitive Student",
+      "Psychic Frog",
+      "Subtlety",
+      "Quantum Riddler",
+      "Orcish Bowmasters",
+      "Kaito, Bane of Nightmares",
+      "Force of Negation",
+      "Unholy Heat",
+      "Strategic Betrayal",
+      "Sink into Stupor",
+      "Cling to Dust",
+      "Stern Scolding",
+      "Counterspell",
+      "Mishra's Bauble"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Dimir Murktide",
+    "signature": [
+      "Orcish Bowmasters",
+      "Psychic Frog",
+      "Snapcaster Mage",
+      "Wan Shi Tong, Librarian",
+      "Subtlety",
+      "Murktide Regent",
+      "Consider",
+      "Fatal Push",
+      "Spell Snare",
+      "Stern Scolding",
+      "Thoughtseize",
+      "Counterspell",
+      "Force of Negation",
+      "Lorien Revealed"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Merfolk",
+    "signature": [
+      "Tide Shaper",
+      "Floodpits Drowner",
+      "Lord of Atlantis",
+      "Master of the Pearl Trident",
+      "Silvergill Adept",
+      "Vodalian Hexcatcher",
+      "Harbinger of the Seas",
+      "Svyelun of Sea and Sky",
+      "Tishana's Tidebinder",
+      "Flare of Denial",
+      "Force of Negation",
+      "Sink into Stupor",
+      "Aether Vial"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "The Rock",
+    "signature": [
+      "Orcish Bowmasters",
+      "Overlord of the Balemurk",
+      "Gravecrawler",
+      "Shambling Ghast",
+      "Marionette Apprentice",
+      "Sephiroth, Fabled SOLDIER",
+      "Warren Soultrader",
+      "Thoughtseize",
+      "Malevolent Rumble",
+      "Flare of Malice",
+      "Cling to Dust",
+      "Phoenix Fleet Airship",
+      "Chthonian Nightmare"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Through the Breach",
+    "signature": [
+      "Devourer of Destiny",
+      "Nulldrifter",
+      "Ulamog, the Defiler",
+      "Emrakul, the Aeons Torn",
+      "Kozilek's Command",
+      "Through the Breach",
+      "Kozilek's Return",
+      "Talisman of Creativity"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Orzhov Midrange",
+    "signature": [
+      "Orcish Bowmasters",
+      "Overlord of the Balemurk",
+      "Emperor of Bones",
+      "Phelia, Exuberant Shepherd",
+      "Aven Interrupter",
+      "Boggart Trawler",
+      "Flickerwisp",
+      "Witch Enchanter",
+      "Solitude",
+      "Thoughtseize",
+      "Ephemerate",
+      "Fatal Push",
+      "March of Otherworldly Light"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Indomitable Creativity",
+    "signature": [
+      "Archon of Cruelty",
+      "Wrenn and Six",
+      "Lightning Bolt",
+      "Indomitable Creativity",
+      "Fable of the Mirror-Breaker"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Gruul Midrange",
+    "signature": [
+      "Arbor Elf",
+      "Bonecrusher Giant",
+      "Fanatic of Rhonas",
+      "Endurance",
+      "Karn, the Great Creator",
+      "Pillage",
+      "Lightning Bolt",
+      "Unholy Heat",
+      "Malevolent Rumble",
+      "Anger of the Gods",
+      "Brotherhood's End",
+      "Utopia Sprawl",
+      "Blood Moon",
+      "Fable of the Mirror-Breaker"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono-Red Prison",
+    "signature": [
+      "Ragavan, Nimble Pilferer",
+      "Seasoned Pyromancer",
+      "Chandra, Torch of Defiance",
+      "Karn, the Great Creator",
+      "Lightning Bolt",
+      "Pyretic Ritual",
+      "Desperate Ritual",
+      "Shatterskull Smashing",
+      "Chalice of the Void",
+      "Vexing Bauble",
+      "Ensnaring Bridge",
+      "Pithing Needle",
+      "Blood Moon",
+      "Fable of the Mirror-Breaker"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Hollow One",
+    "signature": [
+      "Marauding Mako",
+      "Detective's Phoenix",
+      "Hollow One",
+      "Ox of Agonas",
+      "Street Wraith",
+      "Nethergoyf",
+      "Fear of Missing Out",
+      "Burning Inquiry",
+      "Faithless Looting",
+      "Lightning Bolt",
+      "Goblin Lore",
+      "Fatal Push"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Jeskai Ascendancy Combo",
+    "signature": [
+      "Tamiyo, Inquisitive Student",
+      "Emry, Lurker of the Loch",
+      "Repeal",
+      "Metallic Rebuke",
+      "Preordain",
+      "Mishra's Bauble",
+      "Mox Amber",
+      "Mox Opal",
+      "Cori-Steel Cutter",
+      "Tormod's Crypt",
+      "Aether Spellbomb",
+      "Lavaspur Boots",
+      "Soul-Guide Lantern",
+      "Jeskai Ascendancy"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "4c Reanimator",
+    "signature": [
+      "Hedron Crab",
+      "Stitcher's Supplier",
+      "Psychic Frog",
+      "Serra's Emissary",
+      "Archon of Cruelty",
+      "Faithless Looting",
+      "Fatal Push",
+      "Inquisition of Kozilek",
+      "Thoughtseize",
+      "Persist",
+      "Victimize"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Boros Burn",
+    "signature": [
+      "Goblin Guide",
+      "Monastery Swiftspear",
+      "Boltwave",
+      "Lava Spike",
+      "Lightning Bolt",
+      "Boros Charm",
+      "Searing Blaze",
+      "Skullcrack",
+      "Rift Bolt",
+      "Skewer the Critics",
+      "Seal of Fire"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Jeskai Prowess",
+    "signature": [
+      "Dragon's Rage Channeler",
+      "Monastery Swiftspear",
+      "Slickshot Show-Off",
+      "Lava Dart",
+      "Lightning Bolt",
+      "Mutagenic Growth",
+      "Preordain",
+      "Unholy Heat",
+      "Violent Urge",
+      "Expressive Iteration",
+      "Surgical Extraction",
+      "Mishra's Bauble",
+      "Cori-Steel Cutter"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono-Green Tron",
+    "signature": [
+      "Karn, the Great Creator",
+      "Ugin, Eye of the Storms",
+      "Ancient Stirrings",
+      "Sylvan Scrying",
+      "Chromatic Sphere",
+      "Chromatic Star",
+      "Expedition Map",
+      "Relic of Progenitus",
+      "Vexing Bauble"
+    ],
+    "deckIds": []
+  }
+]

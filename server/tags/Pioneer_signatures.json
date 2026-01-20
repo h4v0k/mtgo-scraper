@@ -1,0 +1,859 @@
+[
+  {
+    "name": "Izzet Prowess",
+    "signature": [
+      "Monastery Swiftspear",
+      "Soul-Scar Mage",
+      "Emberheart Challenger",
+      "Academic Dispute",
+      "Boomerang Basics",
+      "Reckless Rage",
+      "Heroes' Hangout",
+      "Cori-Steel Cutter",
+      "Experimental Synthesizer",
+      "Stormchaser's Talent"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Selesnya Company",
+    "signature": [
+      "Elvish Mystic",
+      "Llanowar Elves",
+      "Skyclave Apparition",
+      "Badgermole Cub",
+      "Thalia, Guardian of Thraben",
+      "Enduring Innocence",
+      "Aven Interrupter",
+      "Archon of Emeria",
+      "Ouroboroid",
+      "Elspeth, Storm Slayer",
+      "Collected Company"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Orzhov Midrange",
+    "signature": [
+      "Sheoldred, the Apocalypse",
+      "Preacher of the Schism",
+      "Gifted Aetherborn",
+      "Fatal Push",
+      "Thoughtseize",
+      "Vanishing Verse",
+      "Pest Control",
+      "Duress",
+      "Go for the Throat",
+      "Unholy Annex // Ritual Chamber"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Azorius Control",
+    "signature": [
+      "Kaheera, the Orphanguard",
+      "Beza, the Bounding Spring",
+      "The Wandering Emperor",
+      "Teferi, Hero of Dominaria",
+      "Elspeth, Storm Slayer",
+      "No More Lies",
+      "Dovin's Veto",
+      "Supreme Verdict",
+      "March of Otherworldly Light",
+      "Get Lost",
+      "Farewell",
+      "Consult the Star Charts",
+      "High Noon"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Golgari Midrange",
+    "signature": [
+      "Badgermole Cub",
+      "Llanowar Elves",
+      "Sentinel of the Nameless City",
+      "Ouroboroid",
+      "Abrupt Decay",
+      "Fatal Push",
+      "Thoughtseize",
+      "Go for the Throat",
+      "Tear Asunder",
+      "Culling Ritual",
+      "Duress",
+      "Maelstrom Pulse",
+      "Unholy Annex // Ritual Chamber"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Nykthos Ramp",
+    "signature": [
+      "Elvish Mystic",
+      "Llanowar Elves",
+      "Old-Growth Troll",
+      "Badgermole Cub",
+      "Outcaster Trailblazer",
+      "Ulvenwald Oddity",
+      "Cavalier of Thorns",
+      "Polukranos Reborn",
+      "Kiora, Behemoth Beckoner",
+      "Storm the Festival",
+      "Oath of Nissa"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Izzet Phoenix",
+    "signature": [
+      "Picklock Prankster",
+      "Arclight Phoenix",
+      "Consider",
+      "Fiery Impulse",
+      "Lightning Axe",
+      "Opt",
+      "Sleight of Hand",
+      "Treasure Cruise",
+      "Into the Flood Maw",
+      "Cori-Steel Cutter",
+      "Proft's Eidetic Memory"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "4c Scapeshift",
+    "signature": [
+      "Arboreal Grazer",
+      "The Wandering Minstrel",
+      "Lumra, Bellow of the Woods",
+      "Thassa's Oracle",
+      "Scapeshift",
+      "Stock Up",
+      "Wishclaw Talisman",
+      "Spelunking"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Rakdos Midrange",
+    "signature": [
+      "Bloodtithe Harvester",
+      "Sheoldred, the Apocalypse",
+      "Fear of Missing Out",
+      "Fatal Push",
+      "Thoughtseize",
+      "Abrade",
+      "Duress",
+      "Fable of the Mirror-Breaker",
+      "Unholy Annex // Ritual Chamber"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Boros Convoke",
+    "signature": [
+      "Novice Inspector",
+      "Thraben Inspector",
+      "Voldaren Epicure",
+      "Warden of the Inner Sky",
+      "Knight-Errant of Eos",
+      "Venerated Loxodon",
+      "Ornithopter",
+      "Cosmogrand Zenith",
+      "Gleeful Demolition",
+      "Portable Hole"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "5c Enigmatic Incarnation",
+    "signature": [
+      "Glasspool Mimic",
+      "Skyclave Apparition",
+      "Zur, Eternal Schemer",
+      "Overlord of the Floodpits",
+      "Overlord of the Hauntwoods",
+      "Dream Trawler",
+      "Summon: Leviathan",
+      "Angel of Serenity",
+      "Atraxa, Grand Unifier",
+      "March of Otherworldly Light",
+      "Pinnacle Starcage",
+      "Seam Rip",
+      "High Noon",
+      "Up the Beanstalk",
+      "Enigmatic Incarnation",
+      "Leyline Binding"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono-Red Prowess",
+    "signature": [
+      "Monastery Swiftspear",
+      "Soul-Scar Mage",
+      "Emberheart Challenger",
+      "Screaming Nemesis",
+      "Sunspine Lynx",
+      "Burst Lightning",
+      "Monstrous Rage",
+      "Reckless Rage",
+      "Kumano Faces Kakkazan"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Orzhov Greasefang",
+    "signature": [
+      "Fleeting Spirit",
+      "Guardian of New Benalia",
+      "Seasoned Hallowblade",
+      "Greasefang, Okiba Boss",
+      "Fatal Push",
+      "Thoughtseize",
+      "Vanishing Verse",
+      "Lively Dirge",
+      "Monument to Endurance",
+      "Parhelion II",
+      "Sheltered by Ghosts"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Jund Sacrifice",
+    "signature": [
+      "Cauldron Familiar",
+      "Bloodtithe Harvester",
+      "Mayhem Devil",
+      "Ygra, Eater of All",
+      "Fatal Push",
+      "Deadly Dispute",
+      "Claim the Firstborn",
+      "Witch's Oven",
+      "Scavenger's Talent",
+      "Fable of the Mirror-Breaker",
+      "The Meathook Massacre"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Sultai Scapeshift",
+    "signature": [
+      "Arboreal Grazer",
+      "The Wandering Minstrel",
+      "Lumra, Bellow of the Woods",
+      "Aftermath Analyst",
+      "Badgermole Cub",
+      "Morlun, Devourer of Spiders",
+      "Scapeshift",
+      "Culling Ritual",
+      "Wishclaw Talisman",
+      "Spelunking"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Abzan Greasefang",
+    "signature": [
+      "Greasefang, Okiba Boss",
+      "Overlord of the Balemurk",
+      "Raffine's Informant",
+      "Sheoldred, the Apocalypse",
+      "Duress",
+      "Thoughtseize",
+      "Bitter Triumph",
+      "Cache Grab",
+      "Witherbloom Command",
+      "Esika's Chariot",
+      "Parhelion II",
+      "Skysovereign, Consul Flagship"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Boros Hammer Time",
+    "signature": [
+      "Cloud, Midgar Mercenary",
+      "Kemba, Kha Enduring",
+      "Kazuul's Toll Collector",
+      "Kellan, the Fae-Blooded",
+      "Fervent Champion",
+      "Colossus Hammer",
+      "Dragonfire Blade",
+      "Shadowspear",
+      "Cori-Steel Cutter",
+      "Leyline Axe",
+      "Sigarda's Aid"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mardu Greasefang",
+    "signature": [
+      "Bloodtithe Harvester",
+      "Fear of Missing Out",
+      "Greasefang, Okiba Boss",
+      "Overlord of the Balemurk",
+      "Fatal Push",
+      "Thoughtseize",
+      "Vanishing Verse",
+      "Duress",
+      "Parhelion II",
+      "Fable of the Mirror-Breaker"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Golgari Food",
+    "signature": [
+      "Cauldron Familiar",
+      "Gilded Goose",
+      "Ygra, Eater of All",
+      "Vinereap Mentor",
+      "Fatal Push",
+      "Abrupt Decay",
+      "Cache Grab",
+      "Deadly Dispute",
+      "Witch's Oven",
+      "Scavenger's Talent",
+      "Dredger's Insight",
+      "The Meathook Massacre"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Selesnya Angels",
+    "signature": [
+      "Elvish Mystic",
+      "Llanowar Elves",
+      "Bishop of Wings",
+      "Giada, Font of Hope",
+      "Enduring Innocence",
+      "Resplendent Angel",
+      "Righteous Valkyrie",
+      "Inspiring Overseer",
+      "Skyclave Apparition",
+      "Kayla's Reconstruction",
+      "Collected Company"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Gruul Midrange",
+    "signature": [
+      "Elvish Mystic",
+      "Gene Pollinator",
+      "Llanowar Elves",
+      "Badgermole Cub",
+      "Fear of Missing Out",
+      "Combat Celebrant",
+      "Ouroboroid",
+      "Flowstone Infusion",
+      "Gather Courage",
+      "Traverse the Ulvenwald",
+      "Mizzium Mortars",
+      "Fable of the Mirror-Breaker"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono-Red Aggro",
+    "signature": [
+      "Hired Claw",
+      "Eidolon of the Great Revel",
+      "Magebane Lizard",
+      "Bonecrusher Giant",
+      "Screaming Nemesis",
+      "Ojer Axonil, Deepest Might",
+      "Play with Fire",
+      "Reckless Rage",
+      "Lightning Strike",
+      "Kumano Faces Kakkazan"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono-White Token Control",
+    "signature": [
+      "Yorion, Sky Nomad",
+      "Enduring Innocence",
+      "Beza, the Bounding Spring",
+      "Novice Inspector",
+      "Thraben Inspector",
+      "Elspeth, Storm Slayer",
+      "The Wandering Emperor",
+      "Day of Judgment",
+      "Carrot Cake",
+      "Portable Hole",
+      "Seam Rip",
+      "High Noon",
+      "Ossification",
+      "The Birth of Meletis",
+      "Caretaker's Talent",
+      "Aang's Iceberg",
+      "The Restoration of Eiganjo"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Niv to Light",
+    "signature": [
+      "Yorion, Sky Nomad",
+      "Valki, God of Lies",
+      "Niv-Mizzet Reborn",
+      "Niv-Mizzet, Supreme",
+      "Knight of Autumn",
+      "Shiko, Paragon of the Way",
+      "Abrupt Decay",
+      "Vanishing Verse",
+      "Deafening Clarion",
+      "Kolaghan's Command",
+      "Urgent Necropsy",
+      "Bring to Light",
+      "Sunfall",
+      "Lightning Helix",
+      "Pest Control",
+      "Maelstrom Pulse",
+      "Unmoored Ego",
+      "Culling Ritual",
+      "Ancient Cornucopia",
+      "Up the Beanstalk",
+      "Leyline Binding",
+      "Fable of the Mirror-Breaker"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Simic Scapeshift",
+    "signature": [
+      "Arboreal Grazer",
+      "Aftermath Analyst",
+      "Thassa's Oracle",
+      "The Wandering Minstrel",
+      "Lumra, Bellow of the Woods",
+      "Otherworldly Gaze",
+      "Stock Up",
+      "Scapeshift",
+      "Spelunking"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Bant Scapeshift",
+    "signature": [
+      "Arboreal Grazer",
+      "Aftermath Analyst",
+      "Thassa's Oracle",
+      "The Wandering Minstrel",
+      "Lumra, Bellow of the Woods",
+      "Stock Up",
+      "Scapeshift",
+      "Spelunking"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "4c Midrange",
+    "signature": [
+      "Malcolm, Alluring Scoundrel",
+      "Nashi, Searcher in the Dark",
+      "Rona, Herald of Invasion",
+      "Glasspool Mimic",
+      "Raffine, Scheming Seer",
+      "Carnage, Crimson Chaos",
+      "Kaito, Bane of Nightmares",
+      "Fatal Push",
+      "Thoughtseize",
+      "Tinybones Joins Up",
+      "The Meathook Massacre",
+      "Fable of the Mirror-Breaker"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Izzet Rona Combo",
+    "signature": [
+      "Rona, Herald of Invasion",
+      "Vivi Ornitier",
+      "Valley Floodcaller",
+      "Retraction Helix",
+      "Sleight of Hand",
+      "Stock Up",
+      "Mox Amber",
+      "Mox Jasper",
+      "Cori-Steel Cutter",
+      "Stormchaser's Talent"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Grixis Midrange",
+    "signature": [
+      "Stitcher's Supplier",
+      "Fear of Missing Out",
+      "Emet-Selch, Unsundered",
+      "Superior Spider-Man",
+      "Harvester of Misery",
+      "Overlord of the Balemurk",
+      "Terror of the Peaks",
+      "Atraxa, Grand Unifier",
+      "Ardyn, the Usurper",
+      "Bringer of the Last Gift",
+      "Fatal Push",
+      "Thoughtseize",
+      "Bitter Triumph",
+      "Fable of the Mirror-Breaker"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "5c Legends",
+    "signature": [
+      "Cecil, Dark Knight",
+      "Gran-Gran",
+      "Inti, Seneschal of the Sun",
+      "Jirina, Dauntless General",
+      "Rona, Herald of Invasion",
+      "Aang, Swift Savior",
+      "Arachne, Psionic Weaver",
+      "Honest Rutstein",
+      "Silk, Web Weaver",
+      "Mox Amber",
+      "Relic of Legends"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Quintorius Combo",
+    "signature": [
+      "Yorion, Sky Nomad",
+      "Clever Impersonator",
+      "Spark Double",
+      "Greater Tanuki",
+      "Spinewoods Armadillo",
+      "Trumpeting Carnosaur",
+      "Waker of Waves",
+      "Quintorius Kand",
+      "Consign // Oblivion",
+      "Rakshasa's Bargain",
+      "Leyline Binding",
+      "Virtue of Persistence",
+      "Moldering Gym // Weight Room"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Jeskai Ascendancy",
+    "signature": [
+      "Badgermole Cub",
+      "Sylvan Caryatid",
+      "Toph, Hardheaded Teacher",
+      "Boomerang Basics",
+      "Consider",
+      "Opt",
+      "Sleight of Hand",
+      "Divide by Zero",
+      "Stock Up",
+      "Stormchaser's Talent",
+      "Jeskai Ascendancy"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Boros Heroic",
+    "signature": [
+      "Favored Hoplite",
+      "Monastery Swiftspear",
+      "Illuminator Virtuoso",
+      "Ancestral Anger",
+      "Defiant Strike",
+      "Enter the Avatar State",
+      "Homestead Courage",
+      "Monstrous Rage",
+      "Reckless Rage",
+      "Spikefield Hazard",
+      "Sejiri Shelter",
+      "Sheltered by Ghosts"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "5c Scapeshift",
+    "signature": [
+      "Arboreal Grazer",
+      "Aftermath Analyst",
+      "The Wandering Minstrel",
+      "Lumra, Bellow of the Woods",
+      "Otherworldly Gaze",
+      "Culling Ritual",
+      "Scapeshift",
+      "Spelunking"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono-Blue Rona Combo",
+    "signature": [
+      "Rona, Herald of Invasion",
+      "Valley Floodcaller",
+      "Boomerang Basics",
+      "Octopus Form",
+      "Retraction Helix",
+      "Abandon Attachments",
+      "Accumulate Wisdom",
+      "It'll Quench Ya!",
+      "Stock Up",
+      "Sea Gate Restoration",
+      "Mox Amber",
+      "Stormchaser's Talent",
+      "Proft's Eidetic Memory"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Gruul Prowess",
+    "signature": [
+      "Monastery Swiftspear",
+      "Soul-Scar Mage",
+      "Emberheart Challenger",
+      "Questing Druid",
+      "Screaming Nemesis",
+      "Academic Dispute",
+      "Burst Lightning",
+      "Heroes' Hangout",
+      "Monstrous Rage",
+      "Reckless Rage",
+      "Cori-Steel Cutter"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Dimir Aggro",
+    "signature": [
+      "Cecil, Dark Knight",
+      "Faerie Miscreant",
+      "Mockingbird",
+      "Floodpits Drowner",
+      "Moon-Circuit Hacker",
+      "Brazen Borrower",
+      "Enduring Curiosity",
+      "Kaito, Bane of Nightmares",
+      "Fatal Push",
+      "Spell Pierce",
+      "Thoughtseize",
+      "Anoint with Affliction"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Boros Token Control",
+    "signature": [
+      "The Wandering Emperor",
+      "Elspeth, Storm Slayer",
+      "March of Otherworldly Light",
+      "Torch the Tower",
+      "Get Lost",
+      "Day of Judgment",
+      "Sunfall",
+      "Carrot Cake",
+      "High Noon",
+      "Caretaker's Talent",
+      "Fable of the Mirror-Breaker"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Soulflayer",
+    "signature": [
+      "Tomebound Lich",
+      "Urborg Scavengers",
+      "Superior Spider-Man",
+      "Tempest Hart",
+      "Samut, Voice of Dissent",
+      "Soulflayer",
+      "Atraxa, Grand Unifier",
+      "Striped Riverwinder",
+      "Bringer of the Last Gift",
+      "Otherworldly Gaze",
+      "Grisly Salvage"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Simic Merfolk",
+    "signature": [
+      "Benthic Biomancer",
+      "Cenote Scout",
+      "Kumena's Speaker",
+      "Mindspring Merfolk",
+      "Mistcaller",
+      "Floodpits Drowner",
+      "Vodalian Hexcatcher",
+      "Kumena, Tyrant of Orazca",
+      "Tishana's Tidebinder",
+      "Vizier of Tumbling Sands",
+      "Agatha's Soul Cauldron",
+      "Smuggler's Copter",
+      "Deeproot Pilgrimage"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Rakdos Artifact Sacrifice",
+    "signature": [
+      "Clockwork Percussionist",
+      "Fatal Push",
+      "Torch the Tower",
+      "Deadly Dispute",
+      "Shrapnel Blast",
+      "Experimental Synthesizer",
+      "Mishra's Research Desk",
+      "Legion Extruder",
+      "Oni-Cult Anvil",
+      "Phoenix Fleet Airship",
+      "Weapons Manufacturing"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Hidden Strings",
+    "signature": [
+      "Arboreal Grazer",
+      "Vizier of Tumbling Sands",
+      "Lier, Disciple of the Drowned",
+      "Into the Flood Maw",
+      "Hidden Strings",
+      "Impulse",
+      "Sylvan Scrying",
+      "Bala Ged Recovery",
+      "Stock Up",
+      "Mastermind's Acquisition",
+      "Dark Petition",
+      "Pore Over the Pages",
+      "Behold the Beyond",
+      "Emergent Ultimatum",
+      "Omniscience"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Dimir Faeries",
+    "signature": [
+      "Sleep-Cursed Faerie",
+      "Faerie Mastermind",
+      "Obyra, Dreaming Duelist",
+      "Brazen Borrower",
+      "Enduring Curiosity",
+      "Duress",
+      "Faerie Fencing",
+      "Fatal Push",
+      "Thoughtseize",
+      "Bitter Triumph",
+      "Go for the Throat",
+      "Spell Stutter",
+      "Faebloom Trick",
+      "The Meathook Massacre"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Temur Indomitable Creativity",
+    "signature": [
+      "Xenagos, God of Revels",
+      "Worldspine Wurm",
+      "Annul",
+      "Fiery Impulse",
+      "Spell Pierce",
+      "Torch the Tower",
+      "Deduce",
+      "Make Disappear",
+      "Volcanic Spite",
+      "Indomitable Creativity",
+      "Prismari Command",
+      "Fable of the Mirror-Breaker"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Golgari Hardened Scales",
+    "signature": [
+      "Goldvein Hydra",
+      "Badgermole Cub",
+      "Voracious Hydra",
+      "Winding Constrictor",
+      "Ouroboroid",
+      "Verdurous Gearhulk",
+      "Nissa, Voice of Zendikar",
+      "Fatal Push",
+      "Snakeskin Veil",
+      "Abrupt Decay",
+      "Maelstrom Pulse",
+      "Hardened Scales",
+      "Innkeeper's Talent",
+      "Terrasymbiosis"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono-White Humans",
+    "signature": [
+      "Dauntless Bodyguard",
+      "Hopeful Initiate",
+      "Kytheon, Hero of Akros",
+      "Recruitment Officer",
+      "Veteran Survivor",
+      "Coppercoat Vanguard",
+      "Reluctant Role Model",
+      "Thalia's Lieutenant",
+      "Thalia, Guardian of Thraben",
+      "Adeline, Resplendent Cathar",
+      "Cosmogrand Zenith",
+      "Brave the Elements",
+      "Sheltered by Ghosts"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mardu Auras",
+    "signature": [
+      "Optimistic Scavenger",
+      "Skrelv, Defector Mite",
+      "Light-Paws, Emperor's Voice",
+      "Professor of Symbology",
+      "Sram, Senior Edificer",
+      "Militia Bugler",
+      "Ethereal Armor",
+      "Gryff's Boon",
+      "Hammerhand",
+      "Kaya's Ghostform",
+      "Sentinel's Eyes",
+      "Shardmage's Rescue",
+      "All That Glitters",
+      "Demonic Ruckus",
+      "Sheltered by Ghosts"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Dimir Control",
+    "signature": [
+      "Torrential Gearhulk",
+      "Narset, Parter of Veils",
+      "Cling to Dust",
+      "Fatal Push",
+      "Thoughtseize",
+      "Censor",
+      "Change the Equation",
+      "Deduce",
+      "Negate",
+      "Sheoldred's Edict",
+      "Confounding Riddle",
+      "Mystical Dispute",
+      "Extinction Event",
+      "Deadly Cover-Up",
+      "Dig Through Time",
+      "Shark Typhoon"
+    ],
+    "deckIds": []
+  }
+]

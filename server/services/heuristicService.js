@@ -1,6 +1,7 @@
 const { db } = require('../db');
 const fs = require('fs');
 const path = require('path');
+const { getArchetypeForDeck } = require('./goldfishService');
 
 // Dynamically load signatures
 // Since this service is part of the API/Scraper, we load signatures from server/tags
@@ -23,8 +24,6 @@ function loadSignatures() {
     }
     return signatures;
 }
-
-const signatures = loadSignatures();
 
 // Helper to get Rules (Legacy or specific overrides not covered by AI signatures)
 // We keep the RULES array for manual overrides if needed, but prioritize signatures.
@@ -247,16 +246,30 @@ const RULES = [
     {
         target: 'Jeskai Artifacts',
         required: ['Simulacrum Synthesizer', 'Island']
+    },
+    // SCG CON / Magic Spotlight
+    {
+        target: 'Bant Airbending',
+        required: ['Aang, Swift Savior']
+    },
+    {
+        target: 'Bant Airbending',
+        required: ['Airbender Ascension']
+    },
+    {
+        target: 'Gruul Prowess',
+        required: ['Emberheart Challenger', 'Dreadmaw\'s Ire']
     }
 ];
 
 async function runHeuristicNormalization() {
     console.log('Starting Heuristic Normalization Job...');
+    const signatures = loadSignatures();
 
     // 1. Get all decks with their format (Async)
     let decks = [];
     try {
-        const decksRes = await db.execute('SELECT id, raw_decklist, archetype_id, format FROM decks');
+        const decksRes = await db.execute('SELECT id, raw_decklist, archetype_id, format, player_name, event_name, event_date FROM decks');
         decks = decksRes.rows;
     } catch (e) {
         console.error('Failed to fetch decks:', e);
@@ -318,7 +331,105 @@ async function runHeuristicNormalization() {
     // Iterate sequentially
     for (const deck of decks) {
         const list = deck.raw_decklist || '';
-        // 1. Apply Rules (PRIORITY: Rules override AI)
+        let matched = false;
+
+        // 0. Check High Confidence Signatures (>75% Match) - OVERRIDES RULES
+        const fmtSigs = signatures[deck.format];
+        if (fmtSigs && fmtSigs.length > 0) {
+            let bestMatch = null;
+            let maxScore = 0;
+
+            for (const sig of fmtSigs) {
+                let matchCount = 0;
+                for (const card of sig.signature) {
+                    if (list.includes(card)) matchCount++;
+                }
+                const score = matchCount / sig.signature.length;
+                if (score >= 0.75 && score > maxScore) {
+                    maxScore = score;
+                    bestMatch = sig.name;
+                }
+            }
+
+            if (bestMatch) {
+                try {
+                    const targetId = await getArchId(bestMatch, deck.format);
+                    if (deck.archetype_id !== targetId) {
+                        console.log(`[High Conf Match] Deck ${deck.id} -> ${bestMatch} (${(maxScore * 100).toFixed(1)}%)`);
+                        await db.execute({
+                            sql: 'UPDATE decks SET archetype_id = ? WHERE id = ?',
+                            args: [targetId, deck.id]
+                        });
+                        batchMoved++;
+                    }
+                    matched = true;
+                } catch (e) { console.error(e); }
+            }
+        }
+
+        if (matched) continue;
+
+        // 1. MTGGoldfish Lookup (Fallback for <75% match)
+        // Only run if we actually have data to look up (player, event, date)
+        if (deck.player_name && deck.event_name && deck.event_date) {
+            try {
+                const goldfishName = await getArchetypeForDeck(deck.player_name, deck.event_name, deck.event_date, deck.format);
+                if (goldfishName) {
+                    // Refinement: Check for "Generic" names (e.g., "WU", "UBG", "WUBRG")
+                    // Regex: String is only 2-5 chars long and contains only WUBRZGC
+                    // Note: "Burn" is 4 chars but 'n' is not in set.
+                    const isGeneric = /^[WUBRGCc]{2,5}$/.test(goldfishName);
+
+                    if (isGeneric) {
+                        console.log(`[Goldfish Generic] Found "${goldfishName}" for Deck ${deck.id}. Attempting signature override...`);
+
+                        // Re-run signature match with lower threshold (50%)
+                        let overrideMatch = null;
+                        let overrideScore = 0;
+                        const fmtSigs = signatures[deck.format];
+
+                        if (fmtSigs) {
+                            for (const sig of fmtSigs) {
+                                let matchCount = 0;
+                                for (const card of sig.signature) {
+                                    if (list.includes(card)) matchCount++;
+                                }
+                                const score = matchCount / sig.signature.length;
+                                if (score >= 0.50 && score > overrideScore) {
+                                    overrideScore = score;
+                                    overrideMatch = sig.name;
+                                }
+                            }
+                        }
+
+                        if (overrideMatch) {
+                            console.log(`[Generic Override] Replaced "${goldfishName}" with "${overrideMatch}" (${(overrideScore * 100).toFixed(1)}%)`);
+                            goldfishName = overrideMatch;
+                        } else {
+                            console.log(`[Generic Override] No signature match > 50%. Setting to "Unknown".`);
+                            goldfishName = 'Unknown';
+                        }
+                    }
+
+                    const targetId = await getArchId(goldfishName, deck.format);
+                    if (deck.archetype_id !== targetId) {
+                        // console.log(`[Goldfish Lookup] Deck ${deck.id} -> ${goldfishName}`);
+                        await db.execute({
+                            sql: 'UPDATE decks SET archetype_id = ? WHERE id = ?',
+                            args: [targetId, deck.id]
+                        });
+                        batchMoved++;
+                    }
+                    matched = true;
+                }
+            } catch (e) {
+                // Ignore lookup errors to keep moving
+            }
+        }
+
+        if (matched) continue;
+
+        // 2. Apply Manual Rules (PRIORITY: Rules override Lower Confidence AI)
         let ruleApplied = false;
         for (const rule of RULES) {
             const match = rule.required.every(card => list.includes(card));
@@ -341,40 +452,8 @@ async function runHeuristicNormalization() {
         }
         if (ruleApplied) continue;
 
-        // 2. If no rule matched, check AI signatures
-        const fmtSigs = signatures[deck.format];
-        if (fmtSigs && fmtSigs.length > 0) {
-            let bestMatch = null;
-            let maxScore = 0;
-
-            for (const sig of fmtSigs) {
-                let matchCount = 0;
-                for (const card of sig.signature) {
-                    if (list.includes(card)) matchCount++;
-                }
-
-                const score = matchCount / sig.signature.length;
-
-                if (score > 0.5 && score > maxScore) {
-                    maxScore = score;
-                    bestMatch = sig.name;
-                }
-            }
-
-            if (bestMatch) {
-                try {
-                    const targetId = await getArchId(bestMatch, deck.format);
-                    if (deck.archetype_id !== targetId) {
-                        await db.execute({
-                            sql: 'UPDATE decks SET archetype_id = ? WHERE id = ?',
-                            args: [targetId, deck.id]
-                        });
-                        batchMoved++;
-                    }
-                } catch (e) { console.error(e); }
-                continue;
-            }
-        }
+        // 3. Lower Confidence AI (>= 60%) - DISABLED per user request
+        // (Skipped)
     }
 
     console.log(`Heuristic Job Complete. Normalized ${batchMoved} decks.`);

@@ -1,0 +1,652 @@
+[
+  {
+    "name": "Blue Terror",
+    "signature": [
+      "Tolarian Terror",
+      "Cryptic Serpent",
+      "Delver of Secrets",
+      "Brainstorm",
+      "Counterspell",
+      "Lorien Revealed",
+      "Thought Scour",
+      "Sleep of the Dead",
+      "Mental Note",
+      "Ponder",
+      "Deem Inferior",
+      "Deep Analysis",
+      "Dispel"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono Red Madness",
+    "signature": [
+      "Sneaky Snacker",
+      "Guttersnipe",
+      "Voldaren Epicure",
+      "Kessig Flamebreather",
+      "Lava Dart",
+      "Lightning Bolt",
+      "Grab the Prize",
+      "Highway Robbery",
+      "Fiery Temper",
+      "Fireblast",
+      "Faithless Looting"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Elves",
+    "signature": [
+      "Llanowar Elves",
+      "Nyxborn Hydra",
+      "Quirion Ranger",
+      "Priest of Titania",
+      "Timberwatch Elf",
+      "Masked Vandal",
+      "Elvish Mystic",
+      "Fyndhorn Elves",
+      "Generous Ent",
+      "Avenging Hunter",
+      "Winding Way",
+      "Lead the Stampede"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Grixis Affinity",
+    "signature": [
+      "Refurbished Familiar",
+      "Myr Enforcer",
+      "Krark-Clan Shaman",
+      "Thoughtcast",
+      "Galvanic Blast",
+      "Reckoner's Bargain",
+      "Fanatical Offering",
+      "Toxin Analysis",
+      "Blood Fountain",
+      "Nihil Spellbomb",
+      "Ichor Wellspring",
+      "Cryogen Relic",
+      "Black Mage's Rod",
+      "Hunter's Blowgun",
+      "Makeshift Munitions"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Madness Burn",
+    "signature": [
+      "Voldaren Epicure",
+      "Sneaky Snacker",
+      "Kitchen Imp",
+      "Faithless Looting",
+      "Lightning Bolt",
+      "Grab the Prize",
+      "Fiery Temper",
+      "Vampire's Kiss",
+      "Alms of the Vein",
+      "Highway Robbery",
+      "Sazacap's Brew"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono Red Rally",
+    "signature": [
+      "Clockwork Percussionist",
+      "Goblin Bushwhacker",
+      "Goblin Tomb Raider",
+      "Voldaren Epicure",
+      "Burning-Tree Emissary",
+      "Lightning Bolt",
+      "Rally at the Hornburg",
+      "Galvanic Blast",
+      "Chain Lightning",
+      "Reckless Impulse",
+      "Experimental Synthesizer"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Jund Wildfire",
+    "signature": [
+      "Refurbished Familiar",
+      "Writhing Chrysalis",
+      "Krark-Clan Shaman",
+      "Nyxborn Hydra",
+      "Cast Down",
+      "Cleansing Wildfire",
+      "Eviscerator's Insight",
+      "Fanatical Offering",
+      "Toxin Analysis",
+      "Pulse of Murasa",
+      "Nihil Spellbomb",
+      "Ichor Wellspring",
+      "Lembas",
+      "Blood Fountain",
+      "Makeshift Munitions"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Caw-Gates",
+    "signature": [
+      "Sacred Cat",
+      "Squadron Hawk",
+      "Outlaw Medic",
+      "Guardian of the Guildpact",
+      "Brainstorm",
+      "Lorien Revealed",
+      "Thraben Charm",
+      "Prismatic Strands",
+      "Counterspell",
+      "Journey to Nowhere",
+      "The Modern Age"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono-Blue Faeries",
+    "signature": [
+      "Faerie Seer",
+      "Moon-Circuit Hacker",
+      "Spellstutter Sprite",
+      "Ninja of the Deep Hours",
+      "Faerie Miscreant",
+      "Harrier Strix",
+      "Brinebarrow Intruder",
+      "Counterspell",
+      "Of One Mind",
+      "Snap",
+      "Dispel"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Spy Combo",
+    "signature": [
+      "Masked Vandal",
+      "Balustrade Spy",
+      "Sagu Wildling",
+      "Generous Ent",
+      "Lotleth Giant",
+      "Gatecreeper Vine",
+      "Overgrown Battlement",
+      "Wall of Roots",
+      "Saruli Caretaker",
+      "Troll of Khazad-dum",
+      "Mesmeric Fiend",
+      "Quirion Ranger",
+      "Elves of Deep Shadow",
+      "Land Grant",
+      "Lead the Stampede",
+      "Dread Return",
+      "Winding Way",
+      "Lotus Petal"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Dimir Terror",
+    "signature": [
+      "Gurmag Angler",
+      "Tolarian Terror",
+      "Sneaky Snacker",
+      "Brainstorm",
+      "Counterspell",
+      "Snuff Out",
+      "Lorien Revealed",
+      "Thought Scour",
+      "Mental Note",
+      "Unexpected Fangs",
+      "Abandon Attachments",
+      "Cast Down",
+      "Deep Analysis",
+      "Suffocating Fumes"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Bogles",
+    "signature": [
+      "Gladecover Scout",
+      "Slippery Bogle",
+      "Silhana Ledgewalker",
+      "Malevolent Rumble",
+      "Abundant Growth",
+      "Ethereal Armor",
+      "Rancor",
+      "Utopia Sprawl",
+      "Ancestral Mask",
+      "Armadillo Cloak",
+      "Cartouche of Solidarity",
+      "Sentinel's Eyes"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Familiars",
+    "signature": [
+      "God-Pharaoh's Faithful",
+      "Sunscape Familiar",
+      "Archaeomancer",
+      "Mulldrifter",
+      "Murmuring Mystic",
+      "Snap",
+      "Ghostly Flicker",
+      "Lorien Revealed",
+      "Ephemerate",
+      "Prohibit",
+      "Preordain"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Gruul Ramp",
+    "signature": [
+      "Arbor Elf",
+      "Writhing Chrysalis",
+      "Avenging Hunter",
+      "Eldrazi Repurposer",
+      "Boarding Party",
+      "Jewel Thief",
+      "Bannerhide Krushok",
+      "Nyxborn Hydra",
+      "Sagu Wildling",
+      "Malevolent Rumble",
+      "Ram Through",
+      "Utopia Sprawl",
+      "Wild Growth"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Burn",
+    "signature": [
+      "Voldaren Epicure",
+      "Clockwork Percussionist",
+      "Goblin Tomb Raider",
+      "Lightning Bolt",
+      "Galvanic Blast",
+      "Fireblast",
+      "Experimental Synthesizer"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono-White Heroic",
+    "signature": [
+      "Lagonna-Band Trailblazer",
+      "Akroan Skyguard",
+      "Skyward Spider",
+      "Emerge Unscathed",
+      "Homestead Courage",
+      "Guiding Voice",
+      "Ethereal Armor",
+      "Hyena Umbra",
+      "Sentinel's Eyes",
+      "Spirit Link",
+      "Benevolent Blessing"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono-White Aggro",
+    "signature": [
+      "Novice Inspector",
+      "Thraben Inspector",
+      "Kor Skyfisher",
+      "Raffine's Informant",
+      "Lunarch Veteran",
+      "Eagles of the North",
+      "Summon: Choco/Mog",
+      "Spider-Man, Web-Slinger",
+      "Thraben Charm",
+      "Guardians' Pledge",
+      "Prismatic Strands",
+      "Battle Screech"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Dredge",
+    "signature": [
+      "Scrapwork Mutt",
+      "Stinkweed Imp",
+      "Lotleth Giant",
+      "Molten Gatekeeper",
+      "Satyr Wayfinder",
+      "Town Greeter",
+      "Generous Ent",
+      "Circle of the Land Druid",
+      "Dread Return",
+      "Malevolent Rumble",
+      "Momentary Blink"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Dimir Faeries",
+    "signature": [
+      "Faerie Seer",
+      "Spellstutter Sprite",
+      "Ninja of the Deep Hours",
+      "Thorn of the Black Rose",
+      "Augur of Bolas",
+      "Moon-Circuit Hacker",
+      "Murmuring Mystic",
+      "Cast Down",
+      "Counterspell",
+      "Lorien Revealed",
+      "Snuff Out",
+      "Brainstorm",
+      "Suffocating Fumes"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Jeskai Ephemerate",
+    "signature": [
+      "Augur of Bolas",
+      "Archaeomancer",
+      "Murmuring Mystic",
+      "Mulldrifter",
+      "Dispel",
+      "Ephemerate",
+      "Skred",
+      "Cleansing Wildfire",
+      "Counterspell",
+      "Lorien Revealed",
+      "Union of the Third Path",
+      "Preordain",
+      "Thraben Charm",
+      "Lightning Bolt"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Golgari Gardens",
+    "signature": [
+      "Crypt Rats",
+      "Avenging Hunter",
+      "Troll of Khazad-dum",
+      "Thorn of the Black Rose",
+      "Defile",
+      "Cast Down",
+      "Eviscerator's Insight",
+      "Fanatical Offering",
+      "Snuff Out",
+      "Reckoner's Bargain",
+      "Pulse of Murasa",
+      "Nihil Spellbomb",
+      "Ichor Wellspring",
+      "Lembas",
+      "Tithing Blade",
+      "Campfire"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Ephemerate Tron",
+    "signature": [
+      "Murmuring Mystic",
+      "Mnemonic Wall",
+      "Mulldrifter",
+      "Generous Ent",
+      "Nyxborn Hydra",
+      "Stonehorn Dignitary",
+      "Crop Rotation",
+      "Ephemerate",
+      "Impulse",
+      "Moment's Peace",
+      "Prohibit",
+      "Weather the Storm",
+      "Ghostly Flicker",
+      "Pulse of Murasa",
+      "Unwind",
+      "Mystical Teachings",
+      "Breath Weapon",
+      "Expedition Map",
+      "Energy Refractor",
+      "Prophetic Prism"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Glintblade",
+    "signature": [
+      "Glint Hawk",
+      "Kor Skyfisher",
+      "Refurbished Familiar",
+      "Thraben Inspector",
+      "Cast Down",
+      "Thraben Charm",
+      "Fanatical Offering",
+      "Suffocating Fumes",
+      "Eviscerator's Insight",
+      "Lembas",
+      "Tithing Blade",
+      "Grim Bauble",
+      "Blood Fountain",
+      "Omen of the Dead"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Boros Synthesizer",
+    "signature": [
+      "Glint Hawk",
+      "Thraben Inspector",
+      "Kor Skyfisher",
+      "Novice Inspector",
+      "Dawnbringer Cleric",
+      "Galvanic Blast",
+      "Lightning Bolt",
+      "Thraben Charm",
+      "Experimental Synthesizer",
+      "Lembas",
+      "Relic of Progenitus",
+      "Journey to Nowhere"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Orzhov Ephemerate",
+    "signature": [
+      "Novice Inspector",
+      "Thraben Inspector",
+      "Inspiring Overseer",
+      "Ephemerate",
+      "Cast Down",
+      "Thraben Charm"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Naya Ramp",
+    "signature": [
+      "Arbor Elf",
+      "Nyxborn Hydra",
+      "Aura Gnarlid",
+      "Jewel Thief",
+      "Writhing Chrysalis",
+      "Avenging Hunter",
+      "Summon: Fat Chocobo",
+      "Generous Ent",
+      "Malevolent Rumble",
+      "Abundant Growth",
+      "Utopia Sprawl",
+      "Wild Growth",
+      "Ancestral Mask"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Dimir Affinity",
+    "signature": [
+      "Dream Stalker",
+      "Kenku Artificer",
+      "Refurbished Familiar",
+      "Gearseeker Serpent",
+      "Cast Down",
+      "Eviscerator's Insight",
+      "Fanatical Offering",
+      "Muddle the Mixture",
+      "Unexpected Fangs",
+      "Metallic Rebuke",
+      "Thoughtcast",
+      "Blood Fountain",
+      "Grim Bauble",
+      "Black Mage's Rod",
+      "Cryogen Relic"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Selesnya Ramp",
+    "signature": [
+      "Arbor Elf",
+      "Nyxborn Hydra",
+      "Jewel Thief",
+      "Avenging Hunter",
+      "Entourage of Trest",
+      "Goliath Paladin",
+      "Generous Ent",
+      "Pegasus Guardian",
+      "Vines of Vastwood",
+      "Malevolent Rumble",
+      "Moment's Peace",
+      "Utopia Sprawl",
+      "Wild Growth"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Inside Out Combo",
+    "signature": [
+      "Tireless Tribe",
+      "Squadron Hawk",
+      "Brainstorm",
+      "Dispel",
+      "Preordain",
+      "Inside Out",
+      "Whiteout",
+      "Circular Logic",
+      "Prismatic Strands",
+      "Wedding Invitation"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mardu Aggro",
+    "signature": [
+      "Curious Farm Animals",
+      "Lunarch Veteran",
+      "Mardu Devotee",
+      "Novice Inspector",
+      "Steadfast Unicorn",
+      "Thraben Inspector",
+      "Kor Skyfisher",
+      "Raffine's Informant",
+      "Eagles of the North",
+      "Salt Road Packbeast",
+      "Firebending Lesson",
+      "Guiding Voice",
+      "Abandon Attachments",
+      "Azula Always Lies",
+      "Celestial Flare",
+      "Revoke Existence",
+      "Study Break",
+      "Thraben Charm",
+      "Guardians' Pledge",
+      "How to Start a Riot",
+      "Prismatic Strands",
+      "Battle Screech",
+      "Greatsword of Tyr"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Mono-White Ephemerate",
+    "signature": [
+      "Ardent Recruit",
+      "Doomed Traveler",
+      "Gingerbrute",
+      "Lunarch Veteran",
+      "Novice Inspector",
+      "Thraben Inspector",
+      "Kor Skyfisher",
+      "Militia Bugler",
+      "Summon: Choco/Mog",
+      "Luxknight Breacher",
+      "Myr Enforcer",
+      "Ephemerate",
+      "Thraben Charm",
+      "Battle Screech",
+      "Bonesplitter",
+      "Instant Ramen"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Naya Ephemerate",
+    "signature": [
+      "Sacred Cat",
+      "Dawnbringer Cleric",
+      "Gatecreeper Vine",
+      "Raffine's Informant",
+      "Evolution Witness",
+      "Militia Bugler",
+      "Coalition Honor Guard",
+      "Guardian of the Guildpact",
+      "Saruli Gatekeepers",
+      "Writhing Chrysalis",
+      "Soul of Migration",
+      "Ephemerate",
+      "Malevolent Rumble",
+      "Prismatic Strands",
+      "Journey to Nowhere"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Jund Ramp",
+    "signature": [
+      "Arbor Elf",
+      "Jewel Thief",
+      "Bannerhide Krushok",
+      "Writhing Chrysalis",
+      "Avenging Hunter",
+      "Furnace Strider",
+      "Boarding Party",
+      "Oliphaunt",
+      "Troll of Khazad-dum",
+      "Exhume",
+      "Malevolent Rumble",
+      "Temur Battle Rage",
+      "Utopia Sprawl",
+      "Wild Growth"
+    ],
+    "deckIds": []
+  },
+  {
+    "name": "Simic Ponza",
+    "signature": [
+      "Arbor Elf",
+      "Nyxborn Hydra",
+      "Coiling Oracle",
+      "Stickytongue Sentinel",
+      "Avenging Hunter",
+      "Generous Ent",
+      "Abjure",
+      "Thermokarst",
+      "Mwonvuli Acid-Moss",
+      "Cryogen Relic",
+      "Utopia Sprawl",
+      "Wild Growth",
+      "Reality Acid"
+    ],
+    "deckIds": []
+  }
+]
