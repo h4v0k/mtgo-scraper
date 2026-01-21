@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import './Gameplay.css';
 import { fetchPlayerHistory } from '../../services/api';
+import { DeckView } from '../Dashboard/DeckView';
 
 interface PlayerDeck {
     id: number;
@@ -16,8 +17,8 @@ export function Gameplay() {
     const [playerName, setPlayerName] = useState('');
     const [history, setHistory] = useState<PlayerDeck[]>([]);
     const [loading, setLoading] = useState(false);
-    const [searchedName, setSearchedName] = useState('');
     const [error, setError] = useState('');
+    const [viewDeckId, setViewDeckId] = useState<number | null>(null);
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -27,6 +28,7 @@ export function Gameplay() {
         setError('');
         setSearchedName(playerName);
         setHistory([]);
+        setViewDeckId(null);
 
         try {
             const data = await fetchPlayerHistory(playerName);
@@ -38,6 +40,10 @@ export function Gameplay() {
             setLoading(false);
         }
     };
+
+    if (viewDeckId) {
+        return <DeckView deckId={viewDeckId} onBack={() => setViewDeckId(null)} />;
+    }
 
     return (
         <div className="gameplay-container">
@@ -72,7 +78,11 @@ export function Gameplay() {
                     ) : (
                         <div className="history-grid">
                             {history.map((deck) => (
-                                <div key={deck.id} className="history-card">
+                                <div
+                                    key={deck.id}
+                                    className="history-card clickable"
+                                    onClick={() => setViewDeckId(deck.id)}
+                                >
                                     <div className="card-header">
                                         <span className="event-date">{new Date(deck.event_date).toLocaleDateString()}</span>
                                         <span className={`rank-badge rank-${deck.rank <= 8 ? 'top8' : 'other'}`}>
