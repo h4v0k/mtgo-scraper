@@ -342,8 +342,8 @@ async function processEvent(event, formatName) {
 
                 // Check Deck Duplicate
                 const dupCheck = await db.execute({
-                    sql: 'SELECT id FROM decks WHERE player_name = ? AND event_name = ?',
-                    args: [player, event.text]
+                    sql: 'SELECT id FROM decks WHERE player_name = ? AND event_name = ? AND event_date = ?',
+                    args: [player, event.text, event.date]
                 });
                 if (dupCheck.rows.length > 0) continue;
 
