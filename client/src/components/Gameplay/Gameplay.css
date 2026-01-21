@@ -39,8 +39,8 @@
 .input-wrapper {
     position: relative;
     flex: 1;
-    min-width: 400px;
-    /* Ensure enough space for placeholder */
+    min-width: 200px;
+    /* Reduced for mobile */
 }
 
 .player-input {
