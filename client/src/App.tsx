@@ -120,6 +120,8 @@ function App() {
           top8={top8} setTop8={setTop8}
           selectedEvents={selectedEvents}
           setSelectedEvents={setSelectedEvents}
+          onCustomDateChange={handleCustomDateChange}
+          startDate={startDate}
         />
         {loading ? (
           <div className="loading-state">Loading Arcane Knowledge...</div>
