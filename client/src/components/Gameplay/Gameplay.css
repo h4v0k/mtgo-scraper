@@ -242,6 +242,19 @@
     color: var(--text-secondary);
 }
 
+.rank-swiss {
+    background: rgba(0, 255, 255, 0.1);
+    color: #00ffff;
+    border: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.rank-league {
+    background: rgba(0, 255, 100, 0.15);
+    /* Greenish for 5-0 */
+    color: #50ff90;
+    border: 1px solid rgba(0, 255, 100, 0.3);
+}
+
 .deck-info h4 {
     margin: 0.5rem 0;
     font-size: 1.1rem;

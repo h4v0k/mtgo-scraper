@@ -68,6 +68,7 @@ async function fetchPlayerHistory(playerName, days = 30) {
 
     // Note: User-Agent is required to avoid 403/404 on some setups.
     const url = `https://www.mtggoldfish.com/player/${encodeURIComponent(playerName)}`;
+    console.log(`FETCHING GOLDFISH HISTORY: ${url} (Days: ${days})`);
 
     try {
         const response = await fetch(url, {
@@ -77,6 +78,7 @@ async function fetchPlayerHistory(playerName, days = 30) {
         });
 
         if (response.status === 404) {
+            console.warn(`Goldfish Player 404: ${playerName}`);
             return [];
         }
 
@@ -153,6 +155,7 @@ async function fetchPlayerHistory(playerName, days = 30) {
 async function syncPlayerDecks(playerName, days = 30) {
     console.log(`Syncing decks for ${playerName} (last ${days} days)...`);
     const externalDecks = await fetchPlayerHistory(playerName, days);
+    console.log(`Found ${externalDecks.length} external decks to potentially sync.`);
 
     let importedCount = 0;
 
@@ -166,12 +169,20 @@ async function syncPlayerDecks(playerName, days = 30) {
             args: [playerName, d.event_name, d.event_date]
         });
 
-        if (existing.rows.length > 0) continue;
+        if (existing.rows.length > 0) {
+            // console.log(`Skipping existing: ${d.event_name} - ${d.event_date}`);
+            continue;
+        }
 
+        console.log(`Scraping DETAILS for: ${d.url}`);
         // Scrape details
         const details = await scrapeDeck(d.url);
-        if (!details || (!details.raw_decklist && !details.sideboard)) continue;
+        if (!details || (!details.raw_decklist && !details.sideboard)) {
+            console.warn(`Failed to scrape details for ${d.url}`);
+            continue;
+        }
 
+        console.log(`Persisting new deck: ${d.archetype} for ${playerName}`);
         // Resolve Archetype
         let archId = null;
         try {
