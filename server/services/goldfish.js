@@ -1,7 +1,7 @@
 
 const cheerio = require('cheerio');
 
-async function fetchPlayerHistory(playerName) {
+async function fetchPlayerHistory(playerName, days = 30) {
     // Goldfish tends to use simple usernames in URLs, but sometimes they differ.
     // For now, we assume direct mapping or user knows the handle.
     // 'OkoDioWins' -> 'OkoDio' mappings might be needed if they differ often,
@@ -58,16 +58,16 @@ async function fetchPlayerHistory(playerName) {
                         const rankMatch = rankRaw.match(/(\d+)/);
                         if (rankMatch) rank = parseInt(rankMatch[1]);
 
-                        // Parse date and filter > 30 days
+                        // Parse date and filter > X days
                         // Goldfish date is YYYY-MM-DD
                         const eventDate = new Date(dateRaw);
                         const today = new Date();
-                        const thirtyDaysAgo = new Date();
-                        thirtyDaysAgo.setDate(today.getDate() - 30);
+                        const cutoffDate = new Date();
+                        cutoffDate.setDate(today.getDate() - days);
 
                         // Compare timestamps to be safe
                         // Note: Goldfish dates are UTC midnight usually.
-                        if (eventDate.getTime() < thirtyDaysAgo.getTime()) return;
+                        if (eventDate.getTime() < cutoffDate.getTime()) return;
 
                         decks.push({
                             source: 'mtggoldfish',

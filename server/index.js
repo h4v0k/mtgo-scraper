@@ -462,15 +462,18 @@ app.get('/api/deck/:id', authenticateToken, async (req, res) => {
 // Get Player History (For Gameplay Tab)
 app.get('/api/player/:name/history', authenticateToken, async (req, res) => {
     const { name } = req.params;
+    let { days } = req.query;
+    if (!days) days = '30'; // Default
+
     try {
         const result = await db.execute({
             sql: `SELECT d.id, d.event_date, d.event_name, d.format, d.rank, a.name as archetype, d.player_name
                   FROM decks d
                   JOIN archetypes a ON d.archetype_id = a.id
                   WHERE d.player_name LIKE ?
-                  AND d.event_date >= date('now', '-30 days')
+                  AND d.event_date >= date('now', '-' || ? || ' days')
                   ORDER BY d.event_date DESC`,
-            args: [name]
+            args: [name, days]
         });
         res.json(result.rows);
     } catch (e) {
@@ -501,8 +504,11 @@ app.get('/api/players/search', authenticateToken, async (req, res) => {
 // Get External History (Goldfish)
 app.get('/api/player/:name/goldfish', authenticateToken, async (req, res) => {
     const { name } = req.params;
+    let { days } = req.query;
+    if (!days) days = '30';
+
     try {
-        const history = await goldfish.fetchPlayerHistory(name);
+        const history = await goldfish.fetchPlayerHistory(name, parseInt(days));
         res.json(history);
     } catch (e) {
         res.status(500).json({ error: e.message });
