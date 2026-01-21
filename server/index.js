@@ -8,6 +8,7 @@ const { db, initDB } = require('./db'); // Import db and init helper
 const seedRemote = require('./seed_remote');
 // const scraper = require('./services/scraper'); // DISABLE SCRAPER IN VERCEL (Running manually via seed script)
 const goldfish = require('./services/goldfish'); // Import Goldfish service
+const { calculateSpice } = require('./services/spice');
 
 dotenv.config();
 
@@ -398,57 +399,15 @@ app.get('/api/deck/:id', authenticateToken, async (req, res) => {
         });
         const contextDecks = contextRes.rows;
 
-        // Build Freq Map
-        const LANDS = new Set(require('./constants/lands'));
-        const cardCounts = {};
-        const total = contextDecks.length;
-
-        const processList = (list) => {
-            if (!list) return;
-            list.split('\n').forEach(line => {
-                const parts = line.trim().split(' ');
-                const count = parseInt(parts[0]);
-                if (!isNaN(count)) {
-                    const cardName = parts.slice(1).join(' ');
-                    if (!LANDS.has(cardName) && !cardName.includes('Verge') && !cardName.includes('Land')) {
-                        cardCounts[cardName] = (cardCounts[cardName] || 0) + 1;
-                    }
-                }
-            });
-        };
-
-        contextDecks.forEach(d => {
-            processList(d.raw_decklist);
-            processList(d.sideboard);
-        });
-
         // Identify Spice Cards (Strict Logic)
-        const spiceCards = [];
-        let threshold = Math.max(1, Math.floor(total * 0.15));
+        contextDecks.push({ raw_decklist: deck.raw_decklist, sideboard: deck.sideboard });
 
-        // FIX: If sample size is too small, disable spice to avoid flagging entire deck
-        if (total < 5) {
-            threshold = -1;
-        }
+        const spiceResult = calculateSpice({
+            raw_decklist: deck.raw_decklist,
+            sideboard: deck.sideboard
+        }, contextDecks);
 
-        const checkSpice = (list) => {
-            if (!list) return;
-            list.split('\n').forEach(line => {
-                const parts = line.trim().split(' ');
-                if (parseInt(parts[0])) {
-                    const cardName = parts.slice(1).join(' ');
-                    const count = cardCounts[cardName] || 0;
-                    if (count > 0 && count <= threshold && !LANDS.has(cardName) && !cardName.includes('Verge') && !cardName.includes('Land')) {
-                        if (!spiceCards.includes(cardName)) spiceCards.push(cardName);
-                    }
-                }
-            });
-        };
-
-        checkSpice(deck.raw_decklist);
-        checkSpice(deck.sideboard);
-
-        res.json({ ...deck, spice_cards: spiceCards });
+        res.json({ ...deck, spice_cards: spiceResult.cards });
     } catch (e) {
         console.error(e);
         res.status(500).json({ error: e.message });
