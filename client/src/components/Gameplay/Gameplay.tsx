@@ -112,9 +112,10 @@ export function Gameplay() {
 
         const merged = [...localTagged];
 
-        // Improve Deduplication: Normalize keys
-        // Goldfish dates are YYYY-MM-DD. Local are ISO.
-        // Goldfish event names might differ slightly.
+        // Improve Deduplication: 
+        // 1. Primary Key: Date + Normalized Event Name
+        // 2. Secondary Key: Date + Format + Rank (Strong signal for Top 8/Challenges)
+
         const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
 
         const localKeys = new Set(localTagged.map((d: any) => {
@@ -122,12 +123,25 @@ export function Gameplay() {
             return `${dateStr}|${normalize(d.event_name)}`;
         }));
 
-        externalTagged.forEach((d: any) => {
-            const dateStr = d.event_date.split('T')[0]; // Goldfish is usually just date
-            const key = `${dateStr}|${normalize(d.event_name)}`;
+        const localSecondaryKeys = new Set(localTagged.map((d: any) => {
+            const dateStr = d.event_date.split('T')[0];
+            // Only use secondary key if we have a valid rank (Top N or 5-0)
+            if (d.rank && d.rank > 0) {
+                return `${dateStr}|${d.format.toLowerCase()}|${d.rank}`;
+            }
+            return null;
+        }).filter(Boolean));
 
-            // If local does NOT have this key, add it.
-            if (!localKeys.has(key)) {
+        externalTagged.forEach((d: any) => {
+            const dateStr = d.event_date.split('T')[0];
+            const nameKey = `${dateStr}|${normalize(d.event_name)}`;
+            const rankKey = (d.rank && d.rank > 0) ? `${dateStr}|${d.format.toLowerCase()}|${d.rank}` : null;
+
+            // Check both keys
+            const existsByName = localKeys.has(nameKey);
+            const existsByRank = rankKey ? localSecondaryKeys.has(rankKey) : false;
+
+            if (!existsByName && !existsByRank) {
                 merged.push(d);
             }
         });
@@ -250,7 +264,7 @@ export function Gameplay() {
                                     <div className="card-header">
                                         <span className="event-date">{new Date(deck.event_date).toLocaleDateString()}</span>
                                         <span className={`rank-badge ${isLeague(deck.event_name) ? 'rank-league' :
-                                                deck.rank <= 8 ? 'rank-top8' : 'rank-swiss'
+                                            deck.rank <= 8 ? 'rank-top8' : 'rank-swiss'
                                             } ${deck.source === 'mtggoldfish' ? 'rank-external' : ''}`}>
                                             {isLeague(deck.event_name) ? '5-0' : `#${deck.rank}`}
                                         </span>
