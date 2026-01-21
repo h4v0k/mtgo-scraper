@@ -188,8 +188,8 @@ export function Gameplay() {
                                 >
                                     <div className="card-header">
                                         <span className="event-date">{new Date(deck.event_date).toLocaleDateString()}</span>
-                                        <span className={`rank-badge rank-${deck.rank <= 8 ? 'top8' : 'other'}`}>
-                                            #{deck.rank}
+                                        <span className={`rank-badge rank-${(deck.rank <= 8 || deck.event_name.toLowerCase().includes('league')) ? 'top8' : 'other'}`}>
+                                            {deck.event_name.toLowerCase().includes('league') ? '5-0' : `#${deck.rank}`}
                                         </span>
                                     </div>
                                     <div className="deck-info">
