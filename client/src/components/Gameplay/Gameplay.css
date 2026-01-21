@@ -97,6 +97,19 @@
     background: rgba(255, 255, 255, 0.05);
 }
 
+.clickable {
+    cursor: pointer;
+}
+
+.external-source {
+    border-color: rgba(255, 165, 0, 0.4);
+}
+
+.source-tag {
+    color: #ffa500;
+    font-weight: bold;
+}
+
 .card-header {
     display: flex;
     justify-content: space-between;
