@@ -1,17 +1,23 @@
 const { createClient } = require('@libsql/client');
 const path = require('path');
 const dotenv = require('dotenv');
-const fs = require('fs');
+// const fs = require('fs'); // Disable fs to avoid serverless issues
 
 dotenv.config();
 
 // FALLBACK CREDENTIALS (EMERGENCY FIX for Production)
 // User requested immediate connection fix.
-const FALLBACK_URL = 'libsql://mtgo-scraper-h4v0k.aws-us-east-1.turso.io';
+// NOTE: specific protocol change to https:// to ensure HTTP driver is used (safer for Serverless)
+const FALLBACK_URL = 'https://mtgo-scraper-h4v0k.aws-us-east-1.turso.io';
 const FALLBACK_TOKEN = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3Njc1ODExNDMsImlkIjoiOTM4NWE5YWQtM2YwNy00ZmViLWFmMGYtMWQzZjI2ZTg3NmIwIiwicmlkIjoiNGUzZjY2YjYtNDE1NC00OGMzLThjYzMtOGViNThmYzdjMzI4In0.i5NQHQ6ICS0Bk7_rWnZLgKPXthM-tzFPzF1bgyj3C1mwTjsOiN745kDvxa2ft3h9aPfwpnnT8HMfV-Gmz4e9CQ';
 
 // Determine URL: Use TURSO_DATABASE_URL if present, otherwise fallback to hardcoded URL
-const url = process.env.TURSO_DATABASE_URL || FALLBACK_URL;
+// Ensure we prefer HTTPS
+let url = process.env.TURSO_DATABASE_URL || FALLBACK_URL;
+if (url.startsWith('libsql://')) {
+    url = url.replace('libsql://', 'https://');
+}
+
 const authToken = process.env.TURSO_AUTH_TOKEN || FALLBACK_TOKEN;
 
 console.log(`Initializing Database with URL: ${url}`);
