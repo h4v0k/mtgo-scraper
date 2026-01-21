@@ -478,6 +478,26 @@ app.get('/api/player/:name/history', authenticateToken, async (req, res) => {
     }
 });
 
+// Search Players (Auto-complete)
+app.get('/api/players/search', authenticateToken, async (req, res) => {
+    const { q } = req.query;
+    if (!q || q.length < 2) return res.json([]);
+
+    try {
+        const result = await db.execute({
+            sql: `SELECT DISTINCT player_name 
+                  FROM decks 
+                  WHERE player_name LIKE ? 
+                  ORDER BY player_name ASC 
+                  LIMIT 10`,
+            args: [`%${q}%`]
+        });
+        res.json(result.rows.map(r => r.player_name));
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // Get External History (Goldfish)
 app.get('/api/player/:name/goldfish', authenticateToken, async (req, res) => {
     const { name } = req.params;
