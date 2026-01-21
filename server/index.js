@@ -196,8 +196,10 @@ app.get('/api/meta', authenticateToken, async (req, res) => {
 
     const eventList = events ? (Array.isArray(events) ? events : [events]) : null;
 
-    // Calculate date threshold
-    const dateQuery = `date('now', '-${days} days')`;
+    // Calculate date threshold in JS to ensure consistency (UTC)
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - parseInt(days));
+    const cutoffStr = cutoffDate.toISOString();
 
     const rankFilter = (top8 === 'true') ? 'AND rank <= 8' : '';
     const eventFilter = eventList ? `AND event_name IN (${eventList.map(() => '?').join(',')})` : '';
@@ -208,14 +210,14 @@ app.get('/api/meta', authenticateToken, async (req, res) => {
             COUNT(*) as count,
             (SELECT COUNT(*) FROM decks d2 
              WHERE d2.format = ? 
-             AND d2.event_date >= date('now', '-' || ? || ' days') 
+             AND d2.event_date >= ? 
              ${rankFilter}
              ${eventFilter}
             ) as total_decks
         FROM decks d
         JOIN archetypes a ON d.archetype_id = a.id
         WHERE d.format = ? 
-        AND d.event_date >= date('now', '-' || ? || ' days')
+        AND d.event_date >= ?
         ${rankFilter}
         ${eventFilter}
     `;
@@ -223,7 +225,7 @@ app.get('/api/meta', authenticateToken, async (req, res) => {
     query += ` GROUP BY a.name ORDER BY count DESC`;
 
     // Params construction:
-    const baseParams = [format, days];
+    const baseParams = [format, cutoffStr];
     const eventParams = eventList || [];
 
     const finalParams = [
@@ -255,16 +257,20 @@ app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
 
     const eventList = events ? (Array.isArray(events) ? events : [events]) : null;
 
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - parseInt(days));
+    const cutoffStr = cutoffDate.toISOString();
+
     let query = `
         SELECT d.id, d.player_name, d.event_name, d.event_date, d.rank, d.raw_decklist, d.sideboard
         FROM decks d
         JOIN archetypes a ON d.archetype_id = a.id
         WHERE a.name = ? AND d.format = ?
-        AND d.event_date >= date('now', '-' || ? || ' days')
+        AND d.event_date >= ?
     `;
 
     // Initialize params with base required values
-    const params = [name, format, days];
+    const params = [name, format, cutoffStr];
 
     if (top8 === 'true') {
         query += ` AND d.rank <= 8`;
@@ -372,12 +378,16 @@ app.get('/api/deck/:id', authenticateToken, async (req, res) => {
 
         if (!deck) return res.status(404).json({ message: 'Deck not found' });
 
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - 30);
+        const cutoffStr = cutoffDate.toISOString();
+
         // Get context for spice
         const contextRes = await db.execute({
             sql: `SELECT raw_decklist, sideboard FROM decks 
                   WHERE archetype_id = ? 
-                  AND event_date >= date('now', '-30 days')`,
-            args: [deck.archetype_id]
+                  AND event_date >= ?`,
+            args: [deck.archetype_id, cutoffStr]
         });
         const contextDecks = contextRes.rows;
 
@@ -448,19 +458,23 @@ app.get('/api/events', authenticateToken, async (req, res) => {
     if (!days) days = '7';
     if (!format) format = 'Standard';
 
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - parseInt(days));
+    const cutoffStr = cutoffDate.toISOString();
+
     // Get unique event names for this format/timeframe
     const query = `
         SELECT DISTINCT event_name 
         FROM decks 
         WHERE format = ? 
-        AND event_date >= date('now', '-' || ? || ' days')
+        AND event_date >= ?
         ORDER BY event_name
     `;
 
     try {
         const result = await db.execute({
             sql: query,
-            args: [format, days]
+            args: [format, cutoffStr]
         });
         res.json(result.rows.map(e => e.event_name));
     } catch (e) {
