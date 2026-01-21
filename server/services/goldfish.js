@@ -58,7 +58,16 @@ async function fetchPlayerHistory(playerName) {
                         const rankMatch = rankRaw.match(/(\d+)/);
                         if (rankMatch) rank = parseInt(rankMatch[1]);
 
-                        // Parse date to ISO if possible. Goldfish uses YYYY-MM-DD
+                        // Parse date and filter > 30 days
+                        // Goldfish date is YYYY-MM-DD
+                        const eventDate = new Date(dateRaw);
+                        const today = new Date();
+                        const thirtyDaysAgo = new Date();
+                        thirtyDaysAgo.setDate(today.getDate() - 30);
+
+                        // Compare timestamps to be safe
+                        // Note: Goldfish dates are UTC midnight usually.
+                        if (eventDate.getTime() < thirtyDaysAgo.getTime()) return;
 
                         decks.push({
                             source: 'mtggoldfish',
