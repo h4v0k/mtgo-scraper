@@ -17,6 +17,7 @@ export function Gameplay() {
     const [playerName, setPlayerName] = useState('');
     const [history, setHistory] = useState<PlayerDeck[]>([]);
     const [loading, setLoading] = useState(false);
+    const [searchedName, setSearchedName] = useState('');
     const [error, setError] = useState('');
     const [viewDeckId, setViewDeckId] = useState<number | null>(null);
 
