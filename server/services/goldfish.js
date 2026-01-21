@@ -1,53 +1,38 @@
 
 const { db } = require('../db');
 const cheerio = require('cheerio');
-const puppeteer = require('puppeteer');
 
 async function scrapeDeck(url) {
-    let browser = null;
     try {
-        console.log(`Launching Puppeteer for ${url}`);
-        browser = await puppeteer.launch({
-            headless: "new",
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-        });
-        const page = await browser.newPage();
-
-        // Block images/css to speed up
-        await page.setRequestInterception(true);
-        page.on('request', (req) => {
-            if (['image', 'stylesheet', 'font'].includes(req.resourceType())) req.abort();
-            else req.continue();
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                'Referer': 'https://www.mtggoldfish.com/'
+            }
         });
 
-        await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-
-        // Go to page
-        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-
-        // Wait for connection/textarea logic or just dump html
-        // Goldfish deck input is often in a textarea or table
-        // We'll wait a bit for hydration
-        await new Promise(r => setTimeout(r, 2000));
-
-        const content = await page.content();
-        const $ = cheerio.load(content);
+        if (!response.ok) throw new Error(`Status ${response.status}`);
+        const html = await response.text();
+        const $ = cheerio.load(html);
 
         const mainDeck = [];
         const sideboard = [];
-        let sbMode = false;
 
-        // Try textarea first
-        const deckTextArea = $('.deck-view-deck-table').next('textarea.copy-paste-box').val();
+        // 1. Try hidden input (Most reliable for raw list)
+        // Format is usually "Qty Name\nQty Name"
+        // Sideboard is sometimes separated by empty line or "Sideboard" header in text, 
+        // OR it's just a flat list. ID #deck_input_deck seems to convert to MTGO format.
+        const deckInputVal = $('#deck_input_deck').val();
 
-        if (deckTextArea) {
-            // Easier parsing if text area exists
-            const lines = deckTextArea.split('\n');
+        if (deckInputVal) {
+            const lines = deckInputVal.split('\n');
             let isSb = false;
             for (const line of lines) {
                 const trimmed = line.trim();
                 if (!trimmed) continue;
-                if (trimmed.toLowerCase().includes('sideboard')) {
+                // Goldfish export format usually puts "Sideboard" line if it exists
+                if (trimmed.toLowerCase() === 'sideboard') {
                     isSb = true;
                     continue;
                 }
@@ -55,20 +40,49 @@ async function scrapeDeck(url) {
                 else mainDeck.push(trimmed);
             }
         } else {
-            // Fallback to table parsing if copy-paste box is missing
-            $('table.deck-view-deck-table tr').each((i, row) => {
-                const qty = $(row).find('.deck-col-qty').text().trim();
-                const name = $(row).find('.deck-col-card a').text().trim();
-                if (qty && name) {
-                    // This scraper is tough because SB is separated by headers
-                    // Simplified: just grab everything as mainboard for now if fallback
-                    mainDeck.push(`${qty} ${name}`);
+            // 2. Fallback to Copy/Paste Textarea
+            const deckTextArea = $('textarea.copy-paste-box').val();
+            if (deckTextArea) {
+                const lines = deckTextArea.split('\n');
+                let isSb = false;
+                for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed) continue;
+                    if (trimmed.toLowerCase().includes('sideboard')) {
+                        isSb = true;
+                        continue;
+                    }
+                    if (isSb) sideboard.push(trimmed);
+                    else mainDeck.push(trimmed);
                 }
-            });
+            } else {
+                // 3. Fallback to Table Parsing (Least reliable due to layout changes)
+                // Goldfish separates main/side with headers in standard view
+                let tableSbMode = false;
+                $('table.deck-view-deck-table').each((tIdx, table) => {
+                    // Heuristic: If we see a header row saying Sideboard, switch mode
+                    if ($(table).prev().text().toLowerCase().includes('sideboard')) tableSbMode = true;
+
+                    $(table).find('tr').each((i, row) => {
+                        if ($(row).find('th').text().toLowerCase().includes('sideboard')) {
+                            tableSbMode = true;
+                            return;
+                        }
+                        const qty = $(row).find('.deck-col-qty').text().trim();
+                        const name = $(row).find('.deck-col-card a').text().trim();
+                        if (qty && name) {
+                            if (tableSbMode) sideboard.push(`${qty} ${name}`);
+                            else mainDeck.push(`${qty} ${name}`);
+                        }
+                    });
+                    // If multiple tables, usually 2nd is sideboard?
+                    // if (tIdx > 0 && !tableSbMode) tableSbMode = true; 
+                });
+            }
         }
 
         if (mainDeck.length === 0 && sideboard.length === 0) {
-            console.warn("Puppeteer found no deck content.");
+            console.warn("Goldfish scraper found no deck content.");
             return null;
         }
 
@@ -78,9 +92,7 @@ async function scrapeDeck(url) {
         };
     } catch (e) {
         console.error(`Error scraping deck ${url}:`, e);
-        return null;
-    } finally {
-        if (browser) await browser.close();
+        return null; // Fail gracefully
     }
 }
 
