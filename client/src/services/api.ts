@@ -244,6 +244,20 @@ export async function fetchGoldfishHistory(name: string, days: number = 30): Pro
     return response.json();
 }
 
+export async function syncPlayer(name: string, days: number = 30): Promise<void> {
+    const token = getToken();
+    // Fire and forget, we don't await the result strictly for UI blocking, 
+    // but here we just send the request.
+    await fetch(`${API_URL}/player/${encodeURIComponent(name)}/sync`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ days })
+    });
+}
+
 export async function searchPlayers(query: string): Promise<string[]> {
     if (!query || query.length < 2) return [];
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import './Gameplay.css';
-import { fetchPlayerHistory, fetchGoldfishHistory, searchPlayers } from '../../services/api';
+import { fetchPlayerHistory, fetchGoldfishHistory, searchPlayers, syncPlayer } from '../../services/api';
 import { DeckView } from '../Dashboard/DeckView';
 
 interface PlayerDeck {
@@ -105,6 +105,11 @@ export function Gameplay() {
             merged.sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
 
             setHistory(merged);
+
+            // Trigger background sync to import missing decks
+            // We do this after setting history so UI updates first
+            syncPlayer(name, lookbackDays).catch(err => console.error("Sync trigger failed", err));
+
         } catch (err) {
             setError('An error occurred while fetching player history.');
             console.error(err);
