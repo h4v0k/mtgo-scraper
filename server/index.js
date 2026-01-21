@@ -455,6 +455,27 @@ app.get('/api/deck/:id', authenticateToken, async (req, res) => {
 
 
 // Get Available Events
+
+// Get Player History (For Gameplay Tab)
+app.get('/api/player/:name/history', authenticateToken, async (req, res) => {
+    const { name } = req.params;
+    try {
+        const result = await db.execute({
+            sql: `SELECT d.id, d.event_date, d.event_name, d.format, d.rank, a.name as archetype, d.player_name
+                  FROM decks d
+                  JOIN archetypes a ON d.archetype_id = a.id
+                  WHERE d.player_name LIKE ?
+                  AND d.event_date >= date('now', '-30 days')
+                  ORDER BY d.event_date DESC`,
+            args: [name]
+        });
+        res.json(result.rows);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+
 // Get Available Events
 app.get('/api/events', authenticateToken, async (req, res) => {
     let { format, days } = req.query;
