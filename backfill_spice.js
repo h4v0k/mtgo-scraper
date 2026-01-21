@@ -31,12 +31,13 @@ async function backfillSpice() {
 
         for (const deck of decks) {
             const result = calculateSpice(deck, decks);
-            if (result.count > 0) {
-                await db.execute({
-                    sql: 'UPDATE decks SET spice_count = ? WHERE id = ?',
-                    args: [result.count, deck.id]
-                });
-            }
+            // Update even if count is 0 to clear old data if re-running
+            const cardsJSON = JSON.stringify(result.cards);
+
+            await db.execute({
+                sql: 'UPDATE decks SET spice_count = ?, spice_cards = ? WHERE id = ?',
+                args: [result.count, cardsJSON, deck.id]
+            });
         }
     }
 

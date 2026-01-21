@@ -89,6 +89,12 @@ async function initDB() {
             // Ignore
         }
 
+        try {
+            await db.execute("ALTER TABLE decks ADD COLUMN spice_cards TEXT");
+        } catch (e) {
+            // Ignore
+        }
+
         console.log('Database initialized successfully.');
     } catch (err) {
         console.error('Failed to initialize database:', err);

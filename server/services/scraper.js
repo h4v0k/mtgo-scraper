@@ -349,6 +349,7 @@ async function processEvent(event, formatName) {
 
                 // Calculate Spice
                 let spiceCount = 0;
+                let spiceCardsJSON = '[]';
                 try {
                     const { calculateSpice } = require('./spice');
                     const contextRes = await db.execute({
@@ -367,14 +368,15 @@ async function processEvent(event, formatName) {
                     }, contextDecks);
 
                     spiceCount = spiceResult.count;
+                    spiceCardsJSON = JSON.stringify(spiceResult.cards);
                 } catch (spErr) {
                     console.error("Error calculating spice (scraper):", spErr.message);
                 }
 
                 // Insert Deck
                 await db.execute({
-                    sql: `INSERT INTO decks (player_name, format, event_name, event_date, rank, archetype_id, raw_decklist, sideboard, source_url, spice_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    args: [player, formatName, event.text, event.date, deckObj.rank, archId, deckText, sideboardText, deckUrl, spiceCount]
+                    sql: `INSERT INTO decks (player_name, format, event_name, event_date, rank, archetype_id, raw_decklist, sideboard, source_url, spice_count, spice_cards) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    args: [player, formatName, event.text, event.date, deckObj.rank, archId, deckText, sideboardText, deckUrl, spiceCount, spiceCardsJSON]
                 });
 
             } catch (deckErr) {

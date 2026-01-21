@@ -303,7 +303,10 @@ async function syncPlayerDecks(playerName, days = 30) {
         if (!archId) continue;
 
         // Calculate Spice
+        // First, calculate SPICE
+        // Get context: Decks of same archetype within last 60 days
         let spiceCount = 0;
+        let spiceCardsJSON = '[]';
         try {
             const contextRes = await db.execute({
                 sql: `SELECT raw_decklist, sideboard 
@@ -322,14 +325,28 @@ async function syncPlayerDecks(playerName, days = 30) {
             }, contextDecks);
 
             spiceCount = spiceResult.count;
+            spiceCardsJSON = JSON.stringify(spiceResult.cards);
         } catch (err) {
             console.error("Error calculating spice during ingest:", err);
+            // Default to 0, non-fatal
         }
 
         await db.execute({
-            sql: `INSERT INTO decks (player_name, format, event_name, event_date, rank, archetype_id, raw_decklist, sideboard, source_url, spice_count) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            args: [playerName, d.format, d.event_name, d.event_date, d.rank, archId, details.raw_decklist, details.sideboard, d.url, spiceCount]
+            sql: `INSERT INTO decks (player_name, event_name, event_date, format, rank, archetype_id, source_url, raw_decklist, sideboard, spice_count, spice_cards) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            args: [
+                playerName,
+                d.event_name,
+                d.event_date,
+                d.format,
+                d.rank || 0, // Ensure rank is present
+                archId,
+                d.url,
+                details.raw_decklist,
+                details.sideboard,
+                spiceCount,
+                spiceCardsJSON || '[]'
+            ]
         });
 
         importedCount++;

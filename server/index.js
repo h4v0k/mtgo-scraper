@@ -386,6 +386,18 @@ app.get('/api/deck/:id', authenticateToken, async (req, res) => {
 
         if (!deck) return res.status(404).json({ message: 'Deck not found' });
 
+        if (deck.spice_cards) {
+            try {
+                const storedCards = JSON.parse(deck.spice_cards);
+                if (Array.isArray(storedCards) && storedCards.length > 0) {
+                    return res.json({ ...deck, spice_cards: storedCards });
+                }
+            } catch (e) {
+                // Invalid JSON, fall through to calc
+            }
+        }
+
+        // Fallback: Dynamic Calculation (e.g. for old decks not backfilled yet)
         const cutoffDate = new Date();
         cutoffDate.setDate(cutoffDate.getDate() - 60);
         const cutoffStr = cutoffDate.toISOString();
