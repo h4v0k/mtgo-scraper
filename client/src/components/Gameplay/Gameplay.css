@@ -243,16 +243,30 @@
 }
 
 .rank-swiss {
-    background: rgba(0, 255, 255, 0.1);
-    color: #00ffff;
-    border: 1px solid rgba(0, 255, 255, 0.2);
+    background: rgba(0, 255, 255, 0.15);
+    color: #40ffff;
+    border: 1px solid rgba(0, 255, 255, 0.4);
 }
 
 .rank-league {
-    background: rgba(0, 255, 100, 0.15);
-    /* Greenish for 5-0 */
+    background: rgba(0, 255, 100, 0.2);
     color: #50ff90;
-    border: 1px solid rgba(0, 255, 100, 0.3);
+    border: 1px solid rgba(0, 255, 100, 0.5);
+    box-shadow: 0 0 5px rgba(0, 255, 100, 0.2);
+}
+
+.rank-top8 {
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+    border: 1px solid rgba(255, 215, 0, 0.5);
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+    /* Gold Glow */
+    font-weight: 800;
+}
+
+.rank-external {
+    border-style: dashed !important;
+    opacity: 0.8;
 }
 
 .deck-info h4 {

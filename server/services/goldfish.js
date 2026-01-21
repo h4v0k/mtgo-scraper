@@ -187,9 +187,11 @@ async function syncPlayerDecks(playerName, days = 30) {
     for (const d of externalDecks) {
         if (!d.url) continue;
 
+        // Check duplicates
+        // Use LIKE for date to ignore potential time differences or just check substring
         const existing = await db.execute({
-            sql: `SELECT id FROM decks WHERE player_name = ? AND event_name = ? AND event_date = ?`,
-            args: [playerName, d.event_name, d.event_date]
+            sql: `SELECT id FROM decks WHERE player_name = ? AND event_name = ? AND event_date LIKE ?`,
+            args: [playerName, d.event_name, `${d.event_date}%`]
         });
 
         if (existing.rows.length > 0) {

@@ -111,10 +111,22 @@ export function Gameplay() {
         const externalTagged = externalData.map((d: any) => ({ ...d, source: 'mtggoldfish' }));
 
         const merged = [...localTagged];
-        const localKeys = new Set(localTagged.map((d: any) => `${d.event_date.split('T')[0]}|${d.event_name}`));
+
+        // Improve Deduplication: Normalize keys
+        // Goldfish dates are YYYY-MM-DD. Local are ISO.
+        // Goldfish event names might differ slightly.
+        const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+        const localKeys = new Set(localTagged.map((d: any) => {
+            const dateStr = d.event_date.split('T')[0];
+            return `${dateStr}|${normalize(d.event_name)}`;
+        }));
 
         externalTagged.forEach((d: any) => {
-            const key = `${d.event_date}|${d.event_name}`;
+            const dateStr = d.event_date.split('T')[0]; // Goldfish is usually just date
+            const key = `${dateStr}|${normalize(d.event_name)}`;
+
+            // If local does NOT have this key, add it.
             if (!localKeys.has(key)) {
                 merged.push(d);
             }
@@ -237,7 +249,9 @@ export function Gameplay() {
                                 >
                                     <div className="card-header">
                                         <span className="event-date">{new Date(deck.event_date).toLocaleDateString()}</span>
-                                        <span className={`rank-badge rank-${(deck.rank <= 8 || isLeague(deck.event_name)) ? 'top8' : 'other'}`}>
+                                        <span className={`rank-badge ${isLeague(deck.event_name) ? 'rank-league' :
+                                                deck.rank <= 8 ? 'rank-top8' : 'rank-swiss'
+                                            } ${deck.source === 'mtggoldfish' ? 'rank-external' : ''}`}>
                                             {isLeague(deck.event_name) ? '5-0' : `#${deck.rank}`}
                                         </span>
                                     </div>
