@@ -243,3 +243,18 @@ export async function fetchGoldfishHistory(name: string): Promise<any[]> {
     }
     return response.json();
 }
+
+export async function searchPlayers(query: string): Promise<string[]> {
+    if (!query || query.length < 2) return [];
+
+    const token = getToken();
+    const response = await fetch(`${API_URL}/players/search?q=${encodeURIComponent(query)}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!response.ok) return [];
+
+    return response.json();
+}
