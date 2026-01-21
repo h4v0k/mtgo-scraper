@@ -205,9 +205,6 @@ async function syncPlayerDecks(playerName, days = 30) {
         }
 
         // 2. Content-Based Deduplication (Smart Check)
-        // Check if we already have this EXACT decklist for this player/format on this approx date (window of 2 days?)
-        // Actually, user said "same event", so date should be very close.
-        // Let's loosen strict date to allow same-day precision issues, but enforce content match.
         const contentMatch = await db.execute({
             sql: `SELECT id, event_name, event_date FROM decks 
                   WHERE player_name = ? 
@@ -219,19 +216,28 @@ async function syncPlayerDecks(playerName, days = 30) {
 
         if (contentMatch.rows.length > 0) {
             const match = contentMatch.rows[0];
-            const isExistingLeague = /League/i.test(match.event_name);
-            const isIncomingBetter = /Challenge|Qualifier|Championship/i.test(d.event_name);
 
-            if (isExistingLeague && isIncomingBetter) {
-                console.log(`UPGRADING event: Replacing ${match.event_name} with ${d.event_name}`);
+            // Refined Logic (Per User Feedback):
+            // - Challenge/Qualifier vs League -> DISTINCT EVENTS. Keep both.
+            // - "MTGO League" vs "Standard League" -> SAME EVENT. Dedupe.
+
+            const isExistingLeague = /League/i.test(match.event_name);
+            const isIncomingLeague = /League/i.test(d.event_name);
+
+            // Only dedupe if BOTH are Leagues (handling aliases)
+            // or if the names are effectively identical (normalized check handled by step 1, but maybe subtle diffs)
+            if (isExistingLeague && isIncomingLeague) {
+                console.log(`Deduping League Alias: Replacing ${match.event_name} with ${d.event_name}`);
                 await db.execute({
                     sql: 'DELETE FROM decks WHERE id = ?',
                     args: [match.id]
                 });
-                // Continue to insert
+                // Continue to insert new one
             } else {
-                console.log(`Skipping duplicate content (already exists as ${match.event_name})`);
-                continue;
+                console.log(`Skipping duplicate content check (Events are distinct types: ${match.event_name} vs ${d.event_name})`);
+                // Do NOT skip. We want to insert this record because it is a distinct event (e.g. Challenge vs League)
+                // UNLESS it was an exact name match which was caught by Step 1.
+                // So here we simply proceed to insert.
             }
         }
 
