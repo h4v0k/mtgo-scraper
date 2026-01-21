@@ -5,51 +5,7 @@ const cheerio = require('cheerio');
 
 // ... (existing code) ...
 
-// Insert new deck
-// First, calculate SPICE
-// Get context: Decks of same archetype within last 60 days
-let spiceCount = 0;
-try {
-    const contextRes = await db.execute({
-        sql: `SELECT raw_decklist, sideboard 
-                      FROM decks 
-                      WHERE archetype_id = ? 
-                      AND event_date >= date('now', '-60 days')`,
-        args: [archetypeId]
-    });
-    const contextDecks = contextRes.rows;
-    // Add current deck to context for calculation
-    contextDecks.push({ raw_decklist: details.raw_decklist, sideboard: details.sideboard });
 
-    const spiceResult = calculateSpice({
-        raw_decklist: details.raw_decklist,
-        sideboard: details.sideboard
-    }, contextDecks);
-
-    spiceCount = spiceResult.count;
-} catch (err) {
-    console.error("Error calculating spice during ingest:", err);
-    // Default to 0, non-fatal
-}
-
-await db.execute({
-    sql: `INSERT INTO decks (player_name, event_name, event_date, format, rank, archetype_id, source_url, raw_decklist, sideboard, spice_count) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    args: [
-        playerName,
-        d.event_name,
-        d.event_date,
-        d.format,
-        d.rank || 0, // Ensure rank is present
-        archetypeId,
-        d.url,
-        details.raw_decklist,
-        details.sideboard,
-        spiceCount
-    ]
-});
-
-console.log(`Persisting new deck: ${deckName} for ${playerName} (Spice: ${spiceCount})`);
 
 async function scrapeDeck(url) {
     try {
