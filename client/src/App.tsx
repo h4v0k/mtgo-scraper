@@ -11,6 +11,7 @@ import { DeckView } from './components/Dashboard/DeckView'
 import { Login } from './components/Login'
 import { AdminPanel } from './components/Admin/AdminPanel'
 import { ConversionMatrix } from './components/Analytics/ConversionMatrix'
+import { Gameplay } from './components/Gameplay/Gameplay'
 import { fetchMeta } from './services/api'
 import type { MetaData } from './services/api'
 
@@ -18,11 +19,12 @@ function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('spyglass_token'));
   const [username, setUsername] = useState<string | null>(localStorage.getItem('spyglass_username'));
 
-  const [activeTab, setActiveTab] = useState<'meta' | 'analytics' | 'admin'>('meta');
+  const [activeTab, setActiveTab] = useState<'meta' | 'analytics' | 'gameplay' | 'admin'>('meta');
 
   // Dashboard State
   const [format, setFormat] = useState('Standard');
   const [days, setDays] = useState(7);
+  const [startDate, setStartDate] = useState<string | undefined>(undefined);
   const [top8, setTop8] = useState(false);
   const [data, setData] = useState<MetaData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -56,7 +58,7 @@ function App() {
       async function loadData() {
         setLoading(true);
         try {
-          const result = await fetchMeta(format, days, top8, selectedEvents);
+          const result = await fetchMeta(format, days, top8, selectedEvents, startDate);
           setData(result);
         } catch (err) {
           console.error(err);
@@ -70,7 +72,7 @@ function App() {
       }
       loadData();
     }
-  }, [format, days, top8, selectedEvents, selectedArchetype, selectedDeckId, token, activeTab]);
+  }, [format, days, top8, selectedEvents, selectedArchetype, selectedDeckId, token, activeTab, startDate]);
 
   const handleLoginSuccess = (newToken: string, newUsername: string) => {
     setToken(newToken);
@@ -131,6 +133,11 @@ function App() {
     );
   };
 
+  const handleCustomDateChange = (date: string) => {
+    setStartDate(date);
+    setDays(0); // 0 indicates custom mode
+  };
+
   if (!token) {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }
@@ -174,6 +181,12 @@ function App() {
             Advanced Analytics
           </button>
           <button
+            className={activeTab === 'gameplay' ? 'active' : ''}
+            onClick={() => setActiveTab('gameplay')}
+          >
+            Gameplay
+          </button>
+          <button
             className={activeTab === 'admin' ? 'active' : ''}
             onClick={() => setActiveTab('admin')}
           >
@@ -196,6 +209,8 @@ function App() {
           <div className="analytics-view">
             <ConversionMatrix />
           </div>
+        ) : (
+        <Gameplay />
         )}
       </main>
     </div>
