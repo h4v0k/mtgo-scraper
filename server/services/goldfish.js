@@ -187,8 +187,7 @@ async function syncPlayerDecks(playerName, days = 30) {
     for (const d of externalDecks) {
         if (!d.url) continue;
 
-        // Check duplicates
-        // Use LIKE for date to ignore potential time differences or just check substring
+        // 1. Strict Name Check (Fast Fail)
         const existing = await db.execute({
             sql: `SELECT id FROM decks WHERE player_name = ? AND event_name = ? AND event_date LIKE ?`,
             args: [playerName, d.event_name, `${d.event_date}%`]
@@ -203,6 +202,37 @@ async function syncPlayerDecks(playerName, days = 30) {
         if (!details || (!details.raw_decklist && !details.sideboard)) {
             console.warn(`Failed to scrape details for ${d.url}`);
             continue;
+        }
+
+        // 2. Content-Based Deduplication (Smart Check)
+        // Check if we already have this EXACT decklist for this player/format on this approx date (window of 2 days?)
+        // Actually, user said "same event", so date should be very close.
+        // Let's loosen strict date to allow same-day precision issues, but enforce content match.
+        const contentMatch = await db.execute({
+            sql: `SELECT id, event_name, event_date FROM decks 
+                  WHERE player_name = ? 
+                  AND format = ? 
+                  AND raw_decklist = ? 
+                  AND (event_date LIKE ? OR abs(julianday(event_date) - julianday(?)) < 1)`,
+            args: [playerName, d.format, details.raw_decklist, `${d.event_date}%`, d.event_date]
+        });
+
+        if (contentMatch.rows.length > 0) {
+            const match = contentMatch.rows[0];
+            const isExistingLeague = /League/i.test(match.event_name);
+            const isIncomingBetter = /Challenge|Qualifier|Championship/i.test(d.event_name);
+
+            if (isExistingLeague && isIncomingBetter) {
+                console.log(`UPGRADING event: Replacing ${match.event_name} with ${d.event_name}`);
+                await db.execute({
+                    sql: 'DELETE FROM decks WHERE id = ?',
+                    args: [match.id]
+                });
+                // Continue to insert
+            } else {
+                console.log(`Skipping duplicate content (already exists as ${match.event_name})`);
+                continue;
+            }
         }
 
         console.log(`Persisting new deck: ${d.archetype} for ${playerName}`);
