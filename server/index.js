@@ -387,7 +387,7 @@ app.get('/api/deck/:id', authenticateToken, async (req, res) => {
         if (!deck) return res.status(404).json({ message: 'Deck not found' });
 
         const cutoffDate = new Date();
-        cutoffDate.setDate(cutoffDate.getDate() - 30);
+        cutoffDate.setDate(cutoffDate.getDate() - 60);
         const cutoffStr = cutoffDate.toISOString();
 
         // Get context for spice
