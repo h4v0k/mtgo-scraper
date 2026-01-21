@@ -205,12 +205,12 @@ function App() {
           </div>
         ) : activeTab === 'admin' ? (
           <AdminPanel />
-        ) : (
+        ) : activeTab === 'analytics' ? (
           <div className="analytics-view">
             <ConversionMatrix />
           </div>
         ) : (
-        <Gameplay />
+          <Gameplay />
         )}
       </main>
     </div>
