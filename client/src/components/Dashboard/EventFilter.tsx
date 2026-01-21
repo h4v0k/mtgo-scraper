@@ -24,17 +24,17 @@ export const EventFilter: React.FC<EventFilterProps> = ({ format, days, selected
                     setAvailableEvents(events);
                     // On initial load (or format change), if no events selected, default to ALL EXCEPT Leagues
                     if (selectedEvents.length === 0 && events.length > 0) {
-                        const nonLeague = events.filter(e => !e.toLowerCase().includes('league'));
-                        // If everything is a league (unlikely), fallback to all
-                        onChange(nonLeague.length > 0 ? nonLeague : events);
+                        const challenges = events.filter(e => e.toLowerCase().includes('challenge'));
+                        // Fallback to all if no challenges found (unlikely but safe)
+                        onChange(challenges.length > 0 ? challenges : events);
                     }
                     // If existing selection is stale (event no longer exists), filter it out
                     else if (selectedEvents.length > 0) {
                         const valid = selectedEvents.filter(e => events.includes(e));
-                        // If format changed completely, valid might be empty. Reset to default (Non-Leagues).
+                        // If format changed completely, valid might be empty. Reset to default (Challenges).
                         if (valid.length === 0 && events.length > 0) {
-                            const nonLeague = events.filter(e => !e.toLowerCase().includes('league'));
-                            onChange(nonLeague.length > 0 ? nonLeague : events);
+                            const challenges = events.filter(e => e.toLowerCase().includes('challenge'));
+                            onChange(challenges.length > 0 ? challenges : events);
                         } else if (valid.length !== selectedEvents.length) {
                             onChange(valid);
                         }
