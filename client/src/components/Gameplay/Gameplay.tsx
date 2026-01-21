@@ -14,6 +14,7 @@ interface PlayerDeck {
     source?: 'local' | 'mtggoldfish';
     url?: string; // External link
     cards?: any[]; // optional presence check
+    spice_count?: number;
 }
 
 export function Gameplay() {
@@ -270,10 +271,26 @@ export function Gameplay() {
                                         </span>
                                     </div>
                                     <div className="deck-info">
-                                        <span className="format-tag">
-                                            {deck.format}
-                                            {deck.source === 'mtggoldfish' && <span className="source-tag"> (Ext)</span>}
-                                        </span>
+                                        <div className="deck-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span className="format-tag">
+                                                {deck.format}
+                                                {deck.source === 'mtggoldfish' && <span className="source-tag"> (Ext)</span>}
+                                            </span>
+                                            {deck.spice_count !== undefined && deck.spice_count > 0 && (
+                                                <span className="spice-badge" style={{
+                                                    backgroundColor: '#ff4d4d',
+                                                    color: 'white',
+                                                    padding: '2px 6px',
+                                                    borderRadius: '4px',
+                                                    fontSize: '0.7em',
+                                                    fontWeight: 'bold',
+                                                    marginLeft: '8px',
+                                                    boxShadow: '0 0 5px rgba(255, 77, 77, 0.5)'
+                                                }}>
+                                                    🌶️ {deck.spice_count}
+                                                </span>
+                                            )}
+                                        </div>
                                         <h4>{deck.archetype}</h4>
                                         <div className="event-name">{deck.event_name}</div>
                                     </div>

@@ -347,10 +347,34 @@ async function processEvent(event, formatName) {
                 });
                 if (dupCheck.rows.length > 0) continue;
 
+                // Calculate Spice
+                let spiceCount = 0;
+                try {
+                    const { calculateSpice } = require('./spice');
+                    const contextRes = await db.execute({
+                        sql: `SELECT raw_decklist, sideboard 
+                              FROM decks 
+                              WHERE archetype_id = ? 
+                              AND event_date >= date('now', '-60 days')`,
+                        args: [archId]
+                    });
+                    const contextDecks = contextRes.rows;
+                    contextDecks.push({ raw_decklist: deckText, sideboard: sideboardText });
+
+                    const spiceResult = calculateSpice({
+                        raw_decklist: deckText,
+                        sideboard: sideboardText
+                    }, contextDecks);
+
+                    spiceCount = spiceResult.count;
+                } catch (spErr) {
+                    console.error("Error calculating spice (scraper):", spErr.message);
+                }
+
                 // Insert Deck
                 await db.execute({
-                    sql: `INSERT INTO decks (player_name, format, event_name, event_date, rank, archetype_id, raw_decklist, sideboard, source_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    args: [player, formatName, event.text, event.date, deckObj.rank, archId, deckText, sideboardText, deckUrl]
+                    sql: `INSERT INTO decks (player_name, format, event_name, event_date, rank, archetype_id, raw_decklist, sideboard, source_url, spice_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    args: [player, formatName, event.text, event.date, deckObj.rank, archId, deckText, sideboardText, deckUrl, spiceCount]
                 });
 
             } catch (deckErr) {

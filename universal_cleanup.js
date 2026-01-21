@@ -36,47 +36,52 @@ async function universalCleanup() {
         const e1 = row.event1.toLowerCase();
         const e2 = row.event2.toLowerCase();
 
-        // Priority Logic
-        const getScore = (e) => {
-            if (e.includes('championship')) return 100;
-            if (e.includes('qualifier') || e.includes('showcase')) return 90;
-            if (e.includes('challenge')) return 80;
-            if (e.includes('preliminary')) return 70;
-            if (e.includes('league')) return 10;
-            return 0; // Unknown
+        // STRICT CHECK: Do not allow cross-type deduplication (e.g. League vs Challenge)
+        // We categorize events into broad buckets: 'league', 'challenge', 'qualifier', 'preliminary', 'championship'
+
+        const getType = (e) => {
+            if (e.includes('league')) return 'league';
+            if (e.includes('challenge')) return 'challenge';
+            if (e.includes('qualifier')) return 'qualifier';
+            if (e.includes('showcase')) return 'showcase';
+            if (e.includes('preliminary')) return 'preliminary';
+            if (e.includes('championship')) return 'championship';
+            return 'other';
         };
 
-        const s1 = getScore(e1);
-        const s2 = getScore(e2);
+        const t1 = getType(e1);
+        const t2 = getType(e2);
 
-        if (s1 > s2) {
-            toDelete = row.id2;
-            console.log(`[Score ${s1} vs ${s2}] Keeping ${row.event1}, Deleting ${row.event2} (ID: ${toDelete})`);
-        } else if (s2 > s1) {
+        if (t1 !== t2) {
+            console.log(`Skipping distinct event types: ${row.event1} (${t1}) vs ${row.event2} (${t2})`);
+            continue;
+        }
+
+        // If types match (e.g. League vs League, or Challenge vs Challenge), check for Aliases
+        // Priority: Specific Format Name > "MTGO" Generic Name
+
+        const isGeneric1 = e1.startsWith('mtgo ');
+        const isGeneric2 = e2.startsWith('mtgo ');
+
+        if (isGeneric1 && !isGeneric2) {
             toDelete = row.id1;
-            console.log(`[Score ${s2} vs ${s1}] Keeping ${row.event2}, Deleting ${row.event1} (ID: ${toDelete})`);
+            console.log(`[Specificity] Keeping ${row.event2}, Deleting Generic ${row.event1} (ID: ${toDelete})`);
+        } else if (!isGeneric1 && isGeneric2) {
+            toDelete = row.id2;
+            console.log(`[Specificity] Keeping ${row.event1}, Deleting Generic ${row.event2} (ID: ${toDelete})`);
         } else {
-            // Scores equal (e.g. League vs League, or Challenge vs Challenge)
-            // Tiebreaker 1: Specificity (Longer name usually better? e.g. "Standard League" > "MTGO League")
-            // Actually, user prefers "Standard League" (Format League) over "MTGO League".
+            // Both are generic or both are specific.
+            // Check for exact duplicates or near-duplicates?
+            // e.g. "Modern Challenge 32" vs "Modern Challenge 32 (1)"
+            // For Challenges, if one has (1) and other doesn't, usually they are duplicates of same ingest?
+            // OR they are distinct brackets? 
+            // Safest to SKIP if we aren't sure.
 
-            const isGeneric1 = e1 === 'mtgo league' || e1 === 'league';
-            const isGeneric2 = e2 === 'mtgo league' || e2 === 'league';
-
-            if (isGeneric1 && !isGeneric2) {
-                toDelete = row.id1;
-                console.log(`[Specificity] Keeping ${row.event2}, Deleting Generic ${row.event1} (ID: ${toDelete})`);
-            } else if (!isGeneric1 && isGeneric2) {
-                toDelete = row.id2;
-                console.log(`[Specificity] Keeping ${row.event1}, Deleting Generic ${row.event2} (ID: ${toDelete})`);
-            } else {
-                // Tiebreaker 2: ID (Keep newer import? Or older? Usually newer has better metadata from Goldfish)
-                // Let's delete the HIGHER ID (duplicate import) to preserve original if indistinguishable
-                // Wait, actually duplicate import might be the BETTER one if it came from Goldfish with 'Standard League'
-                // But we handled specificity above. 
-                // If both are "Modern Challenge 32", just delete one.
+            if (row.event1 === row.event2) {
                 toDelete = Math.max(row.id1, row.id2);
-                console.log(`[Tiebreaker] Deleting duplicate ${row.event2} (ID: ${toDelete})`);
+                console.log(`[Exact Duplicate] Deleting ID ${toDelete} of ${row.event1}`);
+            } else {
+                console.log(`Skipping ambiguous matching types: ${row.event1} vs ${row.event2}`);
             }
         }
 

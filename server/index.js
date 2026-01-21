@@ -467,7 +467,7 @@ app.get('/api/player/:name/history', authenticateToken, async (req, res) => {
 
     try {
         const result = await db.execute({
-            sql: `SELECT d.id, d.event_date, d.event_name, d.format, d.rank, a.name as archetype, d.player_name
+            sql: `SELECT d.id, d.event_date, d.event_name, d.format, d.rank, a.name as archetype, d.player_name, d.spice_count
                   FROM decks d
                   JOIN archetypes a ON d.archetype_id = a.id
                   WHERE d.player_name LIKE ?

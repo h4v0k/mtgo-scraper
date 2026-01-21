@@ -71,6 +71,12 @@ async function initDB() {
             // Ignore error if column already exists
         }
 
+        try {
+            await db.execute("ALTER TABLE decks ADD COLUMN spice_count INTEGER DEFAULT 0");
+        } catch (e) {
+            // Ignore
+        }
+
         console.log('Database initialized successfully.');
     } catch (err) {
         console.error('Failed to initialize database:', err);

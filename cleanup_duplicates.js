@@ -30,19 +30,30 @@ async function cleanup() {
         const isLeague2 = /League/i.test(row.event2);
 
         if (isLeague1 && !isLeague2) {
-            toDelete = row.id1;
-            console.log(`Deleting ${row.event1} (ID: ${row.id1}) in favor of ${row.event2}`);
+            // toDelete = row.id1;
+            console.log(`SKIPPING distinct event types: ${row.event1} vs ${row.event2}`);
         } else if (!isLeague1 && isLeague2) {
-            toDelete = row.id2;
-            console.log(`Deleting ${row.event2} (ID: ${row.id2}) in favor of ${row.event1}`);
+            // toDelete = row.id2;
+            console.log(`SKIPPING distinct event types: ${row.event2} vs ${row.event1}`);
         } else if (isLeague1 && isLeague2) {
-            // Both leagues? Delete the one with the higher ID (duplicate ingest)
-            toDelete = Math.max(row.id1, row.id2);
-            console.log(`Deleting duplicate League (ID: ${toDelete})`);
-        } else {
+            // Both leagues? Prefer the one with more specific name (e.g. not just "MTGO League")
+            // Or if both specific, delete higher ID.
+
+            const isGeneric1 = row.event1 === 'MTGO League' || row.event1 === 'League';
+            const isGeneric2 = row.event2 === 'MTGO League' || row.event2 === 'League';
+
+            if (isGeneric1 && !isGeneric2) {
+                toDelete = row.id1;
+                console.log(`Deleting Generic League ${row.event1} (ID: ${row.id1}) in favor of ${row.event2}`);
+            } else if (!isGeneric1 && isGeneric2) {
+                toDelete = row.id2;
+                console.log(`Deleting Generic League ${row.event2} (ID: ${row.id2}) in favor of ${row.event1}`);
+            } else {
+                toDelete = Math.max(row.id1, row.id2);
+                console.log(`Deleting duplicate League (ID: ${toDelete}) - ${row.event1} vs ${row.event2}`);
+            }
             // Both are non-leagues (e.g. Challenge 32 vs Challenge 64)
-            // Arbitrarily delete the one with higher ID? Or just log?
-            // Let's delete the higher ID to be clean
+            // This implies duplicates of specific events, usually safe to delete if decklist is identical
             toDelete = Math.max(row.id1, row.id2);
             console.log(`Deleting duplicate Event (ID: ${toDelete}) - ${row.event1} vs ${row.event2}`);
         }
