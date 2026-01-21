@@ -478,6 +478,17 @@ app.get('/api/player/:name/history', authenticateToken, async (req, res) => {
     }
 });
 
+// Get External History (Goldfish)
+app.get('/api/player/:name/goldfish', authenticateToken, async (req, res) => {
+    const { name } = req.params;
+    try {
+        const history = await goldfish.fetchPlayerHistory(name);
+        res.json(history);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 
 // Get Available Events
 app.get('/api/events', authenticateToken, async (req, res) => {
