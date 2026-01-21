@@ -501,6 +501,20 @@ app.get('/api/players/search', authenticateToken, async (req, res) => {
     }
 });
 
+// Trigger Lazy Scrape (Fire and Forget)
+app.post('/api/player/:name/sync', authenticateToken, async (req, res) => {
+    const { name } = req.params;
+    let { days } = req.body; // Can pass day override body if needed, or query
+    if (!days) days = 30; // Default
+
+    // Start background job
+    goldfish.syncPlayerDecks(name, days).catch(err => {
+        console.error(`Background sync failed for ${name}:`, err);
+    });
+
+    res.json({ message: 'Sync started' });
+});
+
 // Get External History (Goldfish)
 app.get('/api/player/:name/goldfish', authenticateToken, async (req, res) => {
     const { name } = req.params;

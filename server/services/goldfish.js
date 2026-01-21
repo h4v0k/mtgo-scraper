@@ -1,5 +1,63 @@
 
+const { db } = require('../db');
 const cheerio = require('cheerio');
+
+async function scrapeDeck(url) {
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+        });
+
+        if (!response.ok) throw new Error(`Status ${response.status}`);
+        const html = await response.text();
+        const $ = cheerio.load(html);
+
+        const mainDeck = [];
+        const sideboard = [];
+        let sbMode = false;
+
+        // Goldfish structure is usually specific tables or text input hidden
+        // But often they have a text input area we can grab easily
+        const deckTextArea = $('.deck-view-deck-table').next('textarea.copy-paste-box').val();
+
+        if (deckTextArea) {
+            // Easier parsing if text area exists
+            const lines = deckTextArea.split('\n');
+            let isSb = false;
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed) continue;
+                if (trimmed.toLowerCase().includes('sideboard')) {
+                    isSb = true;
+                    continue;
+                }
+                if (isSb) sideboard.push(trimmed);
+                else mainDeck.push(trimmed);
+            }
+        } else {
+            // Fallback to table parsing if copy-paste box is missing
+            $('table.deck-view-deck-table tr').each((i, row) => {
+                const qty = $(row).find('.deck-col-qty').text().trim();
+                const name = $(row).find('.deck-col-card a').text().trim();
+                if (qty && name) {
+                    // This scraper is tough because SB is separated by headers
+                    // Simplified: just grab everything as mainboard for now if fallback
+                    mainDeck.push(`${qty} ${name}`);
+                }
+            });
+        }
+
+        return {
+            raw_decklist: mainDeck.join('\n'),
+            sideboard: sideboard.join('\n')
+        };
+    } catch (e) {
+        console.error(`Error scraping deck ${url}:`, e);
+        return null; // Fail gracefully
+    }
+}
 
 async function fetchPlayerHistory(playerName, days = 30) {
     // Goldfish tends to use simple usernames in URLs, but sometimes they differ.
@@ -92,4 +150,73 @@ async function fetchPlayerHistory(playerName, days = 30) {
     }
 }
 
-module.exports = { fetchPlayerHistory };
+async function syncPlayerDecks(playerName, days = 30) {
+    console.log(`Syncing decks for ${playerName} (last ${days} days)...`);
+    const externalDecks = await fetchPlayerHistory(playerName, days);
+
+    let importedCount = 0;
+
+    for (const d of externalDecks) {
+        if (!d.url) continue;
+
+        // Check duplicates
+        // We match strictly on player + event + date to start
+        const existing = await db.execute({
+            sql: `SELECT id FROM decks WHERE player_name = ? AND event_name = ? AND event_date = ?`,
+            args: [playerName, d.event_name, d.event_date]
+        });
+
+        if (existing.rows.length > 0) continue;
+
+        // Scrape details
+        const details = await scrapeDeck(d.url);
+        if (!details || (!details.raw_decklist && !details.sideboard)) continue;
+
+        // Resolve Archetype
+        let archId = null;
+        try {
+            // Find existing
+            const exArch = await db.execute({
+                sql: 'SELECT id FROM archetypes WHERE name = ? AND format = ?',
+                args: [d.archetype, d.format] // Goldfish "Deck" column is basically archetype
+            });
+
+            if (exArch.rows.length > 0) {
+                archId = exArch.rows[0].id;
+            } else {
+                // Creates
+                const ins = await db.execute({
+                    sql: 'INSERT INTO archetypes (name, format) VALUES (?, ?) RETURNING id',
+                    args: [d.archetype, d.format]
+                });
+                if (ins.rows.length > 0) archId = ins.rows[0].id;
+                else archId = ins.lastInsertRowid.toString();
+            }
+        } catch (e) {
+            // Fallback
+            // If failed to create, maybe just search 'Unknown'
+            const unk = await db.execute({ sql: `SELECT id FROM archetypes WHERE name = 'Unknown' AND format = ?`, args: [d.format] });
+            if (unk.rows.length > 0) archId = unk.rows[0].id;
+        }
+
+        if (!archId) {
+            // Ensure Unknown exists if we strictly failed
+            // We'll skip for safety if database is totally acting up
+            continue;
+        }
+
+        // Insert
+        await db.execute({
+            sql: `INSERT INTO decks (player_name, format, event_name, event_date, rank, archetype_id, raw_decklist, sideboard, source_url) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            args: [playerName, d.format, d.event_name, d.event_date, d.rank, archId, details.raw_decklist, details.sideboard, d.url]
+        });
+
+        importedCount++;
+    }
+
+    console.log(`Sync complete for ${playerName}: Imported ${importedCount} new decks.`);
+    return importedCount;
+}
+
+module.exports = { fetchPlayerHistory, syncPlayerDecks };
