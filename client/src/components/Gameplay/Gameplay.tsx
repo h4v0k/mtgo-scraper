@@ -158,7 +158,7 @@ export function Gameplay() {
                         )}
                     </div>
                     <button type="submit" className="search-btn" disabled={loading}>
-                        {loading ? 'Scanning...' : 'Analyze Player'}
+                        {loading ? '...' : 'Search'}
                     </button>
                 </form>
             </div>
