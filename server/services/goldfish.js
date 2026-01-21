@@ -154,11 +154,21 @@ async function fetchPlayerHistory(playerName, days = 30) {
 
                         if (eventDate.getTime() < cutoffDate.getTime()) return;
 
+                        // Normalize Event Name (Per User Request)
+                        // "Standard League 2026-01-20" -> "MTGO League"
+                        // "Modern Challenge 32 ..." -> "MTGO Challenge 32"
+                        let normalizedEvent = event;
+                        if (event.includes('League')) normalizedEvent = 'MTGO League';
+                        else if (event.includes('Challenge 32')) normalizedEvent = 'MTGO Challenge 32';
+                        else if (event.includes('Challenge 64')) normalizedEvent = 'MTGO Challenge 64';
+                        else if (event.includes('Preliminary')) normalizedEvent = 'MTGO Preliminary';
+                        // Keep Championships/Qualifiers specific as they are often unique named events
+
                         decks.push({
                             source: 'mtggoldfish',
                             id: deckLink || `gf-${Date.now()}-${Math.random()}`,
                             event_date: dateRaw,
-                            event_name: event,
+                            event_name: normalizedEvent, // Use Normalized Name
                             format: format,
                             archetype: deckName,
                             rank: rank || 0,
@@ -216,28 +226,48 @@ async function syncPlayerDecks(playerName, days = 30) {
 
         if (contentMatch.rows.length > 0) {
             const match = contentMatch.rows[0];
+            const e1 = match.event_name.toLowerCase();
+            const e2 = d.event_name.toLowerCase();
 
-            // Refined Logic (Per User Feedback):
-            // - Challenge/Qualifier vs League -> DISTINCT EVENTS. Keep both.
-            // - "MTGO League" vs "Standard League" -> SAME EVENT. Dedupe.
+            // STRICT CHECK: Do not allow cross-type deduplication (e.g. League vs Challenge)
+            const getType = (e) => {
+                if (e.includes('league')) return 'league';
+                if (e.includes('challenge')) return 'challenge';
+                if (e.includes('qualifier')) return 'qualifier';
+                if (e.includes('showcase')) return 'showcase';
+                if (e.includes('preliminary')) return 'preliminary';
+                if (e.includes('championship')) return 'championship';
+                return 'other';
+            };
 
-            const isExistingLeague = /League/i.test(match.event_name);
-            const isIncomingLeague = /League/i.test(d.event_name);
+            const t1 = getType(e1);
+            const t2 = getType(e2);
 
-            // Only dedupe if BOTH are Leagues (handling aliases)
-            // or if the names are effectively identical (normalized check handled by step 1, but maybe subtle diffs)
-            if (isExistingLeague && isIncomingLeague) {
-                console.log(`Deduping League Alias: Replacing ${match.event_name} with ${d.event_name}`);
-                await db.execute({
-                    sql: 'DELETE FROM decks WHERE id = ?',
-                    args: [match.id]
-                });
-                // Continue to insert new one
-            } else {
+            if (t1 !== t2) {
                 console.log(`Skipping duplicate content check (Events are distinct types: ${match.event_name} vs ${d.event_name})`);
-                // Do NOT skip. We want to insert this record because it is a distinct event (e.g. Challenge vs League)
-                // UNLESS it was an exact name match which was caught by Step 1.
-                // So here we simply proceed to insert.
+                // Proceed to insert as distinct event
+            } else {
+                // Same type (e.g. League vs League). Check for Generic Alias upgrade.
+                const isGeneric1 = e1.startsWith('mtgo ');
+                const isGeneric2 = e2.startsWith('mtgo ');
+
+                let shouldReplace = false;
+
+                if (isGeneric1 && !isGeneric2) {
+                    shouldReplace = true;
+                }
+
+                if (shouldReplace) {
+                    console.log(`UPGRADING event: Replacing Generic ${match.event_name} with Specific ${d.event_name}`);
+                    await db.execute({
+                        sql: 'DELETE FROM decks WHERE id = ?',
+                        args: [match.id]
+                    });
+                    // Continue to insert
+                } else {
+                    console.log(`Skipping duplicate content (Already exists as ${match.event_name})`);
+                    continue;
+                }
             }
         }
 
