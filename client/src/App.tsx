@@ -218,6 +218,7 @@ function App() {
           <Gameplay />
         )}
       </main>
+      <HealthCheck />
     </div>
   )
 }
