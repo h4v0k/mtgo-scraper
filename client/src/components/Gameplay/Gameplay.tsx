@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './Gameplay.css';
-import { fetchPlayerHistory, fetchGoldfishHistory } from '../../services/api';
+import { fetchPlayerHistory, fetchGoldfishHistory, searchPlayers } from '../../services/api';
 import { DeckView } from '../Dashboard/DeckView';
 
 interface PlayerDeck {
@@ -24,9 +24,48 @@ export function Gameplay() {
     const [error, setError] = useState('');
     const [viewDeckId, setViewDeckId] = useState<number | null>(null);
 
-    const handleSearch = async (e: React.FormEvent) => {
-        e.preventDefault();
+    // Suggestion state
+    const [suggestions, setSuggestions] = useState<string[]>([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const wrapperRef = useRef<HTMLDivElement>(null);
+
+    // Debounced search effect
+    useEffect(() => {
+        const timeoutId = setTimeout(async () => {
+            if (playerName.length >= 2) {
+                try {
+                    const results = await searchPlayers(playerName);
+                    setSuggestions(results);
+                    setShowSuggestions(true);
+                } catch (e) {
+                    console.error(e);
+                }
+            } else {
+                setSuggestions([]);
+                setShowSuggestions(false);
+            }
+        }, 300);
+
+        return () => clearTimeout(timeoutId);
+    }, [playerName]);
+
+    // Click outside to close
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+                setShowSuggestions(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [wrapperRef]);
+
+
+    const handleSearch = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         if (!playerName.trim()) return;
+
+        setShowSuggestions(false); // Close suggestions on search
 
         setLoading(true);
         setError('');
@@ -102,13 +141,36 @@ export function Gameplay() {
 
             <div className="search-section">
                 <form onSubmit={handleSearch} className="player-search-form">
-                    <input
-                        type="text"
-                        placeholder="Enter MTGO Player Name..."
-                        value={playerName}
-                        onChange={(e) => setPlayerName(e.target.value)}
-                        className="player-input"
-                    />
+                    <div className="input-wrapper" ref={wrapperRef}>
+                        <input
+                            type="text"
+                            placeholder="Enter MTGO Player Name..."
+                            value={playerName}
+                            onChange={(e) => setPlayerName(e.target.value)}
+                            onFocus={() => {
+                                if (suggestions.length > 0) setShowSuggestions(true);
+                            }}
+                            className="player-input"
+                        />
+                        {showSuggestions && suggestions.length > 0 && (
+                            <div className="suggestions-dropdown">
+                                {suggestions.map((name) => (
+                                    <div
+                                        key={name}
+                                        className="suggestion-item"
+                                        onClick={() => {
+                                            setPlayerName(name);
+                                            setShowSuggestions(false);
+                                            // Optional: auto-trigger search?
+                                            // Let's just fill it for now so they can hit enter or click button
+                                        }}
+                                    >
+                                        {name}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                     <button type="submit" className="search-btn" disabled={loading}>
                         {loading ? 'Scanning...' : 'Analyze Player'}
                     </button>
