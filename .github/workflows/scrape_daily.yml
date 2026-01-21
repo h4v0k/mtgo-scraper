@@ -2,8 +2,8 @@ name: Daily Scraper
 
 on:
   schedule:
-    # Run at 8:00 AM and 8:00 PM UTC
-    - cron: '0 8,20 * * *'
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
   workflow_dispatch:
     inputs:
         days:
