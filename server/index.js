@@ -5,6 +5,9 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
 const { db, initDB } = require('./db'); // Import db and init helper
+const seedRemote = require('./seed_remote');
+const scraper = require('./services/scraper');
+const goldfish = require('./services/goldfish'); // Import Goldfish service
 // require('./services/scraper'); // DISABLE SCRAPER IN VERCEL (Running manually via seed script)
 
 dotenv.config();
