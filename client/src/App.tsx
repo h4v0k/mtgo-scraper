@@ -137,7 +137,9 @@ function App() {
 
   const handleCustomDateChange = (date: string) => {
     setStartDate(date);
-    setDays(0); // 0 indicates custom mode
+    if (date) {
+      setDays(0); // Only switch to custom mode if a date is actually selected
+    }
   };
 
   if (!token) {
