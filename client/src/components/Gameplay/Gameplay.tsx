@@ -1,7 +1,9 @@
 
 import { useState } from 'react';
 import './Gameplay.css';
-import { fetchPlayerHistory } from '../../services/api';
+import { useState } from 'react';
+import './Gameplay.css';
+import { fetchPlayerHistory, fetchGoldfishHistory } from '../../services/api';
 import { DeckView } from '../Dashboard/DeckView';
 
 interface PlayerDeck {
@@ -11,6 +13,10 @@ interface PlayerDeck {
     format: string;
     rank: number;
     archetype: string;
+    // New fields for external data
+    source?: 'local' | 'mtggoldfish';
+    url?: string; // External link
+    cards?: any[]; // optional presence check
 }
 
 export function Gameplay() {
@@ -32,10 +38,54 @@ export function Gameplay() {
         setViewDeckId(null);
 
         try {
-            const data = await fetchPlayerHistory(playerName);
-            setHistory(data);
+            // Run both fetches in parallel
+            const [localData, externalData] = await Promise.all([
+                fetchPlayerHistory(playerName).catch(e => {
+                    console.error("Local fetch failed", e);
+                    return [];
+                }),
+                fetchGoldfishHistory(playerName).catch(e => {
+                    console.error("Goldfish fetch failed", e);
+                    return [];
+                })
+            ]);
+
+            // Mark sources
+            const localTagged = localData.map((d: any) => ({ ...d, source: 'local' }));
+            const externalTagged = externalData.map((d: any) => ({ ...d, source: 'mtggoldfish' }));
+
+            // Merge and Deduplicate
+            // Strategy: Create a map by "Date + Event". If local exists, use it (it has cards). 
+            // If external exists and we don't have local, add it.
+            // Note: Date strings might differ slightly or be same. Goldfish is YYYY-MM-DD. Local is ISO or similar.
+            // Let's normalize date to YYYY-MM-DD for comparison.
+
+            const merged = [...localTagged];
+            const localKeys = new Set(localTagged.map((d: any) => `${d.event_date.split('T')[0]}|${d.event_name}`));
+
+            externalTagged.forEach((d: any) => {
+                const key = `${d.event_date}|${d.event_name}`;
+                // Only add if we don't have a local match for this event
+                // Loose matching on event name? "Modern Challenge 32..."
+                // For now, strict match or just append all and let user decide?
+                // Append all is safer to not hide data, but might show duplicates. 
+                // Let's simple filter checking if we have exact match.
+                // Actually, Goldfish names might be slightly different.
+                // Let's just append them and sort by date. 
+                // Visual dupes are better than missing data.
+
+                // Let's try to filter if key exists to avoid exact dupes
+                if (!localKeys.has(key)) {
+                    merged.push(d);
+                }
+            });
+
+            // Sort by Date DESC
+            merged.sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
+
+            setHistory(merged);
         } catch (err) {
-            setError('Failed to fetch player history. Please try again.');
+            setError('An error occurred while fetching player history.');
             console.error(err);
         } finally {
             setLoading(false);
@@ -81,8 +131,15 @@ export function Gameplay() {
                             {history.map((deck) => (
                                 <div
                                     key={deck.id}
-                                    className="history-card clickable"
-                                    onClick={() => setViewDeckId(deck.id)}
+                                    className={`history-card clickable ${deck.source === 'mtggoldfish' ? 'external-source' : ''}`}
+                                    onClick={() => {
+                                        if (deck.source === 'mtggoldfish' && deck.url) {
+                                            window.open(deck.url, '_blank');
+                                        } else {
+                                            setViewDeckId(deck.id);
+                                        }
+                                    }}
+                                    title={deck.source === 'mtggoldfish' ? 'View on MTGGoldfish' : 'View Deck Details'}
                                 >
                                     <div className="card-header">
                                         <span className="event-date">{new Date(deck.event_date).toLocaleDateString()}</span>
@@ -91,7 +148,10 @@ export function Gameplay() {
                                         </span>
                                     </div>
                                     <div className="deck-info">
-                                        <span className="format-tag">{deck.format}</span>
+                                        <span className="format-tag">
+                                            {deck.format}
+                                            {deck.source === 'mtggoldfish' && <span className="source-tag"> (Ext)</span>}
+                                        </span>
                                         <h4>{deck.archetype}</h4>
                                         <div className="event-name">{deck.event_name}</div>
                                     </div>
