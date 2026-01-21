@@ -55,12 +55,16 @@ export async function login(username: string, password: string) {
     return response.json();
 }
 
-export async function fetchMeta(format: string, days: number, top8: boolean, events: string[] = []): Promise<MetaData[]> {
+export async function fetchMeta(format: string, days: number, top8: boolean, events: string[] = [], startDate?: string): Promise<MetaData[]> {
     const params = new URLSearchParams({
         format,
         days: days.toString(),
         top8: top8.toString(),
     });
+
+    if (startDate) {
+        params.append('startDate', startDate);
+    }
 
     if (events && events.length > 0) {
         events.forEach(e => params.append('events', e));
@@ -82,11 +86,15 @@ export async function fetchMeta(format: string, days: number, top8: boolean, eve
     return response.json();
 }
 
-export async function fetchEvents(format: string, days: number): Promise<string[]> {
+export async function fetchEvents(format: string, days: number, startDate?: string): Promise<string[]> {
     const params = new URLSearchParams({
         format,
         days: days.toString()
     });
+
+    if (startDate) {
+        params.append('startDate', startDate);
+    }
 
     const token = getToken();
     const response = await fetch(`${API_URL}/events?${params}`, {
@@ -102,12 +110,16 @@ export async function fetchEvents(format: string, days: number): Promise<string[
     return response.json();
 }
 
-export async function fetchArchetypeDecks(name: string, format: string, days: number, top8: boolean, events: string[] = []): Promise<DeckSummary[]> {
+export async function fetchArchetypeDecks(name: string, format: string, days: number, top8: boolean, events: string[] = [], startDate?: string): Promise<DeckSummary[]> {
     const params = new URLSearchParams({
         format,
         days: days.toString(),
         top8: top8.toString()
     });
+
+    if (startDate) {
+        params.append('startDate', startDate);
+    }
 
     if (events && events.length > 0) {
         events.forEach(e => params.append('events', e));
@@ -203,5 +215,16 @@ export async function fetchLoginLogs(): Promise<LoginLog[]> {
         headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!response.ok) throw new Error('Failed to fetch logs');
+    return response.json();
+}
+
+export async function fetchPlayerHistory(name: string): Promise<any[]> {
+    const token = getToken();
+    const response = await fetch(`${API_URL}/player/${encodeURIComponent(name)}/history`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    if (!response.ok) throw new Error('Failed to fetch player history');
     return response.json();
 }
