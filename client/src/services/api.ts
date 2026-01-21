@@ -218,9 +218,9 @@ export async function fetchLoginLogs(): Promise<LoginLog[]> {
     return response.json();
 }
 
-export async function fetchPlayerHistory(name: string): Promise<any[]> {
+export async function fetchPlayerHistory(name: string, days: number = 30): Promise<any[]> {
     const token = getToken();
-    const response = await fetch(`${API_URL}/player/${encodeURIComponent(name)}/history`, {
+    const response = await fetch(`${API_URL}/player/${encodeURIComponent(name)}/history?days=${days}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -229,9 +229,9 @@ export async function fetchPlayerHistory(name: string): Promise<any[]> {
     return response.json();
 }
 
-export async function fetchGoldfishHistory(name: string): Promise<any[]> {
+export async function fetchGoldfishHistory(name: string, days: number = 30): Promise<any[]> {
     const token = getToken();
-    const response = await fetch(`${API_URL}/player/${encodeURIComponent(name)}/goldfish`, {
+    const response = await fetch(`${API_URL}/player/${encodeURIComponent(name)}/goldfish?days=${days}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
