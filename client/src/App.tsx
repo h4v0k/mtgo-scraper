@@ -10,7 +10,6 @@ import { ArchetypeView } from './components/Dashboard/ArchetypeView'
 import { DeckView } from './components/Dashboard/DeckView'
 import { Login } from './components/Login'
 import { AdminPanel } from './components/Admin/AdminPanel';
-import { HealthCheck } from './components/Debug/HealthCheck';
 import { ConversionMatrix } from './components/Analytics/ConversionMatrix'
 import { Gameplay } from './components/Gameplay/Gameplay'
 import { fetchMeta } from './services/api'
@@ -218,7 +217,6 @@ function App() {
           <Gameplay />
         )}
       </main>
-      <HealthCheck />
     </div>
   )
 }
