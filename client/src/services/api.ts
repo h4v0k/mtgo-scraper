@@ -228,3 +228,18 @@ export async function fetchPlayerHistory(name: string): Promise<any[]> {
     if (!response.ok) throw new Error('Failed to fetch player history');
     return response.json();
 }
+
+export async function fetchGoldfishHistory(name: string): Promise<any[]> {
+    const token = getToken();
+    const response = await fetch(`${API_URL}/player/${encodeURIComponent(name)}/goldfish`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    // If it fails (e.g. timeout or 500), return empty list so we don't break the UI
+    if (!response.ok) {
+        console.warn('Failed to fetch Goldfish history');
+        return [];
+    }
+    return response.json();
+}
