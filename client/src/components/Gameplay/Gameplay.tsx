@@ -63,52 +63,34 @@ export function Gameplay() {
 
     const [days, setDays] = useState(30);
 
+    // State for polling
+    const [isPolling, setIsPolling] = useState(false);
+
+    // FIX: League display check - ensure case insensitivity covers all variants
+    const isLeague = (eventName: string) => /league/i.test(eventName);
+
     const performSearch = async (name: string, lookbackDays: number) => {
         if (!name.trim()) return;
 
-        setShowSuggestions(false); // Close suggestions on search
+        setShowSuggestions(false);
         setLoading(true);
         setError('');
         setSearchedName(name);
         setHistory([]);
         setViewDeckId(null);
+        setIsPolling(false); // Reset polling trigger
 
         try {
-            // Run both fetches in parallel
-            const [localData, externalData] = await Promise.all([
-                fetchPlayerHistory(name, lookbackDays).catch(e => {
-                    console.error("Local fetch failed", e);
-                    return [];
-                }),
-                fetchGoldfishHistory(name, lookbackDays).catch(e => {
-                    console.error("Goldfish fetch failed", e);
-                    return [];
+            // Initial Fetch
+            await fetchAndSetHistory(name, lookbackDays);
+
+            // Trigger background sync
+            syncPlayer(name, lookbackDays)
+                .then(() => {
+                    // Start Polling after sync init
+                    setIsPolling(true);
                 })
-            ]);
-
-            // Mark sources
-            const localTagged = localData.map((d: any) => ({ ...d, source: 'local' }));
-            const externalTagged = externalData.map((d: any) => ({ ...d, source: 'mtggoldfish' }));
-
-            // Merge and Deduplicate
-            const merged = [...localTagged];
-            const localKeys = new Set(localTagged.map((d: any) => `${d.event_date.split('T')[0]}|${d.event_name}`));
-
-            externalTagged.forEach((d: any) => {
-                const key = `${d.event_date}|${d.event_name}`;
-                if (!localKeys.has(key)) {
-                    merged.push(d);
-                }
-            });
-
-            // Sort by Date DESC
-            merged.sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
-
-            setHistory(merged);
-
-            // Trigger background sync to import missing decks
-            // We do this after setting history so UI updates first
-            syncPlayer(name, lookbackDays).catch(err => console.error("Sync trigger failed", err));
+                .catch(err => console.error("Sync trigger failed", err));
 
         } catch (err) {
             setError('An error occurred while fetching player history.');
@@ -117,6 +99,52 @@ export function Gameplay() {
             setLoading(false);
         }
     };
+
+    // Helper to fetch and merge
+    const fetchAndSetHistory = async (name: string, lookbackDays: number) => {
+        const [localData, externalData] = await Promise.all([
+            fetchPlayerHistory(name, lookbackDays).catch(() => []),
+            fetchGoldfishHistory(name, lookbackDays).catch(() => [])
+        ]);
+
+        const localTagged = localData.map((d: any) => ({ ...d, source: 'local' }));
+        const externalTagged = externalData.map((d: any) => ({ ...d, source: 'mtggoldfish' }));
+
+        const merged = [...localTagged];
+        const localKeys = new Set(localTagged.map((d: any) => `${d.event_date.split('T')[0]}|${d.event_name}`));
+
+        externalTagged.forEach((d: any) => {
+            const key = `${d.event_date}|${d.event_name}`;
+            if (!localKeys.has(key)) {
+                merged.push(d);
+            }
+        });
+
+        merged.sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
+        setHistory(merged);
+        return merged;
+    };
+
+    // Polling Effect
+    useEffect(() => {
+        let intervalId: any;
+        let attempts = 0;
+        const MAX_ATTEMPTS = 5; // Poll for 15 seconds
+
+        if (isPolling && searchedName) {
+            intervalId = setInterval(async () => {
+                attempts++;
+                if (attempts > MAX_ATTEMPTS) {
+                    setIsPolling(false);
+                    return;
+                }
+                // Silent update
+                await fetchAndSetHistory(searchedName, days);
+            }, 3000); // Every 3 seconds
+        }
+
+        return () => clearInterval(intervalId);
+    }, [isPolling, searchedName, days]);
 
     const handleSearch = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -188,7 +216,7 @@ export function Gameplay() {
 
             {searchedName && !loading && (
                 <div className="results-section">
-                    <h3>History for "{searchedName}" (Last 30 Days)</h3>
+                    <h3>History for "{searchedName}" (Last {days} Days)</h3>
 
                     {history.length === 0 ? (
                         <div className="no-data">No recent events found for this player.</div>
@@ -209,8 +237,8 @@ export function Gameplay() {
                                 >
                                     <div className="card-header">
                                         <span className="event-date">{new Date(deck.event_date).toLocaleDateString()}</span>
-                                        <span className={`rank-badge rank-${(deck.rank <= 8 || deck.event_name.toLowerCase().includes('league')) ? 'top8' : 'other'}`}>
-                                            {deck.event_name.toLowerCase().includes('league') ? '5-0' : `#${deck.rank}`}
+                                        <span className={`rank-badge rank-${(deck.rank <= 8 || isLeague(deck.event_name)) ? 'top8' : 'other'}`}>
+                                            {isLeague(deck.event_name) ? '5-0' : `#${deck.rank}`}
                                         </span>
                                     </div>
                                     <div className="deck-info">
