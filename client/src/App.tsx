@@ -179,16 +179,16 @@ function App() {
             Meta Analysis
           </button>
           <button
-            className={activeTab === 'analytics' ? 'active' : ''}
-            onClick={() => setActiveTab('analytics')}
-          >
-            Advanced Analytics
-          </button>
-          <button
             className={activeTab === 'gameplay' ? 'active' : ''}
             onClick={() => setActiveTab('gameplay')}
           >
             Player Lookup
+          </button>
+          <button
+            className={activeTab === 'analytics' ? 'active' : ''}
+            onClick={() => setActiveTab('analytics')}
+          >
+            Advanced Analytics
           </button>
           <button
             className={activeTab === 'admin' ? 'active' : ''}
