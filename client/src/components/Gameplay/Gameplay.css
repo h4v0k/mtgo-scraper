@@ -32,7 +32,45 @@
     gap: 1rem;
     width: 100%;
     max-width: 800px;
-    align-items: center;
+    align-items: stretch;
+    /* Match height */
+}
+
+/* Group wrapper for input + days */
+.input-group {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.days-selector {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.days-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.days-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.days-btn.active {
+    background: var(--accent-color);
+    color: #000;
+    border-color: var(--accent-color);
+    font-weight: bold;
 }
 
 /* Suggestions Dropdown Wrapper */

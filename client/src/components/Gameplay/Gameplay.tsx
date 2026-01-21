@@ -61,7 +61,9 @@ export function Gameplay() {
     }, [wrapperRef]);
 
 
-    const performSearch = async (name: string) => {
+    const [days, setDays] = useState(30);
+
+    const performSearch = async (name: string, lookbackDays: number) => {
         if (!name.trim()) return;
 
         setShowSuggestions(false); // Close suggestions on search
@@ -74,11 +76,11 @@ export function Gameplay() {
         try {
             // Run both fetches in parallel
             const [localData, externalData] = await Promise.all([
-                fetchPlayerHistory(name).catch(e => {
+                fetchPlayerHistory(name, lookbackDays).catch(e => {
                     console.error("Local fetch failed", e);
                     return [];
                 }),
-                fetchGoldfishHistory(name).catch(e => {
+                fetchGoldfishHistory(name, lookbackDays).catch(e => {
                     console.error("Goldfish fetch failed", e);
                     return [];
                 })
@@ -113,7 +115,7 @@ export function Gameplay() {
 
     const handleSearch = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
-        await performSearch(playerName);
+        await performSearch(playerName, days);
     };
 
     if (viewDeckId) {
@@ -129,33 +131,47 @@ export function Gameplay() {
 
             <div className="search-section">
                 <form onSubmit={handleSearch} className="player-search-form">
-                    <div className="input-wrapper" ref={wrapperRef}>
-                        <input
-                            type="text"
-                            placeholder="Enter MTGO Player Name..."
-                            value={playerName}
-                            onChange={(e) => setPlayerName(e.target.value)}
-                            onFocus={() => {
-                                if (suggestions.length > 0) setShowSuggestions(true);
-                            }}
-                            className="player-input"
-                        />
-                        {showSuggestions && suggestions.length > 0 && (
-                            <div className="suggestions-dropdown">
-                                {suggestions.map((name) => (
-                                    <div
-                                        key={name}
-                                        className="suggestion-item"
-                                        onClick={() => {
-                                            setPlayerName(name);
-                                            performSearch(name);
-                                        }}
-                                    >
-                                        {name}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                    <div className="input-group">
+                        <div className="input-wrapper" ref={wrapperRef}>
+                            <input
+                                type="text"
+                                placeholder="Enter MTGO Player Name..."
+                                value={playerName}
+                                onChange={(e) => setPlayerName(e.target.value)}
+                                onFocus={() => {
+                                    if (suggestions.length > 0) setShowSuggestions(true);
+                                }}
+                                className="player-input"
+                            />
+                            {showSuggestions && suggestions.length > 0 && (
+                                <div className="suggestions-dropdown">
+                                    {suggestions.map((name) => (
+                                        <div
+                                            key={name}
+                                            className="suggestion-item"
+                                            onClick={() => {
+                                                setPlayerName(name);
+                                                performSearch(name, days);
+                                            }}
+                                        >
+                                            {name}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        <div className="days-selector">
+                            {[30, 60, 90].map((d) => (
+                                <button
+                                    key={d}
+                                    type="button"
+                                    className={`days-btn ${days === d ? 'active' : ''}`}
+                                    onClick={() => setDays(d)}
+                                >
+                                    {d}d
+                                </button>
+                            ))}
+                        </div>
                     </div>
                     <button type="submit" className="search-btn" disabled={loading}>
                         {loading ? '...' : 'Search'}
