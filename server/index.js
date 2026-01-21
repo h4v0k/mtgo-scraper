@@ -196,10 +196,15 @@ app.get('/api/meta', authenticateToken, async (req, res) => {
 
     const eventList = events ? (Array.isArray(events) ? events : [events]) : null;
 
-    // Calculate date threshold in JS to ensure consistency (UTC)
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - parseInt(days));
-    const cutoffStr = cutoffDate.toISOString();
+    // Calculate date threshold
+    let cutoffStr;
+    if (req.query.startDate) {
+        cutoffStr = new Date(req.query.startDate).toISOString();
+    } else {
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - parseInt(days));
+        cutoffStr = cutoffDate.toISOString();
+    }
 
     const rankFilter = (top8 === 'true') ? 'AND rank <= 8' : '';
     const eventFilter = eventList ? `AND event_name IN (${eventList.map(() => '?').join(',')})` : '';
@@ -458,9 +463,14 @@ app.get('/api/events', authenticateToken, async (req, res) => {
     if (!days) days = '7';
     if (!format) format = 'Standard';
 
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - parseInt(days));
-    const cutoffStr = cutoffDate.toISOString();
+    let cutoffStr;
+    if (req.query.startDate) {
+        cutoffStr = new Date(req.query.startDate).toISOString();
+    } else {
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - parseInt(days));
+        cutoffStr = cutoffDate.toISOString();
+    }
 
     // Get unique event names for this format/timeframe
     const query = `
