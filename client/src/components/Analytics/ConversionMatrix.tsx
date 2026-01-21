@@ -271,11 +271,8 @@ export function ConversionMatrix() {
                 </div>
             )}
 
-            <p style={{ fontSize: '0.9em', color: 'var(--color-text-muted)', marginTop: '12px', lineHeight: '1.4' }}>
-                * <strong>Top 8 Rate</strong>: The percentage of <strong>observed decks</strong> (Top 16/32) that reached the Top 8. <br />
-                * <strong>Limitations</strong>: Since MTGO only publishes partial standings (Top 16 or Top 32), we cannot calculate the conversion rate from the <i>total tournament field</i>. This metric represents performance among the top finishers. <br />
-                * <strong>Expected Baseline (25%)</strong>: Based on a typical Top 32 publication, 8 decks make the Top 8 (25%). Rates above this indicate the archetype is over-represented in the Top 8 relative to the Top 32.
-            </p>
+            * <strong>Top 8 Rate</strong>: The percentage of <strong>observed decks</strong> that reached the Top 8. <br />
+            * <strong>Data Source</strong>: This matrix is based on available match data, which primarily consists of published Top 32 standings from Challenges and 5-0 / 4-1 results from Preliminaries. It does not include the entire field of hundreds of players, as that data is not public. Rates shown reflect performance among this "winner's bracket" subset.
         </div>
     );
 }
