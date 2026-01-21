@@ -61,6 +61,8 @@ export function Gameplay() {
                 </form>
             </div>
 
+            {error && <div className="error-message">{error}</div>}
+
             {searchedName && !loading && (
                 <div className="results-section">
                     <h3>History for "{searchedName}" (Last 30 Days)</h3>
