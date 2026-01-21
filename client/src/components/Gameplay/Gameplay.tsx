@@ -61,26 +61,24 @@ export function Gameplay() {
     }, [wrapperRef]);
 
 
-    const handleSearch = async (e?: React.FormEvent) => {
-        if (e) e.preventDefault();
-        if (!playerName.trim()) return;
+    const performSearch = async (name: string) => {
+        if (!name.trim()) return;
 
         setShowSuggestions(false); // Close suggestions on search
-
         setLoading(true);
         setError('');
-        setSearchedName(playerName);
+        setSearchedName(name);
         setHistory([]);
         setViewDeckId(null);
 
         try {
             // Run both fetches in parallel
             const [localData, externalData] = await Promise.all([
-                fetchPlayerHistory(playerName).catch(e => {
+                fetchPlayerHistory(name).catch(e => {
                     console.error("Local fetch failed", e);
                     return [];
                 }),
-                fetchGoldfishHistory(playerName).catch(e => {
+                fetchGoldfishHistory(name).catch(e => {
                     console.error("Goldfish fetch failed", e);
                     return [];
                 })
@@ -91,26 +89,11 @@ export function Gameplay() {
             const externalTagged = externalData.map((d: any) => ({ ...d, source: 'mtggoldfish' }));
 
             // Merge and Deduplicate
-            // Strategy: Create a map by "Date + Event". If local exists, use it (it has cards). 
-            // If external exists and we don't have local, add it.
-            // Note: Date strings might differ slightly or be same. Goldfish is YYYY-MM-DD. Local is ISO or similar.
-            // Let's normalize date to YYYY-MM-DD for comparison.
-
             const merged = [...localTagged];
             const localKeys = new Set(localTagged.map((d: any) => `${d.event_date.split('T')[0]}|${d.event_name}`));
 
             externalTagged.forEach((d: any) => {
                 const key = `${d.event_date}|${d.event_name}`;
-                // Only add if we don't have a local match for this event
-                // Loose matching on event name? "Modern Challenge 32..."
-                // For now, strict match or just append all and let user decide?
-                // Append all is safer to not hide data, but might show duplicates. 
-                // Let's simple filter checking if we have exact match.
-                // Actually, Goldfish names might be slightly different.
-                // Let's just append them and sort by date. 
-                // Visual dupes are better than missing data.
-
-                // Let's try to filter if key exists to avoid exact dupes
                 if (!localKeys.has(key)) {
                     merged.push(d);
                 }
@@ -128,6 +111,11 @@ export function Gameplay() {
         }
     };
 
+    const handleSearch = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        await performSearch(playerName);
+    };
+
     if (viewDeckId) {
         return <DeckView deckId={viewDeckId} onBack={() => setViewDeckId(null)} />;
     }
@@ -135,7 +123,7 @@ export function Gameplay() {
     return (
         <div className="gameplay-container">
             <div className="gameplay-header">
-                <h2>Gameplay Intelligence</h2>
+                <h2>Player Lookup</h2>
                 <p className="subtitle">Opponent Reconnaissance & Player History</p>
             </div>
 
@@ -160,9 +148,7 @@ export function Gameplay() {
                                         className="suggestion-item"
                                         onClick={() => {
                                             setPlayerName(name);
-                                            setShowSuggestions(false);
-                                            // Optional: auto-trigger search?
-                                            // Let's just fill it for now so they can hit enter or click button
+                                            performSearch(name);
                                         }}
                                     >
                                         {name}

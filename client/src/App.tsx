@@ -188,7 +188,7 @@ function App() {
             className={activeTab === 'gameplay' ? 'active' : ''}
             onClick={() => setActiveTab('gameplay')}
           >
-            Gameplay
+            Player Lookup
           </button>
           <button
             className={activeTab === 'admin' ? 'active' : ''}
