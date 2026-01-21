@@ -1,0 +1,35 @@
+name: Scrape Dev (Seed)
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  seed_dev:
+    runs-on: ubuntu-latest
+
+    env:
+      # Map DEV secrets to the standard env vars expected by the script
+      TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL_DEV }}
+      TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN_DEV }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Seed Dev Database
+        # Run scraper for last 7 days to populate fresh dev environment
+        run: |
+          echo "Seeding Dev DB..."
+          node server/seed_remote.js --days=7
