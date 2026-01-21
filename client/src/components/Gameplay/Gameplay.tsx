@@ -1,6 +1,3 @@
-
-import { useState } from 'react';
-import './Gameplay.css';
 import { useState } from 'react';
 import './Gameplay.css';
 import { fetchPlayerHistory, fetchGoldfishHistory } from '../../services/api';
