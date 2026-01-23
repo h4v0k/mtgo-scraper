@@ -20,10 +20,13 @@ function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('spyglass_token'));
   const [username, setUsername] = useState<string | null>(localStorage.getItem('spyglass_username'));
 
-  const [activeTab, setActiveTab] = useState<'meta' | 'analytics' | 'gameplay' | 'admin' | 'cards'>('meta');
-
+  const isAdminPath = window.location.pathname === '/admin' || window.location.pathname === '/admin/';
   const isAdminDomain = window.location.hostname === 'mtgo-scraper-client-new.vercel.app' || window.location.hostname === 'localhost';
-  const [showLogin, setShowLogin] = useState(window.location.pathname === '/admin' && isAdminDomain);
+
+  const [activeTab, setActiveTab] = useState<'meta' | 'analytics' | 'gameplay' | 'admin' | 'cards'>(
+    (isAdminPath && isAdminDomain) ? 'admin' : 'meta'
+  );
+  const [showLogin, setShowLogin] = useState(isAdminPath && isAdminDomain);
 
   // Dashboard State
   const [format, setFormat] = useState('Standard');
@@ -44,13 +47,19 @@ function App() {
   const [initialSearch, setInitialSearch] = useState<string>('');
 
   useEffect(() => {
-    // Listen for URL changes if needed, but a simple check on mount + manual triggers should work
     const handlePopState = () => {
-      setShowLogin(window.location.pathname === '/admin' && isAdminDomain);
+      const isPath = window.location.pathname === '/admin' || window.location.pathname === '/admin/';
+      const isAdm = isPath && isAdminDomain;
+      setShowLogin(isAdm);
+      if (isAdm) {
+        setActiveTab('admin');
+      } else if (activeTab === 'admin') {
+        setActiveTab('meta');
+      }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [isAdminDomain]);
+  }, [isAdminDomain, activeTab]);
 
   useEffect(() => {
     if (token) {
@@ -91,16 +100,16 @@ function App() {
     setToken(newToken);
     setUsername(newUsername);
     setShowLogin(false);
-    // Silent update of URL to root if they were on /admin
-    if (window.location.pathname === '/admin') {
-      window.history.replaceState({}, '', '/');
-    }
+    setActiveTab('admin');
   };
 
   const handleLogout = () => {
     setToken(null);
     setUsername(null);
     setActiveTab('meta');
+    if (window.location.pathname.startsWith('/admin')) {
+      window.history.replaceState({}, '', '/');
+    }
   };
 
   const handlePlayerSearch = (name: string) => {
@@ -242,7 +251,7 @@ function App() {
           >
             Advanced Analytics
           </button>
-          {username === 'havok' && token && isAdminDomain && (
+          {username === 'havok' && token && isAdminDomain && isAdminPath && (
             <button
               className={activeTab === 'admin' ? 'active' : ''}
               onClick={() => setActiveTab('admin')}
