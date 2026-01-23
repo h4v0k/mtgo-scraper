@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>API Test</title>
+</head>
+
+<body>
+    <h1>MTGO Scraper API Test</h1>
+    <button onclick="testPing()">Test Ping</button>
+    <button onclick="testSync()">Test Sync</button>
+    <pre id="output"></pre>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3001/api' : '/api';
+        const output = document.getElementById('output');
+
+        function log(msg) {
+            output.textContent += msg + '\n';
+            console.log(msg);
+        }
+
+        async function testPing() {
+            output.textContent = '';
+            log('Testing ping endpoint...');
+            log('API URL: ' + API_URL);
+
+            try {
+                const response = await fetch(`${API_URL}/ping`);
+                log('Status: ' + response.status);
+                const data = await response.text();
+                log('Response: ' + data);
+            } catch (err) {
+                log('ERROR: ' + err.message);
+            }
+        }
+
+        async function testSync() {
+            output.textContent = '';
+            const token = localStorage.getItem('auth_token ');
+            log('Testing sync endpoint...');
+            log('API URL: ' + API_URL);
+            log('Token: ' + (token ? 'Present' : 'MISSING - Please login first!'));
+
+            if (!token) {
+                log('\nERROR: No auth token found. Please login to the app first, then try again.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/player/test_player/sync`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ days: 30 })
+                });
+
+                log('Status: ' + response.status);
+                const data = await response.json();
+                log('Response: ' + JSON.stringify(data, null, 2));
+            } catch (err) {
+                log('ERROR: ' + err.message);
+            }
+        }
+    </script>
+</body>
+
+</html>
