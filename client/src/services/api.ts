@@ -209,6 +209,15 @@ export interface LoginLog {
     login_timestamp: string;
 }
 
+export async function fetchLoginLogs(): Promise<LoginLog[]> {
+    const token = getToken();
+    const response = await fetch(`${API_URL}/admin/logs`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+    });
+    if (!response.ok) throw new Error('Failed to fetch logs');
+    return response.json();
+}
+
 export async function fetchPublicActivityLogs(): Promise<any[]> {
     const token = getToken();
     const response = await fetch(`${API_URL}/admin/activity`, {
