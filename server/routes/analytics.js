@@ -27,6 +27,7 @@ router.get('/conversion', async (req, res) => {
             AND d.event_date >= date('now', ?)
             AND a.name != 'Unknown'
             AND d.event_name NOT LIKE '%League%'
+            AND d.rank > 0
         `;
 
         const result = await db.execute({
