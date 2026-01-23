@@ -275,19 +275,30 @@ export async function searchPlayers(query: string): Promise<string[]> {
 export async function searchCardNames(query: string, format?: string): Promise<string[]> {
     if (!query || query.length < 2) return [];
 
-    const params = new URLSearchParams({ q: query });
-    if (format) params.append('format', format);
+    // Use Scryfall Search API with format filtering
+    // f:standard, f:modern, etc.
+    const scryfallFormat = format ? format.toLowerCase() : '';
+    const q = scryfallFormat ? `f:${scryfallFormat} ${query}` : query;
 
-    const token = getToken();
-    const response = await fetch(`${API_URL}/cards/search?${params}`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
+    try {
+        const response = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(q)}`);
+        if (!response.ok) return [];
+        const data = await response.json();
+
+        // Return only unique names (Scryfall might return multiple printings)
+        const names = new Set<string>();
+        if (data.data) {
+            data.data.forEach((card: any) => {
+                // Return the 'clean' name (important for double-faced cards)
+                const name = card.name.split(' // ')[0];
+                names.add(name);
+            });
         }
-    });
-
-    if (!response.ok) return [];
-
-    return response.json();
+        return Array.from(names).slice(0, 10);
+    } catch (err) {
+        console.error("Scryfall suggestion error:", err);
+        return [];
+    }
 }
 
 export interface CardLookupResult {
