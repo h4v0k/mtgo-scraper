@@ -32,7 +32,7 @@ app.use(express.json());
 // --- Rate Limiting ---
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per window
+    max: 1000, // Increased limit to 1000 requests per window (safer for dashboard users)
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: 'Too many requests, please try again later.' }
