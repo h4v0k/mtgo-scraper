@@ -33,35 +33,37 @@ export const MetaTable: React.FC<MetaTableProps> = ({ data, onSelectArchetype })
                     ⬇ Export CSV
                 </button>
             </div>
-            <table className="meta-table">
-                <thead>
-                    <tr>
-                        <th>Archetype</th>
-                        <th>Decks</th>
-                        <th>Meta Share</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {sortedData.map((row) => {
-                        const percentage = ((row.count / totalCount) * 100).toFixed(1);
-                        return (
-                            <tr key={row.archetype} onClick={() => onSelectArchetype(row.archetype)}>
-                                <td className="arch-name">{row.archetype}</td>
-                                <td>{row.count}</td>
-                                <td className="meta-share">
-                                    <div className="share-bar-container">
-                                        <span className="share-text">{percentage}%</span>
-                                        <div
-                                            className="share-bar"
-                                            style={{ width: `${Math.min(parseFloat(percentage), 100)}%` }}
-                                        />
-                                    </div>
-                                </td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
+            <div className="table-responsive">
+                <table className="meta-table">
+                    <thead>
+                        <tr>
+                            <th>Archetype</th>
+                            <th>Decks</th>
+                            <th>Meta Share</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {sortedData.map((row) => {
+                            const percentage = ((row.count / totalCount) * 100).toFixed(1);
+                            return (
+                                <tr key={row.archetype} onClick={() => onSelectArchetype(row.archetype)}>
+                                    <td className="arch-name">{row.archetype}</td>
+                                    <td>{row.count}</td>
+                                    <td className="meta-share">
+                                        <div className="share-bar-container">
+                                            <span className="share-text">{percentage}%</span>
+                                            <div
+                                                className="share-bar"
+                                                style={{ width: `${Math.min(parseFloat(percentage), 100)}%` }}
+                                            />
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

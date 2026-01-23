@@ -130,3 +130,28 @@
     font-weight: bold;
     text-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
 }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .meta-table-header-actions {
+        justify-content: center;
+        padding: var(--space-sm);
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0;
+        width: 100%;
+    }
+
+    .meta-table th,
+    .meta-table td {
+        padding: var(--space-md) var(--space-sm);
+        white-space: nowrap;
+    }
+
+    .share-bar-container {
+        max-width: 150px;
+    }
+}
