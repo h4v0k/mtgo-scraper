@@ -115,6 +115,11 @@ function App() {
           selectedEvents={selectedEvents}
           onBack={() => setSelectedArchetype(null)}
           onSelectDeck={(id) => setSelectedDeckId(id)}
+          onPlayerSearch={(name) => {
+            console.log(`[App] Triggering Player Search for: ${name}`);
+            setInitialSearch(name);
+            setActiveTab('gameplay');
+          }}
         />
       );
     }

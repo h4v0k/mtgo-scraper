@@ -11,10 +11,11 @@ interface ArchetypeViewProps {
     selectedEvents: string[];
     onBack: () => void;
     onSelectDeck: (id: number) => void;
+    onPlayerSearch: (name: string) => void;
 }
 
 export const ArchetypeView: React.FC<ArchetypeViewProps> = ({
-    archetype, format, days, top8, selectedEvents, onBack, onSelectDeck
+    archetype, format, days, top8, selectedEvents, onBack, onSelectDeck, onPlayerSearch
 }) => {
     const [decks, setDecks] = useState<DeckSummary[]>([]);
     const [loading, setLoading] = useState(true);
@@ -56,7 +57,17 @@ export const ArchetypeView: React.FC<ArchetypeViewProps> = ({
                             {decks.map(deck => (
                                 <tr key={deck.id} onClick={() => onSelectDeck(deck.id)}>
                                     <td style={{ fontWeight: 'bold', color: 'var(--color-primary-gold)' }}>
-                                        {deck.player_name}
+                                        <button
+                                            className="player-name-link-btn"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onPlayerSearch(deck.player_name);
+                                            }}
+                                            title="Search Player History"
+                                            style={{ color: 'inherit', fontWeight: 'inherit', textAlign: 'left' }}
+                                        >
+                                            {deck.player_name}
+                                        </button>
                                         {deck.spice_count > 0 && (
                                             <span
                                                 className="spice-indicator"
