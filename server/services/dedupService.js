@@ -33,8 +33,9 @@ function normalizeEventNameForStorage(name, format) {
     normalized = normalized.replace(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/g, ''); // 1/22/2026
     normalized = normalized.replace(/\b\d{2}\.\d{2}\.\d{4}\b/g, ''); // 21.01.2026
 
-    // 2. Strip parenthetical content with dates/years
+    // 2. Strip parenthetical content with dates/years AND brackets
     normalized = normalized.replace(/\([^)]*\d{2,4}[^)]*\)/g, ''); // (WntrSpr '26), (2026-01-22), etc.
+    normalized = normalized.replace(/\[.*?\]/g, ''); // [Lyon Sat 09:00]
 
     // 3. Strip indices (1), (2), etc.
     normalized = normalized.replace(/\s?\(\d+\)/g, '');
@@ -53,6 +54,11 @@ function normalizeEventNameForStorage(name, format) {
 
         // Remove trailing dashes/punctuation after stripping format
         normalized = normalized.replace(/\s*-\s*$/, '').trim();
+
+        // NEW: Strip generic suffixes that might contain years (e.g. " - Lyon 2026")
+        normalized = normalized.replace(/\s+-\s+.*\d{4}.*$/, '');
+        // Also strip just trailing dates if they survived step 1
+        normalized = normalized.replace(/\s+\d{4}-\d{2}-\d{2}$/, '');
 
         normalized = format + ' ' + normalized;
     }

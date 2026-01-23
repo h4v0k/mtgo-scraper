@@ -1,5 +1,6 @@
 const { scrapeMTGTop8 } = require('./services/scraper');
 const { scrapeGoldfishEvents } = require('./services/goldfishScraper');
+const { runRemoteNormalization } = require('./remote_normalize');
 const { initDB } = require('./db');
 
 async function syncAll() {
@@ -26,6 +27,10 @@ async function syncAll() {
         } else {
             console.log(`\n--- Step 2: MTGTop8 Skip (Not 0/12 UTC, current: ${currentHour}:00) ---`);
         }
+
+        // 3. Normalization (Always Run)
+        console.log("\n--- Step 3: Remote Normalization ---");
+        await runRemoteNormalization();
 
         const duration = ((Date.now() - startTime) / 1000).toFixed(1);
         console.log(`\n=== Global Sync Complete (Total: ${duration}s) ===`);
