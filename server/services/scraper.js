@@ -12,7 +12,9 @@ const FORMATS = [
     { code: 'PI', name: 'Pioneer' },
     { code: 'MO', name: 'Modern' },
     { code: 'LE', name: 'Legacy' },
-    { code: 'PAU', name: 'Pauper' }
+    { code: 'PAU', name: 'Pauper' },
+    { code: 'VI', name: 'Vintage' },
+    { code: 'PREM', name: 'Premodern' }
 ];
 
 // Helper to delay

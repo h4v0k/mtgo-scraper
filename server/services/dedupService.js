@@ -46,10 +46,14 @@ function normalizeEventNameForStorage(name, format) {
 
     // 5. Ensure format name is prepended exactly once
     if (format) {
-        const fmtRegex = new RegExp(`^${format}\\s+`, 'i');
-        if (normalized.match(fmtRegex)) {
-            normalized = normalized.replace(fmtRegex, '');
-        }
+        // Strip the format name anywhere it exists as a word or suffix
+        const formatEscaped = format.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const fmtRegexAnywhere = new RegExp(`\\s*-\\s*${formatEscaped}|\\b${formatEscaped}\\b`, 'gi');
+        normalized = normalized.replace(fmtRegexAnywhere, '').trim();
+
+        // Remove trailing dashes/punctuation after stripping format
+        normalized = normalized.replace(/\s*-\s*$/, '').trim();
+
         normalized = format + ' ' + normalized;
     }
 
