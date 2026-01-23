@@ -25,13 +25,14 @@ export const DeckView: React.FC<DeckViewProps> = ({ deckId, onBack, onPlayerSear
         <div className="deck-view">
             <div className="view-header">
                 <button className="back-btn" onClick={onBack}>&larr; Back to List</button>
-                <div>
-                    <h2>
+                <div className="player-info-header" style={{ position: 'relative', zIndex: 100 }}>
+                    <h2 style={{ margin: 0 }}>
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
                                 e.preventDefault();
-                                console.log(`[DeckView] Clicked player: ${deck.player_name}`);
+                                console.log(`[DeckView] CLICK CAPTURED: ${deck.player_name}`);
+                                // window.alert(`Clicking ${deck.player_name}`); // Debug
                                 onPlayerSearch(deck.player_name);
                             }}
                             className="player-name-link-btn"
