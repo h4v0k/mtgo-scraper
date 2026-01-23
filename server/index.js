@@ -477,6 +477,8 @@ app.post('/api/player/:name/sync', authenticateToken, async (req, res) => {
     let { days } = req.body; // Can pass day override body if needed, or query
     if (!days) days = 30; // Default
 
+    console.log(`[SYNC ENDPOINT] Received sync request for player: ${name}, days: ${days}`);
+
     // Start background job
     goldfish.syncPlayerDecks(name, days).catch(err => {
         console.error(`Background sync failed for ${name}:`, err);

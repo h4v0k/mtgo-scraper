@@ -91,15 +91,20 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
 
         try {
             // Initial Fetch
+            console.log(`[PLAYER SEARCH] Fetching history for ${name}...`);
             await fetchAndSetHistory(name, lookbackDays);
 
             // Trigger background sync
+            console.log(`[PLAYER SEARCH] Triggering sync for ${name}...`);
             syncPlayer(name, lookbackDays)
                 .then(() => {
+                    console.log(`[PLAYER SEARCH] Sync triggered successfully, starting polling...`);
                     // Start Polling after sync init
                     setIsPolling(true);
                 })
-                .catch(err => console.error("Sync trigger failed", err));
+                .catch(err => {
+                    console.error("[PLAYER SEARCH] Sync trigger failed:", err);
+                });
 
         } catch (err) {
             setError('An error occurred while fetching player history.');
@@ -167,9 +172,12 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
         const MAX_ATTEMPTS = 60; // Poll for up to 3 minutes (60 × 3s = 180s)
 
         if (isPolling && searchedName) {
+            console.log(`[POLLING] Starting polling for ${searchedName}...`);
             intervalId = setInterval(async () => {
                 attempts++;
+                console.log(`[POLLING] Attempt ${attempts}/${MAX_ATTEMPTS} for ${searchedName}`);
                 if (attempts > MAX_ATTEMPTS) {
+                    console.log(`[POLLING] Max attempts reached, stopping polling`);
                     setIsPolling(false);
                     return;
                 }
@@ -178,7 +186,12 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
             }, 3000); // Every 3 seconds
         }
 
-        return () => clearInterval(intervalId);
+        return () => {
+            if (intervalId) {
+                console.log(`[POLLING] Cleanup - clearing interval`);
+                clearInterval(intervalId);
+            }
+        };
     }, [isPolling, searchedName, days]);
 
     const handleSearch = async (e?: React.FormEvent) => {
