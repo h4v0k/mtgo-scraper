@@ -164,18 +164,7 @@
     align-items: flex-start;
 }
 
-@media (max-width: 900px) {
-    .lookup-layout {
-        grid-template-columns: 1fr;
-    }
 
-    .card-preview-panel {
-        order: -1;
-        display: flex;
-        justify-content: center;
-        position: static;
-    }
-}
 
 .lookup-results {
     background: rgba(255, 255, 255, 0.02);
@@ -362,5 +351,18 @@
         padding: 0.6rem 0.2rem;
         min-width: 0;
         /* Allow shrinking */
+    }
+}
+
+@media (max-width: 900px) {
+    .lookup-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .card-preview-panel {
+        order: -1;
+        display: flex;
+        justify-content: center;
+        position: static;
     }
 }
