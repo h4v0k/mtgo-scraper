@@ -17,6 +17,7 @@ const activeSyncs = new Set();
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1); // Enable trust proxy for correct IP detection behind Vercel/proxies
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
