@@ -126,38 +126,27 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
 
         const merged = [...localTagged];
 
-        // Improve Deduplication: 
-        // 1. Primary Key: Date + Normalized Event Name
-        // 2. Secondary Key: Date + Format + Rank (Strong signal for Top 8/Challenges)
+        // Robust Deduplication using source_url
+        // 1. Map local decks by their source_url for O(1) lookup
+        const localSourceUrls = new Set(localTagged.map((d: any) => d.source_url).filter(Boolean));
 
-        const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-        const localKeys = new Set(localTagged.map((d: any) => {
+        // 2. Fallback keys for legacy data or edge cases
+        const normalize = (str: string) => str ? str.toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+        const localNameKeys = new Set(localTagged.map((d: any) => {
             const dateStr = d.event_date.split('T')[0];
             return `${dateStr}|${normalize(d.event_name)}`;
         }));
 
-        const localSecondaryKeys = new Set(localTagged.map((d: any) => {
-            const dateStr = d.event_date.split('T')[0];
-            // Only use secondary key if we have a valid rank (Top N or 5-0)
-            if (d.rank && d.rank > 0) {
-                return `${dateStr}|${d.format.toLowerCase()}|${d.rank}`;
-            }
-            return null;
-        }).filter(Boolean));
-
         externalTagged.forEach((d: any) => {
+            // Check by URL first (Strongest)
+            if (d.url && localSourceUrls.has(d.url)) return;
+
+            // Check by Name/Date (Fallback)
             const dateStr = d.event_date.split('T')[0];
             const nameKey = `${dateStr}|${normalize(d.event_name)}`;
-            const rankKey = (d.rank && d.rank > 0) ? `${dateStr}|${d.format.toLowerCase()}|${d.rank}` : null;
+            if (localNameKeys.has(nameKey)) return;
 
-            // Check both keys
-            const existsByName = localKeys.has(nameKey);
-            const existsByRank = rankKey ? localSecondaryKeys.has(rankKey) : false;
-
-            if (!existsByName && !existsByRank) {
-                merged.push(d);
-            }
+            merged.push(d);
         });
 
         merged.sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime());

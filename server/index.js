@@ -10,6 +10,9 @@ const seedRemote = require('./seed_remote');
 const goldfish = require('./services/goldfish'); // Import Goldfish service
 const { calculateSpice } = require('./services/spice');
 
+// In-memory mutex for sync processes
+const activeSyncs = new Set();
+
 dotenv.config();
 
 const app = express();
@@ -477,6 +480,12 @@ app.post('/api/player/:name/sync', authenticateToken, async (req, res) => {
     let { days } = req.body;
     if (!days) days = 30;
 
+    if (activeSyncs.has(name)) {
+        console.log(`[SYNC] Sync already in progress for ${name}. Skipping.`);
+        return res.json({ message: 'Sync already in progress' });
+    }
+
+    activeSyncs.add(name);
     console.log(`[SYNC] Starting sync for ${name} (${days} days)...`);
 
     try {
@@ -484,7 +493,13 @@ app.post('/api/player/:name/sync', authenticateToken, async (req, res) => {
         res.json({ message: 'Sync complete', count });
     } catch (err) {
         console.error(`Sync failed for ${name}:`, err);
+        // Special handling for Turso/DB constraint errors (if race condition still hits index)
+        if (err.message && err.message.includes('UNIQUE constraint failed')) {
+            return res.json({ message: 'Sync completed with skipped duplicates' });
+        }
         res.status(500).json({ error: 'Sync failed' });
+    } finally {
+        activeSyncs.delete(name);
     }
 });
 

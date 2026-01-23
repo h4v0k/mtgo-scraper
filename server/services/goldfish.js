@@ -200,13 +200,17 @@ async function syncPlayerDecks(playerName, days = 30) {
 
     const spiceContextCache = {};
     const BATCH_SIZE = 5; // Process 5 decks in parallel
+    const syncedUrls = new Set(); // Track URLs synced in this run to prevent batch duplicates
 
     // Helper function to process a single deck
     const processDeck = async (d, index) => {
-        if (!d.url) return null;
+        if (!d.url || syncedUrls.has(d.url)) return null;
 
         const exists = await findExistingDeckForPlayer(playerName, d.format, d.event_date, d.event_name, d.url);
-        if (exists) return null;
+        if (exists) {
+            syncedUrls.add(d.url);
+            return null;
+        }
 
         console.log(`[${index + 1}/${externalDecks.length}] Scraping: ${d.url}`);
         const details = await scrapeDeck(d.url);
@@ -215,6 +219,8 @@ async function syncPlayerDecks(playerName, days = 30) {
             return null;
         }
 
+        syncedUrls.add(d.url); // Mark as synced BEFORE database insert to handle parallel batch safety
+
         const classification = await classifyDeck(details.raw_decklist, d.format, d.archetype);
         const archName = classification.name;
 
@@ -222,6 +228,7 @@ async function syncPlayerDecks(playerName, days = 30) {
 
         console.log(`Persisting: ${archName} | Event: ${finalEventName}`);
 
+        // ... rest of the logic remains same, but we add try-catch around DB insert for absolute safety
         let archId = null;
         try {
             const exArch = await db.execute({
@@ -271,23 +278,31 @@ async function syncPlayerDecks(playerName, days = 30) {
             console.error("Error calculating spice during ingest:", err);
         }
 
-        await db.execute({
-            sql: `INSERT INTO decks (player_name, event_name, event_date, format, rank, archetype_id, source_url, raw_decklist, sideboard, spice_count, spice_cards) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            args: [
-                playerName,
-                finalEventName,
-                d.event_date,
-                d.format,
-                d.rank || 0,
-                archId,
-                d.url,
-                details.raw_decklist,
-                details.sideboard,
-                spiceCount,
-                spiceCardsJSON || '[]'
-            ]
-        });
+        try {
+            await db.execute({
+                sql: `INSERT INTO decks (player_name, event_name, event_date, format, rank, archetype_id, source_url, raw_decklist, sideboard, spice_count, spice_cards) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                args: [
+                    playerName,
+                    finalEventName,
+                    d.event_date,
+                    d.format,
+                    d.rank || 0,
+                    archId,
+                    d.url,
+                    details.raw_decklist,
+                    details.sideboard,
+                    spiceCount,
+                    spiceCardsJSON || '[]'
+                ]
+            });
+        } catch (dbErr) {
+            if (dbErr.message && dbErr.message.includes('UNIQUE constraint')) {
+                console.log(`Unique constraint hit for ${d.url}, skipping duplicate.`);
+            } else {
+                throw dbErr;
+            }
+        }
 
         return true;
     };
