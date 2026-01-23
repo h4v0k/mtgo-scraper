@@ -21,6 +21,7 @@ function App() {
   const [username, setUsername] = useState<string | null>(localStorage.getItem('spyglass_username'));
 
   const [activeTab, setActiveTab] = useState<'meta' | 'analytics' | 'gameplay' | 'admin' | 'cards'>('meta');
+  const [showLogin, setShowLogin] = useState(window.location.pathname === '/admin');
 
   // Dashboard State
   const [format, setFormat] = useState('Standard');
@@ -41,6 +42,15 @@ function App() {
   const [initialSearch, setInitialSearch] = useState<string>('');
 
   useEffect(() => {
+    // Listen for URL changes if needed, but a simple check on mount + manual triggers should work
+    const handlePopState = () => {
+      setShowLogin(window.location.pathname === '/admin');
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  useEffect(() => {
     if (token) {
       localStorage.setItem('spyglass_token', token);
     } else {
@@ -57,8 +67,8 @@ function App() {
   }, [username]);
 
   useEffect(() => {
-    // Only fetch meta if we are at the root level and logged in
-    if (token && selectedArchetype === null && selectedDeckId === null && activeTab === 'meta') {
+    // Only fetch meta if we are at the root level
+    if (selectedArchetype === null && selectedDeckId === null && activeTab === 'meta') {
       async function loadData() {
         setLoading(true);
         try {
@@ -67,20 +77,22 @@ function App() {
         } catch (err) {
           console.error(err);
           setData([]);
-          if ((err as Error).message === 'Unauthorized') {
-            setToken(null);
-          }
         } finally {
           setLoading(false);
         }
       }
       loadData();
     }
-  }, [format, days, top8, selectedEvents, selectedArchetype, selectedDeckId, token, activeTab, startDate]);
+  }, [format, days, top8, selectedEvents, selectedArchetype, selectedDeckId, activeTab, startDate]);
 
   const handleLoginSuccess = (newToken: string, newUsername: string) => {
     setToken(newToken);
     setUsername(newUsername);
+    setShowLogin(false);
+    // Silent update of URL to root if they were on /admin
+    if (window.location.pathname === '/admin') {
+      window.history.replaceState({}, '', '/');
+    }
   };
 
   const handleLogout = () => {
@@ -155,8 +167,23 @@ function App() {
     }
   };
 
-  if (!token) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
+  if (showLogin && !token) {
+    return (
+      <div className="admin-gate">
+        <div style={{ padding: '2rem', textAlign: 'center' }}>
+          <Login onLoginSuccess={handleLoginSuccess} />
+          <button
+            onClick={() => {
+              setShowLogin(false);
+              window.history.replaceState({}, '', '/');
+            }}
+            style={{ marginTop: '1rem', background: 'none', border: 'none', color: '#888', cursor: 'pointer', textDecoration: 'underline' }}
+          >
+            Back to Public View
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -213,7 +240,7 @@ function App() {
           >
             Advanced Analytics
           </button>
-          {username === 'havok' && (
+          {username === 'havok' && token && (
             <button
               className={activeTab === 'admin' ? 'active' : ''}
               onClick={() => setActiveTab('admin')}
@@ -221,9 +248,11 @@ function App() {
               Admin
             </button>
           )}
-          <button onClick={handleLogout} className="logout-btn">
-            Logout ({username})
-          </button>
+          {token && (
+            <button onClick={handleLogout} className="logout-btn">
+              Logout ({username})
+            </button>
+          )}
         </nav>
       </header>
 

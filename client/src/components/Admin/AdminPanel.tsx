@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './AdminPanel.css';
 import { LoginLogs } from './LoginLogs';
+import { ActivityLogs } from './ActivityLogs';
 
 interface User {
     id: number;
@@ -14,7 +15,7 @@ export function AdminPanel() {
     const [msg, setMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState<User[]>([]);
-    const [activeTab, setActiveTab] = useState<'users' | 'logs'>('users');
+    const [activeTab, setActiveTab] = useState<'users' | 'logs' | 'activity'>('users');
 
     useEffect(() => {
         fetchUsers();
@@ -114,10 +115,18 @@ export function AdminPanel() {
                 >
                     Login Logs
                 </button>
+                <button
+                    className={`tab-btn ${activeTab === 'activity' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('activity')}
+                >
+                    Activity Log
+                </button>
             </div>
 
             {activeTab === 'logs' ? (
                 <LoginLogs />
+            ) : activeTab === 'activity' ? (
+                <ActivityLogs />
             ) : (
                 <div className="admin-grid">
                     <div className="admin-card">

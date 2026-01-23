@@ -209,21 +209,22 @@ export interface LoginLog {
     login_timestamp: string;
 }
 
-export async function fetchLoginLogs(): Promise<LoginLog[]> {
+export async function fetchPublicActivityLogs(): Promise<any[]> {
     const token = getToken();
-    const response = await fetch(`${API_URL}/admin/logs`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+    const response = await fetch(`${API_URL}/admin/activity`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
     });
-    if (!response.ok) throw new Error('Failed to fetch logs');
+    if (!response.ok) throw new Error('Failed to fetch activity logs');
     return response.json();
 }
 
 export async function fetchPlayerHistory(name: string, days: number = 30): Promise<any[]> {
     const token = getToken();
+    const headers: any = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
     const response = await fetch(`${API_URL}/player/${encodeURIComponent(name)}/history?days=${days}`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
+        headers
     });
     if (!response.ok) throw new Error('Failed to fetch player history');
     return response.json();

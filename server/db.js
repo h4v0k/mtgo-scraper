@@ -71,6 +71,13 @@ async function initDB() {
         -- Index for faster range queries
         CREATE INDEX IF NOT EXISTS idx_decks_date ON decks(event_date);
         CREATE INDEX IF NOT EXISTS idx_decks_format ON decks(format);
+        CREATE TABLE IF NOT EXISTS public_activity_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ip_address TEXT,
+            user_agent TEXT,
+            endpoint TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
     `;
 
     try {

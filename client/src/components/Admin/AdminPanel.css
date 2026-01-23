@@ -184,6 +184,12 @@
     margin-bottom: 1.5rem;
 }
 
+.endpoint-cell {
+    color: var(--color-primary);
+    font-family: monospace;
+    font-size: 0.85rem;
+}
+
 .table-container {
     overflow-x: auto;
 }

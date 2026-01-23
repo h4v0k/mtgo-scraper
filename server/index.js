@@ -53,6 +53,25 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// --- Activity Logging Middleware ---
+const logActivity = async (req, res, next) => {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+    const endpoint = req.originalUrl;
+
+    try {
+        await db.execute({
+            sql: 'INSERT INTO public_activity_logs (ip_address, user_agent, endpoint) VALUES (?, ?, ?)',
+            args: [ip, userAgent, endpoint]
+        });
+    } catch (e) {
+        console.error("Failed to log activity:", e);
+    }
+    next();
+};
+
+app.use(logActivity);
+
 // --- Admin Middleware ---
 const requireAdmin = (req, res, next) => {
     if (req.user && req.user.username === 'havok') {
@@ -174,26 +193,26 @@ app.delete('/api/users/:id', authenticateToken, requireAdmin, async (req, res) =
     }
 });
 
-// Protected: Get Login Logs (Admin Only)
-app.get('/api/admin/logs', authenticateToken, requireAdmin, async (req, res) => {
+// Protected: Get Public Activity Logs (Admin Only)
+app.get('/api/admin/activity', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const result = await db.execute(`
-            SELECT l.id, u.username, l.ip_address, l.user_agent, l.login_timestamp 
-            FROM login_logs l
-            JOIN users u ON l.user_id = u.id
-            ORDER BY l.login_timestamp DESC
-            LIMIT 50
+            SELECT id, ip_address, user_agent, endpoint, timestamp 
+            FROM public_activity_logs 
+            ORDER BY timestamp DESC
+            LIMIT 100
         `);
         res.json(result.rows);
     } catch (err) {
-        console.error("Error fetching logs:", err);
-        res.status(500).json({ error: "Failed to fetch logs" });
+        console.error("Error fetching activity logs:", err);
+        res.status(500).json({ error: "Failed to fetch activity logs" });
     }
 });
 
 // Dashboard Data
 // Dashboard Data
-app.get('/api/meta', authenticateToken, async (req, res) => {
+// Dashboard Data
+app.get('/api/meta', async (req, res) => {
     let { format, days, top8, events } = req.query; // events is array or string
 
     // Defaults
@@ -258,7 +277,8 @@ app.get('/api/meta', authenticateToken, async (req, res) => {
 
 // Get Decks for an Archetype
 // Get Decks for an Archetype
-app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
+// Get Decks for an Archetype
+app.get('/api/meta/archetype/:name', async (req, res) => {
     const { name } = req.params;
     let { format, days, top8, events } = req.query;
 
@@ -374,7 +394,8 @@ app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
 });
 
 // Get Single Deck with Spice Analysis
-app.get('/api/deck/:id', authenticateToken, async (req, res) => {
+// Get Single Deck with Spice Analysis
+app.get('/api/deck/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -433,7 +454,8 @@ app.get('/api/deck/:id', authenticateToken, async (req, res) => {
 // Get Available Events
 
 // Get Player History (For Gameplay Tab)
-app.get('/api/player/:name/history', authenticateToken, async (req, res) => {
+// Get Player History (For Gameplay Tab)
+app.get('/api/player/:name/history', async (req, res) => {
     const { name } = req.params;
     let { days } = req.query;
     if (!days) days = '30'; // Default
@@ -455,7 +477,8 @@ app.get('/api/player/:name/history', authenticateToken, async (req, res) => {
 });
 
 // Search Players (Auto-complete)
-app.get('/api/players/search', authenticateToken, async (req, res) => {
+// Search Players (Auto-complete)
+app.get('/api/players/search', async (req, res) => {
     const { q } = req.query;
     if (!q || q.length < 2) return res.json([]);
 
@@ -475,7 +498,8 @@ app.get('/api/players/search', authenticateToken, async (req, res) => {
 });
 
 // Trigger Lazy Scrape
-app.post('/api/player/:name/sync', authenticateToken, async (req, res) => {
+// Trigger Lazy Scrape
+app.post('/api/player/:name/sync', async (req, res) => {
     const { name } = req.params;
     let { days } = req.body;
     if (!days) days = 30;
@@ -504,7 +528,8 @@ app.post('/api/player/:name/sync', authenticateToken, async (req, res) => {
 });
 
 // Get External History (Goldfish)
-app.get('/api/player/:name/goldfish', authenticateToken, async (req, res) => {
+// Get External History (Goldfish)
+app.get('/api/player/:name/goldfish', async (req, res) => {
     const { name } = req.params;
     let { days } = req.query;
     if (!days) days = '30';
@@ -519,7 +544,8 @@ app.get('/api/player/:name/goldfish', authenticateToken, async (req, res) => {
 
 
 // Get Available Events
-app.get('/api/events', authenticateToken, async (req, res) => {
+// Get Available Events
+app.get('/api/events', async (req, res) => {
     let { format, days } = req.query;
 
     // Defaults
@@ -592,7 +618,8 @@ app.get('/api/debug', async (req, res) => {
 
 
 // Lookup decks by card name
-app.get('/api/cards/lookup', authenticateToken, async (req, res) => {
+// Lookup decks by card name
+app.get('/api/cards/lookup', async (req, res) => {
     const { card, format, days } = req.query;
     if (!card) return res.status(400).json({ error: 'Card name required' });
 
