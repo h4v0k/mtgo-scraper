@@ -95,7 +95,7 @@ export function CardLookup() {
             </div>
 
             <div className="lookup-controls" ref={wrapperRef}>
-                <div className="search-box-group">
+                <div className="search-main-row">
                     <div className="input-wrapper">
                         <input
                             type="text"
@@ -103,7 +103,7 @@ export function CardLookup() {
                             onChange={(e) => setCardName(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                             onFocus={() => setIsFocused(true)}
-                            placeholder="Search for a card..."
+                            placeholder="Enter Card Name (e.g. Sheoldred, the Apocalypse)..."
                             className="card-input"
                         />
                         {showSuggestions && suggestions.length > 0 && isFocused && (
@@ -125,32 +125,37 @@ export function CardLookup() {
                             </div>
                         )}
                     </div>
+                    <button className="search-btn-primary" onClick={() => handleSearch()} disabled={loading}>
+                        {loading ? 'Searching...' : 'Search Decks'}
+                    </button>
                 </div>
 
-                <div className="filters-group">
-                    <select value={format} onChange={(e) => setFormat(e.target.value)} className="lookup-select">
-                        <option value="Standard">Standard</option>
-                        <option value="Modern">Modern</option>
-                        <option value="Pioneer">Pioneer</option>
-                        <option value="Legacy">Legacy</option>
-                        <option value="Pauper">Pauper</option>
-                    </select>
-
-                    <div className="days-selector">
-                        {['7', '30', '60', '90', 'all'].map(d => (
-                            <button
-                                key={d}
-                                className={`days-btn ${days === d ? 'active' : ''}`}
-                                onClick={() => setDays(d)}
-                            >
-                                {d === 'all' ? 'All' : `${d}d`}
-                            </button>
-                        ))}
+                <div className="filter-secondary-row">
+                    <div className="filter-item">
+                        <label>Format</label>
+                        <select value={format} onChange={(e) => setFormat(e.target.value)} className="lookup-select">
+                            <option value="Standard">Standard</option>
+                            <option value="Modern">Modern</option>
+                            <option value="Pioneer">Pioneer</option>
+                            <option value="Legacy">Legacy</option>
+                            <option value="Pauper">Pauper</option>
+                        </select>
                     </div>
 
-                    <button className="lookup-search-btn" onClick={() => handleSearch()} disabled={loading}>
-                        {loading ? 'Searching...' : 'Search'}
-                    </button>
+                    <div className="filter-item">
+                        <label>Date Range</label>
+                        <div className="days-selector">
+                            {['7', '30', '60', '90', 'all'].map(d => (
+                                <button
+                                    key={d}
+                                    className={`days-btn ${days === d ? 'active' : ''}`}
+                                    onClick={() => setDays(d)}
+                                >
+                                    {d === 'all' ? 'All Time' : `${d}d`}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
 

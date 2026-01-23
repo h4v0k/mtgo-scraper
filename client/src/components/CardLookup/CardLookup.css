@@ -19,76 +19,142 @@
 
 .lookup-controls {
     display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
+    flex-direction: column;
+    gap: 2rem;
     background: rgba(255, 255, 255, 0.03);
-    padding: 2rem;
+    padding: 2.5rem;
     border-radius: 12px;
     border: 1px solid var(--border-color);
-    margin-bottom: 2rem;
-    align-items: flex-end;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    margin-bottom: 3rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-.search-box-group {
-    flex: 2;
-    min-width: 300px;
+.search-main-row {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
 }
 
 .input-wrapper {
     position: relative;
-    width: 100%;
+    flex: 1;
 }
 
 .card-input {
     width: 100%;
-    padding: 1rem 1.25rem;
+    padding: 1.25rem 1.5rem;
     background: #1a1a1a;
     border: 2px solid #333;
-    border-radius: 6px;
+    border-radius: 8px;
     color: #fff;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     transition: all 0.2s;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
 }
 
 .card-input:focus {
     border-color: var(--accent-color);
     outline: none;
     background: #000;
+    box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.1);
 }
 
-.filters-group {
-    flex: 1;
+.search-btn-primary {
+    padding: 0 3rem;
+    height: 100%;
+    min-height: 60px;
+    background: var(--color-primary);
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-weight: 800;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+}
+
+.search-btn-primary:hover:not(:disabled) {
+    background: var(--color-primary-dim);
+    transform: translateY(-1px);
+    box-shadow: 0 0 20px var(--color-primary-glow);
+}
+
+.search-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.filter-secondary-row {
     display: flex;
-    gap: 1rem;
-    align-items: center;
-    min-width: 400px;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: flex-end;
+}
+
+.filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.filter-item label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .lookup-select {
-    padding: 0.8rem 1rem;
-    background: #1a1a1a;
-    border: 1px solid #333;
+    padding: 0.8rem 1.2rem;
+    background: #2a2a2a;
+    border: 1px solid #444;
     border-radius: 6px;
     color: #fff;
     cursor: pointer;
+    font-size: 1rem;
+    transition: border-color 0.2s;
 }
 
-.lookup-search-btn {
-    padding: 0.8rem 2rem;
+.lookup-select:hover {
+    border-color: #666;
+}
+
+.days-selector {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.days-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #444;
+    color: #bbb;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    min-width: 60px;
+    font-weight: 500;
+}
+
+.days-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: #666;
+}
+
+.days-btn.active {
     background: var(--accent-color);
     color: #000;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.lookup-search-btn:hover:not(:disabled) {
-    background: var(--accent-color-dim);
-    transform: translateY(-1px);
+    border-color: var(--accent-color);
+    font-weight: 700;
+    box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.2);
 }
 
 .lookup-layout {
