@@ -18,10 +18,12 @@ export function CardLookup() {
 
     const wrapperRef = useRef<HTMLDivElement>(null);
 
+    const [isFocused, setIsFocused] = useState(false);
+
     // Debounced search for suggestions
     useEffect(() => {
         const timeoutId = setTimeout(async () => {
-            if (cardName.length >= 2) {
+            if (cardName.length >= 2 && isFocused) {
                 const names = await searchCardNames(cardName, format);
                 setSuggestions(names);
                 setShowSuggestions(true);
@@ -31,13 +33,14 @@ export function CardLookup() {
             }
         }, 300);
         return () => clearTimeout(timeoutId);
-    }, [cardName, format]);
+    }, [cardName, format, isFocused]);
 
     // Click outside handler
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
                 setShowSuggestions(false);
+                setIsFocused(false);
             }
         }
         document.addEventListener("mousedown", handleClickOutside);
@@ -49,6 +52,7 @@ export function CardLookup() {
         setLoading(true);
         setSearchedCard(nameToSearch);
         setShowSuggestions(false);
+        setIsFocused(false);
         setScryfallImage(null);
 
         try {
@@ -98,10 +102,11 @@ export function CardLookup() {
                             value={cardName}
                             onChange={(e) => setCardName(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            onFocus={() => setIsFocused(true)}
                             placeholder="Search for a card..."
                             className="card-input"
                         />
-                        {showSuggestions && suggestions.length > 0 && (
+                        {showSuggestions && suggestions.length > 0 && isFocused && (
                             <div className="suggestions-dropdown">
                                 {suggestions.map((s, idx) => (
                                     <div
@@ -109,6 +114,8 @@ export function CardLookup() {
                                         className="suggestion-item"
                                         onClick={() => {
                                             setCardName(s);
+                                            setShowSuggestions(false);
+                                            setIsFocused(false);
                                             handleSearch(s);
                                         }}
                                     >

@@ -32,15 +32,15 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
     const [error, setError] = useState('');
     const [viewDeckId, setViewDeckId] = useState<number | null>(null);
 
-    // Suggestion state
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const [isFocused, setIsFocused] = useState(false);
 
     // Debounced search effect
     useEffect(() => {
         const timeoutId = setTimeout(async () => {
-            if (playerName.length >= 2) {
+            if (playerName.length >= 2 && isFocused) {
                 try {
                     const results = await searchPlayers(playerName);
                     setSuggestions(results);
@@ -55,13 +55,14 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
         }, 300);
 
         return () => clearTimeout(timeoutId);
-    }, [playerName]);
+    }, [playerName, isFocused]);
 
     // Click outside to close
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
                 setShowSuggestions(false);
+                setIsFocused(false);
             }
         }
         document.addEventListener("mousedown", handleClickOutside);
@@ -185,6 +186,8 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
 
     const handleSearch = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
+        setIsFocused(false);
+        setShowSuggestions(false);
         await performSearch(playerName, days);
     };
 
@@ -212,12 +215,10 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
                                 placeholder="Enter MTGO Player Name..."
                                 value={playerName}
                                 onChange={(e) => setPlayerName(e.target.value)}
-                                onFocus={() => {
-                                    if (suggestions.length > 0) setShowSuggestions(true);
-                                }}
+                                onFocus={() => setIsFocused(true)}
                                 className="player-input"
                             />
-                            {showSuggestions && suggestions.length > 0 && (
+                            {showSuggestions && suggestions.length > 0 && isFocused && (
                                 <div className="suggestions-dropdown">
                                     {suggestions.map((name) => (
                                         <div
@@ -225,6 +226,8 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
                                             className="suggestion-item"
                                             onClick={() => {
                                                 setPlayerName(name);
+                                                setShowSuggestions(false);
+                                                setIsFocused(false);
                                                 performSearch(name, days);
                                             }}
                                         >
