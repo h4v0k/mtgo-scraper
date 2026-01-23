@@ -28,6 +28,7 @@ export interface DeckDetail {
     cards: Card[];
     sideboard?: Card[];
     spice_cards?: string[];
+    source_url?: string;
 }
 
 export interface MetaData {

@@ -49,24 +49,32 @@ export const DeckView: React.FC<DeckViewProps> = ({ deckId, onBack, onPlayerSear
                     </h2>
                     <div className="view-subtitle">{deck.format} • {deck.id}</div>
                     <div className="external-links" style={{ marginTop: '0.5rem' }}>
-                        <a
-                            href={`https://www.mtggoldfish.com/deck/${deck.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="goldfish-link"
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                color: '#ffa500',
-                                textDecoration: 'none',
-                                fontSize: '0.9rem',
-                                fontWeight: 'bold'
-                            }}
-                        >
-                            <span style={{ fontSize: '1.2rem' }}>🧡</span>
-                            Click here to view deck in MTGGoldfish
-                        </a>
+                        {deck.source_url && (
+                            <a
+                                href={deck.source_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="goldfish-link"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    color: '#ffa500',
+                                    textDecoration: 'none',
+                                    fontSize: '0.9rem',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                <span style={{ fontSize: '1.2rem' }}>
+                                    {deck.source_url.includes('mtggoldfish') ? '🧡' : '🔗'}
+                                </span>
+                                {deck.source_url.includes('mtggoldfish')
+                                    ? 'View on MTGGoldfish'
+                                    : deck.source_url.includes('mtgtop8')
+                                        ? 'View on MTGTop8'
+                                        : 'View Source'}
+                            </a>
+                        )}
                     </div>
                 </div>
                 <button className="btn-primary" onClick={() => {
