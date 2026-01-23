@@ -149,3 +149,23 @@
     text-shadow: 0 0 10px var(--color-primary-gold-dim);
   }
 }
+
+.app-footer {
+  padding: 2rem;
+  text-align: center;
+  border-top: 1px solid var(--color-border);
+  margin-top: auto;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.app-footer a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.app-footer a:hover {
+  text-decoration: underline;
+}

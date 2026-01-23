@@ -284,6 +284,11 @@ function App() {
           <Gameplay initialPlayerName={initialSearch} />
         )}
       </main>
+      <footer className="app-footer">
+        <p>
+          For questions/comments/concerns, feature requests or feedback, contact me at <a href="mailto:reignofhavok@proton.me">reignofhavok@proton.me</a>
+        </p>
+      </footer>
     </div>
   )
 }
