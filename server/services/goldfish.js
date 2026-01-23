@@ -255,6 +255,22 @@ async function syncPlayerDecks(playerName, days = 30) {
         let spiceCount = 0;
         let spiceCardsJSON = '[]';
         try {
+            // FINAL DEDUPLICATION FAIL-SAFE: Check for same decklist content
+            const contentCheck = await db.execute({
+                sql: `SELECT id FROM decks 
+                      WHERE player_name = ? 
+                      AND format = ? 
+                      AND date(event_date) = date(?) 
+                      AND raw_decklist = ?`,
+                args: [playerName, d.format, d.event_date, details.raw_decklist]
+            });
+
+            if (contentCheck.rows.length > 0) {
+                console.log(`Content duplicate hit for ${d.url}, skipping.`);
+                syncedUrls.add(d.url);
+                return null;
+            }
+
             const cacheKey = `${archId}|${d.format}`;
             if (!spiceContextCache[cacheKey]) {
                 const contextRes = await db.execute({

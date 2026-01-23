@@ -132,22 +132,23 @@ async function findExistingDeckForPlayer(playerName, format, dateStr, eventName,
     });
 
     for (const cand of candidates.rows) {
-        if (sourceUrl && cand.source_url && cand.source_url !== sourceUrl) {
-            continue;
-        }
-
         const candNorm = normalizeEventName(cand.event_name);
-        const candDate = (typeof cand.event_date === 'string' ? cand.event_date : cand.event_date.toISOString()).split(' ')[0].split('T')[0];
+        // Use simpler date split to handle Turso strings/objects reliably
+        const candDate = (typeof cand.event_date === 'string' ? cand.event_date : cand.event_date.toISOString()).split(/[ T]/)[0];
 
+        // 1. Precise Match (Event Name + Date)
+        if (normName === candNorm && isoDate === candDate) return true;
+
+        // 2. Tournament Match (Challenge Number + Date + Format + Rank)
         if (normName.includes('challenge') && candNorm.includes('challenge')) {
             const nums1 = normName.match(/\d+/g);
             const nums2 = candNorm.match(/\d+/g);
-            if (nums1 && nums2 && nums1[0] === nums2[0]) return true;
-            if (nums1 || nums2) continue;
-            if (normName === candNorm && isoDate === candDate) return true;
-        }
 
-        if (normName === candNorm && isoDate === candDate) return true;
+            // If they are the same challenge size (e.g., 32) on the same date
+            if (nums1 && nums2 && nums1[0] === nums2[0] && isoDate === candDate) {
+                return true;
+            }
+        }
     }
 
     return false;
