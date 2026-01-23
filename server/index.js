@@ -226,6 +226,36 @@ app.get('/api/admin/logs', authenticateToken, requireAdmin, async (req, res) => 
     }
 });
 
+// Protected: Get Usage Stats (Admin Only)
+app.get('/api/admin/stats', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const uniqueVisitors = await db.execute(`
+            SELECT date(timestamp) as day, COUNT(DISTINCT ip_address) as unique_ips, COUNT(*) as total_requests
+            FROM public_activity_logs
+            GROUP BY day
+            ORDER BY day DESC
+            LIMIT 30
+        `);
+
+        const topEndpoints = await db.execute(`
+            SELECT endpoint, COUNT(*) as count
+            FROM public_activity_logs
+            WHERE endpoint NOT LIKE '/api/admin%'
+            GROUP BY endpoint
+            ORDER BY count DESC
+            LIMIT 10
+        `);
+
+        res.json({
+            daily: uniqueVisitors.rows,
+            endpoints: topEndpoints.rows
+        });
+    } catch (err) {
+        console.error("Error fetching stats:", err);
+        res.status(500).json({ error: "Failed to fetch stats" });
+    }
+});
+
 // Dashboard Data
 // Dashboard Data
 // Dashboard Data
