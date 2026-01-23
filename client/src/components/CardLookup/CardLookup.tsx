@@ -24,7 +24,7 @@ export function CardLookup() {
     useEffect(() => {
         const timeoutId = setTimeout(async () => {
             if (cardName.length >= 2 && isFocused) {
-                const names = await searchCardNames(cardName, format);
+                const names = await searchCardNames(cardName);
                 setSuggestions(names);
                 setShowSuggestions(true);
             } else {
