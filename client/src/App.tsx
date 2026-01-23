@@ -21,7 +21,9 @@ function App() {
   const [username, setUsername] = useState<string | null>(localStorage.getItem('spyglass_username'));
 
   const [activeTab, setActiveTab] = useState<'meta' | 'analytics' | 'gameplay' | 'admin' | 'cards'>('meta');
-  const [showLogin, setShowLogin] = useState(window.location.pathname === '/admin');
+
+  const isAdminDomain = window.location.hostname === 'mtgo-scraper-client-new.vercel.app' || window.location.hostname === 'localhost';
+  const [showLogin, setShowLogin] = useState(window.location.pathname === '/admin' && isAdminDomain);
 
   // Dashboard State
   const [format, setFormat] = useState('Standard');
@@ -44,11 +46,11 @@ function App() {
   useEffect(() => {
     // Listen for URL changes if needed, but a simple check on mount + manual triggers should work
     const handlePopState = () => {
-      setShowLogin(window.location.pathname === '/admin');
+      setShowLogin(window.location.pathname === '/admin' && isAdminDomain);
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [isAdminDomain]);
 
   useEffect(() => {
     if (token) {
@@ -240,7 +242,7 @@ function App() {
           >
             Advanced Analytics
           </button>
-          {username === 'havok' && token && (
+          {username === 'havok' && token && isAdminDomain && (
             <button
               className={activeTab === 'admin' ? 'active' : ''}
               onClick={() => setActiveTab('admin')}
