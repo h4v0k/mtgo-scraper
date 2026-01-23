@@ -151,14 +151,8 @@ async function fetchPlayerHistory(playerName, days = 30) {
                         if (eventDate.getTime() < cutoffDate.getTime()) return;
 
                         // Normalize Event Name (Per User Request)
-                        // "Standard League 2026-01-20" -> "MTGO League"
-                        // "Modern Challenge 32 ..." -> "MTGO Challenge 32"
-                        let normalizedEvent = event;
-                        if (event.includes('League')) normalizedEvent = 'MTGO League';
-                        else if (event.includes('Challenge 32')) normalizedEvent = 'MTGO Challenge 32';
-                        else if (event.includes('Challenge 64')) normalizedEvent = 'MTGO Challenge 64';
-                        else if (event.includes('Preliminary')) normalizedEvent = 'MTGO Preliminary';
-                        // Keep Championships/Qualifiers specific as they are often unique named events
+                        const { normalizeEventNameForStorage } = require('./dedupService');
+                        let normalizedEvent = normalizeEventNameForStorage(event, format);
 
                         decks.push({
                             source: 'mtggoldfish',

@@ -63,6 +63,9 @@ async function scrapeFormat(formatCode, formatName, maxDays, forceUpdate = false
             // Strip date from name (e.g. "Standard Challenge 32 2026-01-22" -> "Standard Challenge 32")
             name = name.replace(/\s\d{4}-\d{2}-\d{2}$/, '').trim();
 
+            const { normalizeEventNameForStorage } = require('./dedupService');
+            name = normalizeEventNameForStorage(name, formatName);
+
             events.push({
                 name,
                 url: BASE_URL + href,

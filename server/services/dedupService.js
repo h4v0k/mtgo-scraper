@@ -87,4 +87,24 @@ async function isEventExists(format, dateStr, eventName) {
     }
 }
 
-module.exports = { isEventExists, normalizeEventName };
+/**
+ * Normalizes event names for consistency in the DB
+ * e.g. "MTGO League" + "Standard" -> "Standard League"
+ * e.g. "Standard Challenge 32" -> "Standard Challenge 32"
+ */
+function normalizeEventNameForStorage(name, format) {
+    if (!name) return '';
+    let normalized = name.trim();
+
+    // Replace "MTGO" with the format name if MTGO is the prefix
+    if (normalized.startsWith('MTGO ')) {
+        normalized = normalized.replace('MTGO ', format + ' ');
+    }
+
+    // If the name doesn't contain the format yet, prepend it (optional, but keep consistent)
+    // Most events from scrapers already include format.
+
+    return normalized;
+}
+
+module.exports = { isEventExists, normalizeEventName, normalizeEventNameForStorage };

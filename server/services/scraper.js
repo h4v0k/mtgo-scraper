@@ -152,13 +152,8 @@ async function scrapeFormat(formatCode, formatName, maxDays) {
                         text.includes('Open')
                     )) {
                         // Normalize Name: "MTGO Challenge 32" -> "Standard Challenge 32"
-                        let normalizedText = text.trim();
-                        if (normalizedText.startsWith('MTGO Challenge')) {
-                            normalizedText = normalizedText.replace('MTGO Challenge', `${formatName} Challenge`);
-                        }
-                        if (normalizedText === 'MTGO League') {
-                            normalizedText = `${formatName} League`;
-                        }
+                        const { normalizeEventNameForStorage } = require('./dedupService');
+                        let normalizedText = normalizeEventNameForStorage(text, formatName);
 
                         events.push({
                             text: normalizedText,
