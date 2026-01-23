@@ -186,7 +186,11 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
     };
 
     if (viewDeckId) {
-        return <DeckView deckId={viewDeckId} onBack={() => setViewDeckId(null)} />;
+        return <DeckView
+            deckId={viewDeckId}
+            onBack={() => setViewDeckId(null)}
+            onPlayerSearch={(name) => performSearch(name, days)}
+        />;
     }
 
     return (
