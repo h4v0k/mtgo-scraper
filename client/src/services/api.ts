@@ -97,10 +97,11 @@ export async function fetchEvents(format: string, days: number, startDate?: stri
     }
 
     const token = getToken();
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
     const response = await fetch(`${API_URL}/events?${params}`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
+        headers
     });
 
     if (!response.ok) {
@@ -299,10 +300,11 @@ export async function searchPlayers(query: string): Promise<string[]> {
     if (!query || query.length < 2) return [];
 
     const token = getToken();
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
     const response = await fetch(`${API_URL}/players/search?q=${encodeURIComponent(query)}`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
+        headers
     });
 
     if (!response.ok) return [];

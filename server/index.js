@@ -32,7 +32,7 @@ app.use(express.json());
 // --- Rate Limiting ---
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 1000, // Increased limit to 1000 requests per window (safer for dashboard users)
+    max: 2000, // Increased limit further to 2000 requests per window
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: 'Too many requests, please try again later.' }
@@ -578,7 +578,7 @@ app.get('/api/players/search', async (req, res) => {
                   WHERE player_name LIKE ? 
                   ORDER BY player_name ASC 
                   LIMIT 10`,
-            args: [`%${q}%`]
+            args: [`${q}%`]
         });
         res.json(result.rows.map(r => r.player_name));
     } catch (e) {
