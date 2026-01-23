@@ -3,6 +3,7 @@ import './AdminPanel.css';
 import { LoginLogs } from './LoginLogs';
 import { ActivityLogs } from './ActivityLogs';
 import { UsageStats } from './UsageStats';
+import { VisitorLogs } from './VisitorLogs';
 
 interface User {
     id: number;
@@ -16,7 +17,7 @@ export function AdminPanel() {
     const [msg, setMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState<User[]>([]);
-    const [activeTab, setActiveTab] = useState<'users' | 'logs' | 'activity' | 'stats'>('users');
+    const [activeTab, setActiveTab] = useState<'users' | 'logs' | 'activity' | 'stats' | 'visitors'>('users');
 
     useEffect(() => {
         fetchUsers();
@@ -123,6 +124,12 @@ export function AdminPanel() {
                     Activity Log
                 </button>
                 <button
+                    className={`tab-btn ${activeTab === 'visitors' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('visitors')}
+                >
+                    Visitor Log
+                </button>
+                <button
                     className={`tab-btn ${activeTab === 'stats' ? 'active' : ''}`}
                     onClick={() => setActiveTab('stats')}
                 >
@@ -134,6 +141,8 @@ export function AdminPanel() {
                 <LoginLogs />
             ) : activeTab === 'activity' ? (
                 <ActivityLogs />
+            ) : activeTab === 'visitors' ? (
+                <VisitorLogs />
             ) : activeTab === 'stats' ? (
                 <UsageStats />
             ) : (

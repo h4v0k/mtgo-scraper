@@ -236,6 +236,15 @@ export async function fetchUsageStats(): Promise<{ daily: any[], endpoints: any[
     return response.json();
 }
 
+export async function fetchVisitors(): Promise<any[]> {
+    const token = getToken();
+    const response = await fetch(`${API_URL}/admin/visitors`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+    });
+    if (!response.ok) throw new Error('Failed to fetch visitor summary');
+    return response.json();
+}
+
 export async function fetchPlayerHistory(name: string, days: number = 30): Promise<any[]> {
     const token = getToken();
     const headers: any = {};
