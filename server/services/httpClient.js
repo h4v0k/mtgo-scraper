@@ -38,18 +38,33 @@ class HttpClient {
     async get(url, options = {}) {
         const useSecondary = options.useSecondary && !!this.apiKey2;
         const usePrimary = !!this.apiKey && (options.forceProxy || process.env.USE_PROXY === 'true');
-
         const useProxy = useSecondary || usePrimary;
 
-        try {
-            if (useProxy) {
-                return await this._requestViaProxy(url, options, useSecondary);
-            } else {
-                return await this._requestDirect(url, options);
+        const maxRetries = options.retries !== undefined ? options.retries : 3;
+        let attempt = 0;
+
+        while (attempt <= maxRetries) {
+            try {
+                if (useProxy) {
+                    return await this._requestViaProxy(url, options, useSecondary);
+                } else {
+                    return await this._requestDirect(url, options);
+                }
+            } catch (error) {
+                attempt++;
+                const status = error.response ? error.response.status : null;
+                const isRetryable = !status || [429, 502, 503, 504].includes(status);
+
+                if (attempt <= maxRetries && isRetryable) {
+                    const delayMs = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                    console.warn(`[HttpClient] ${status || 'Network'} error for ${url}. Retrying in ${Math.round(delayMs)}ms... (Attempt ${attempt}/${maxRetries})`);
+                    await new Promise(resolve => setTimeout(resolve, delayMs));
+                    continue;
+                }
+
+                console.warn(`[HttpClient] Request failed for ${url} after ${attempt} attempts: ${error.message}`);
+                throw error;
             }
-        } catch (error) {
-            console.warn(`[HttpClient] Request failed for ${url}: ${error.message}`);
-            throw error;
         }
     }
 
