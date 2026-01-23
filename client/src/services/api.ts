@@ -311,16 +311,36 @@ export async function searchPlayers(query: string): Promise<string[]> {
 
     return response.json();
 }
-export async function searchCardNames(query: string): Promise<string[]> {
+export async function searchCardNames(query: string, format?: string): Promise<string[]> {
     if (!query || query.length < 2) return [];
 
     try {
-        const response = await fetch(`https://api.scryfall.com/cards/autocomplete?q=${encodeURIComponent(query)}`);
-        if (!response.ok) return [];
+        // Use standard search API to support format filtering
+        // q=f:{format} {query}*  -> wildcards allow starts-with behavior
+        let q = `${query}*`;
+        if (format) {
+            // Handle specific format names if necessary, but Scryfall supports most standard ones directly
+            // e.g. f:standard, f:modern, f:pauper, f:vintage
+            q = `f:${format.toLowerCase()} ${q}`;
+        }
+
+        const response = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(q)}&unique=cards&page=1`);
+
+        if (!response.ok) {
+            // 404 means no matches found in search API
+            if (response.status === 404) return [];
+            return [];
+        }
+
         const data = await response.json();
-        return data.data || [];
+        // search API returns { object: "list", data: [ { name: "..." }, ... ] }
+        if (data && data.data) {
+            // Return just the names, limited to top 10 to avoid overwhelming UI
+            return data.data.map((c: any) => c.name).slice(0, 10);
+        }
+        return [];
     } catch (err) {
-        console.error("Scryfall autocomplete error:", err);
+        console.error("Scryfall search error:", err);
         return [];
     }
 }
