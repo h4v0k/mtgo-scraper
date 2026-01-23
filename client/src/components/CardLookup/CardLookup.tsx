@@ -139,6 +139,8 @@ export function CardLookup() {
                             <option value="Pioneer">Pioneer</option>
                             <option value="Legacy">Legacy</option>
                             <option value="Pauper">Pauper</option>
+                            <option value="Premodern">Premodern</option>
+                            <option value="Vintage">Vintage</option>
                         </select>
                     </div>
 

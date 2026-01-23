@@ -17,7 +17,7 @@ interface ControlsProps {
     startDate?: string;
 }
 
-const FORMATS = ['Standard', 'Modern', 'Legacy', 'Pauper', 'Pioneer'];
+const FORMATS = ['Standard', 'Modern', 'Legacy', 'Pauper', 'Pioneer', 'Premodern', 'Vintage'];
 
 export function DashboardControls({
     format, setFormat,

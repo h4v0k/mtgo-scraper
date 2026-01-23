@@ -114,6 +114,8 @@ export function ConversionMatrix() {
                     <option value="Modern">Modern</option>
                     <option value="Legacy">Legacy</option>
                     <option value="Pauper">Pauper</option>
+                    <option value="Premodern">Premodern</option>
+                    <option value="Vintage">Vintage</option>
                 </select>
                 <select value={days} onChange={e => setDays(Number(e.target.value))}>
                     <option value={3}>Last 3 Days</option>
