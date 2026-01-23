@@ -22,7 +22,7 @@ export function CardLookup() {
     useEffect(() => {
         const timeoutId = setTimeout(async () => {
             if (cardName.length >= 2) {
-                const names = await searchCardNames(cardName);
+                const names = await searchCardNames(cardName, format);
                 setSuggestions(names);
                 setShowSuggestions(true);
             } else {
@@ -31,7 +31,7 @@ export function CardLookup() {
             }
         }, 300);
         return () => clearTimeout(timeoutId);
-    }, [cardName]);
+    }, [cardName, format]);
 
     // Click outside handler
     useEffect(() => {

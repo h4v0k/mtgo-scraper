@@ -272,11 +272,14 @@ export async function searchPlayers(query: string): Promise<string[]> {
 
     return response.json();
 }
-export async function searchCardNames(query: string): Promise<string[]> {
+export async function searchCardNames(query: string, format?: string): Promise<string[]> {
     if (!query || query.length < 2) return [];
 
+    const params = new URLSearchParams({ q: query });
+    if (format) params.append('format', format);
+
     const token = getToken();
-    const response = await fetch(`${API_URL}/cards/search?q=${encodeURIComponent(query)}`, {
+    const response = await fetch(`${API_URL}/cards/search?${params}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }

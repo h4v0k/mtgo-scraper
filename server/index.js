@@ -591,16 +591,25 @@ app.get('/api/debug', async (req, res) => {
 
 // Card Name Suggestions (Auto-complete)
 app.get('/api/cards/search', authenticateToken, async (req, res) => {
-    const { q } = req.query;
+    const { q, format } = req.query;
     if (!q || q.length < 2) return res.json([]);
 
     try {
-        const recentDecks = await db.execute({
-            sql: `SELECT raw_decklist FROM decks ORDER BY event_date DESC LIMIT 100`,
-            args: []
-        });
+        const query = `
+            SELECT raw_decklist FROM decks 
+            WHERE raw_decklist LIKE ?
+            ${format ? 'AND format = ?' : ''}
+            ORDER BY event_date DESC 
+            LIMIT 150
+        `;
+        const args = [`%${q}%`];
+        if (format) args.push(format);
+
+        const recentDecks = await db.execute({ sql: query, args });
 
         const names = new Set();
+        const queryLower = q.toLowerCase();
+
         recentDecks.rows.forEach(r => {
             const list = r.raw_decklist || '';
             const lines = list.split('\n');
@@ -608,7 +617,7 @@ app.get('/api/cards/search', authenticateToken, async (req, res) => {
                 const parts = l.trim().split(' ');
                 if (parts.length < 2) return;
                 const name = parts.slice(1).join(' ');
-                if (name.toLowerCase().includes(q.toLowerCase())) {
+                if (name.toLowerCase().includes(queryLower)) {
                     names.add(name);
                 }
             });
