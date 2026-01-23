@@ -88,6 +88,14 @@ function App() {
     setActiveTab('meta');
   };
 
+  const handlePlayerSearch = (name: string) => {
+    console.log(`[App] Global Search Triggered: ${name}`);
+    setInitialSearch(name);
+    setSelectedArchetype(null);
+    setSelectedDeckId(null);
+    setActiveTab('gameplay');
+  };
+
   const renderDashboardContent = () => {
     // 1. Deck View
     if (selectedDeckId !== null) {
@@ -95,11 +103,7 @@ function App() {
         <DeckView
           deckId={selectedDeckId}
           onBack={() => setSelectedDeckId(null)}
-          onPlayerSearch={(name) => {
-            console.log(`[App] Triggering Player Search for: ${name}`);
-            setInitialSearch(name);
-            setActiveTab('gameplay');
-          }}
+          onPlayerSearch={handlePlayerSearch}
         />
       );
     }
@@ -115,11 +119,7 @@ function App() {
           selectedEvents={selectedEvents}
           onBack={() => setSelectedArchetype(null)}
           onSelectDeck={(id) => setSelectedDeckId(id)}
-          onPlayerSearch={(name) => {
-            console.log(`[App] Triggering Player Search for: ${name}`);
-            setInitialSearch(name);
-            setActiveTab('gameplay');
-          }}
+          onPlayerSearch={handlePlayerSearch}
         />
       );
     }

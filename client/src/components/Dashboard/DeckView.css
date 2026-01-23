@@ -173,9 +173,10 @@
     text-decoration: underline;
     text-decoration-color: rgba(255, 255, 255, 0.3);
     position: relative;
-    z-index: 9999;
-    /* Super high to ensure hit test works */
+    z-index: 2147483647;
     pointer-events: auto;
+    display: inline-block;
+    min-width: 100px;
 }
 
 .player-name-link-btn:hover {
