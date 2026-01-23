@@ -164,7 +164,7 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
     useEffect(() => {
         let intervalId: any;
         let attempts = 0;
-        const MAX_ATTEMPTS = 5; // Poll for 15 seconds
+        const MAX_ATTEMPTS = 60; // Poll for up to 3 minutes (60 × 3s = 180s)
 
         if (isPolling && searchedName) {
             intervalId = setInterval(async () => {
