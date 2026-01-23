@@ -10,6 +10,10 @@ on:
             description: 'Days to scrape'
             required: false
             default: '14'
+        force_top8:
+            description: 'Force MTGTop8 Scrape even if not 12h cycle'
+            type: boolean
+            default: false
 
 jobs:
   scrape:
@@ -19,6 +23,9 @@ jobs:
       TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
       TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      USE_PROXY: 'true'
+      SCRAPER_API_KEY: ${{ secrets.SCRAPER_API_KEY }}
+      SCRAPER_SERVICE_URL: ${{ secrets.SCRAPER_SERVICE_URL }}
 
     steps:
       - name: Checkout code
@@ -35,8 +42,13 @@ jobs:
           npm install
 
       - name: Run Scraper
-        # If manually triggered, use input. If scheduled, default to 2.
+        # If manually triggered, use force-top8 if requested
         run: |
-          echo "Running Unified Global Sync (Goldfish + MTGTop8)..."
-          node server/sync_all_remotes.js
+          FORCE_TOP8_FLAG=""
+          if [[ "${{ github.event.inputs.force_top8 }}" == "true" ]]; then
+            FORCE_TOP8_FLAG="--force-top8"
+          fi
+          
+          echo "Running Unified Global Sync (Goldfish (6h) + MTGTop8 (12h))..."
+          node server/sync_all_remotes.js $FORCE_TOP8_FLAG
           echo "Sync Complete!"
