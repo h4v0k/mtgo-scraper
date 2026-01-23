@@ -113,12 +113,22 @@ async function processEvent(ev) {
             const tds = $(el).find('td');
             if (tds.length === 0) return; // header
 
-            // Rank: "1st" or "5-8"
+            // Rank: "1st" or "5-8" or "5-0"
             let rankText = $(tds[0]).text().trim();
+            const isLeague = ev.name.toLowerCase().includes('league');
+
             let rank = 1;
             const rm = rankText.match(/(\d+)/);
             if (rm) rank = parseInt(rm[1]);
 
+            // League Logic: Only 5-0s, store as rank 0
+            if (isLeague) {
+                if (rankText !== '5-0' && rank !== 1) {
+                    // Skip non-5-0 results in Leagues
+                    return;
+                }
+                rank = 0; // Sentinel for 5-0
+            }
             // Deck Link
             const deckLink = $(tds[1]).find('a').attr('href');
             // Player

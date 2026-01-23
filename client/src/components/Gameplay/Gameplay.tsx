@@ -75,7 +75,8 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
     const [isPolling, setIsPolling] = useState(false);
 
     // FIX: League display check - ensure case insensitivity covers all variants
-    const isLeague = (eventName: string) => /league/i.test(eventName);
+    const isLeague = (eventName: string, rank?: number) =>
+        rank === 0 || (eventName && /league/i.test(eventName));
 
     const performSearch = async (name: string, lookbackDays: number) => {
         if (!name.trim()) return;
@@ -275,10 +276,10 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
                                 >
                                     <div className="card-header">
                                         <span className="event-date">{new Date(deck.event_date).toLocaleDateString()}</span>
-                                        <span className={`rank-badge ${isLeague(deck.event_name) ? 'rank-league' :
+                                        <span className={`rank-badge ${isLeague(deck.event_name, deck.rank) ? 'rank-league' :
                                             deck.rank <= 8 ? 'rank-top8' : 'rank-swiss'
                                             } ${deck.source === 'mtggoldfish' ? 'rank-external' : ''}`}>
-                                            {isLeague(deck.event_name) ? '5-0' : `#${deck.rank}`}
+                                            {isLeague(deck.event_name, deck.rank) ? '5-0' : `#${deck.rank}`}
                                         </span>
                                     </div>
                                     <div className="deck-info">

@@ -139,9 +139,19 @@ async function fetchPlayerHistory(playerName, days = 30) {
                         const deckLink = deckLinkRef ? `https://www.mtggoldfish.com${deckLinkRef}` : null;
                         const rankRaw = $(cols[4]).text().trim();
 
+                        const isLeague = event.toLowerCase().includes('league') || format.toLowerCase().includes('league');
+
                         let rank = null;
                         const rankMatch = rankRaw.match(/(\d+)/);
                         if (rankMatch) rank = parseInt(rankMatch[1]);
+
+                        // League Logic: Only 5-0s, store as rank 0
+                        if (isLeague) {
+                            if (rankRaw !== '5-0' && rank !== 5) { // Goldfish history often shows '5-0' or '5' for leagues
+                                return;
+                            }
+                            rank = 0; // Sentinel for 5-0
+                        }
 
                         const eventDate = new Date(dateRaw);
                         const today = new Date();

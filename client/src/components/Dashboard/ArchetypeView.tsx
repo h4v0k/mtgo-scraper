@@ -77,7 +77,11 @@ export const ArchetypeView: React.FC<ArchetypeViewProps> = ({
                                     </td>
                                     <td>{deck.event_name || 'League/Challenge'}</td>
                                     <td>{new Date(deck.event_date).toLocaleDateString()}</td>
-                                    <td>{deck.rank ? getOrdinal(deck.rank) : '-'}</td>
+                                    <td>
+                                        {(deck.rank === 0 || (deck.event_name && deck.event_name.toLowerCase().includes('league')))
+                                            ? '5-0'
+                                            : deck.rank ? getOrdinal(deck.rank) : '-'}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
