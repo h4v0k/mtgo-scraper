@@ -32,17 +32,11 @@ export const DeckView: React.FC<DeckViewProps> = ({ deckId, onBack, onPlayerSear
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                console.error(`[DeckView] CLICK EVENT FIRED for: ${deck.player_name}`);
                                 onPlayerSearch(deck.player_name);
                             }}
                             className="player-name-link-btn"
                             title="Search Player History"
-                            style={{
-                                border: '1px solid rgba(0, 243, 255, 0.3)', // Semi-visible border to see hit area
-                                padding: '2px 8px',
-                                borderRadius: '4px',
-                                userSelect: 'none'
-                            }}
+                            style={{ userSelect: 'none' }}
                         >
                             {deck.player_name}
                         </a>

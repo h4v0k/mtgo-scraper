@@ -89,7 +89,6 @@ function App() {
   };
 
   const handlePlayerSearch = (name: string) => {
-    console.log(`[App] Global Search Triggered: ${name}`);
     setInitialSearch(name);
     setSelectedArchetype(null);
     setSelectedDeckId(null);
