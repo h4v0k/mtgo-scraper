@@ -57,17 +57,23 @@ export const ArchetypeView: React.FC<ArchetypeViewProps> = ({
                             {decks.map(deck => (
                                 <tr key={deck.id} onClick={() => onSelectDeck(deck.id)}>
                                     <td style={{ fontWeight: 'bold', color: 'var(--color-primary-gold)' }}>
-                                        <button
-                                            className="player-name-link-btn"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                onPlayerSearch(deck.player_name);
-                                            }}
-                                            title="Search Player History"
-                                            style={{ color: 'inherit', fontWeight: 'inherit', textAlign: 'left' }}
-                                        >
-                                            {deck.player_name}
-                                        </button>
+                                        {deck.player_name.startsWith('Unknown Player') ? (
+                                            <span style={{ color: '#888' }}>
+                                                {deck.player_name}
+                                            </span>
+                                        ) : (
+                                            <button
+                                                className="player-name-link-btn"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onPlayerSearch(deck.player_name);
+                                                }}
+                                                title="Search Player History"
+                                                style={{ color: 'inherit', fontWeight: 'inherit', textAlign: 'left' }}
+                                            >
+                                                {deck.player_name}
+                                            </button>
+                                        )}
                                         {deck.spice_count > 0 && (
                                             <span
                                                 className="spice-indicator"
