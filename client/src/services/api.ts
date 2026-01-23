@@ -218,6 +218,15 @@ export async function fetchLoginLogs(): Promise<LoginLog[]> {
     return response.json();
 }
 
+export async function fetchUsers(): Promise<any[]> {
+    const token = getToken();
+    const response = await fetch(`${API_URL}/users`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error('Failed to fetch users');
+    return response.json();
+}
+
 export async function fetchPublicActivityLogs(): Promise<any[]> {
     const token = getToken();
     const response = await fetch(`${API_URL}/admin/activity`, {

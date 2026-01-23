@@ -4,6 +4,7 @@ import { LoginLogs } from './LoginLogs';
 import { ActivityLogs } from './ActivityLogs';
 import { UsageStats } from './UsageStats';
 import { VisitorLogs } from './VisitorLogs';
+import { fetchUsers as apiFetchUsers } from '../../services/api';
 
 interface User {
     id: number;
@@ -16,6 +17,7 @@ export function AdminPanel() {
     const [password, setPassword] = useState('');
     const [msg, setMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [users, setUsers] = useState<User[]>([]);
     const [activeTab, setActiveTab] = useState<'users' | 'logs' | 'activity' | 'stats' | 'visitors'>('users');
 
@@ -25,17 +27,18 @@ export function AdminPanel() {
 
     const fetchUsers = async () => {
         try {
-            const token = localStorage.getItem('spyglass_token');
-            const res = await fetch('/api/users', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setUsers(data);
-            }
+            setError(null);
+            const data = await apiFetchUsers();
+            setUsers(data);
         } catch (err) {
             console.error("Failed to fetch users", err);
+            setError('Unauthorized or session expired. Please log in again.');
         }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('spyglass_token');
+        window.location.reload();
     };
 
     const generatePassword = () => {
@@ -102,7 +105,12 @@ export function AdminPanel() {
 
     return (
         <div className="admin-panel">
-            <h2>Admin Dashboard</h2>
+            <div className="admin-header">
+                <h2>Admin Dashboard</h2>
+                <button onClick={handleLogout} className="logout-btn">Logout</button>
+            </div>
+
+            {error && <div className="error-message">{error}</div>}
 
             <div className="admin-tabs">
                 <button
