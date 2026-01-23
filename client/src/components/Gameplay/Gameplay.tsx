@@ -245,7 +245,7 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
                         </div>
                     </div>
                     <button type="submit" className="search-btn" disabled={loading}>
-                        {loading ? '...' : 'Search'}
+                        {loading ? 'Searching...' : 'Search'}
                     </button>
                 </form>
             </div>
