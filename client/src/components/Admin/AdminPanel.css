@@ -233,3 +233,18 @@
     text-overflow: ellipsis;
     color: var(--color-text-muted);
 }
+
+.admin-grid,
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+
+    .admin-grid,
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
