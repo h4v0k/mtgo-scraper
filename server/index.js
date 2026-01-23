@@ -256,6 +256,23 @@ app.get('/api/admin/stats', authenticateToken, requireAdmin, async (req, res) =>
     }
 });
 
+// Protected: Get Visitor Summary (IP Grouped)
+app.get('/api/admin/visitors', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const result = await db.execute(`
+            SELECT ip_address, user_agent, MAX(timestamp) as last_seen, COUNT(*) as total_hits
+            FROM public_activity_logs
+            GROUP BY ip_address, user_agent
+            ORDER BY last_seen DESC
+            LIMIT 100
+        `);
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Error fetching visitor summary:", err);
+        res.status(500).json({ error: "Failed to fetch visitor summary" });
+    }
+});
+
 // Dashboard Data
 // Dashboard Data
 // Dashboard Data
