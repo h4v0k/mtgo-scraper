@@ -1,0 +1,251 @@
+.card_lookup_container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    color: var(--text-primary);
+}
+
+.lookup-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.lookup-header h2 {
+    font-size: 2.5rem;
+    color: var(--accent-color);
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 20px rgba(var(--accent-rgb), 0.2);
+}
+
+.lookup-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+    align-items: flex-end;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.search-box-group {
+    flex: 2;
+    min-width: 300px;
+}
+
+.input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.card-input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    background: #1a1a1a;
+    border: 2px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1.1rem;
+    transition: all 0.2s;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.card-input:focus {
+    border-color: var(--accent-color);
+    outline: none;
+    background: #000;
+}
+
+.filters-group {
+    flex: 1;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    min-width: 400px;
+}
+
+.lookup-select {
+    padding: 0.8rem 1rem;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.lookup-search-btn {
+    padding: 0.8rem 2rem;
+    background: var(--accent-color);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.lookup-search-btn:hover:not(:disabled) {
+    background: var(--accent-color-dim);
+    transform: translateY(-1px);
+}
+
+.lookup-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+    .lookup-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .card-preview-panel {
+        order: -1;
+        display: flex;
+        justify-content: center;
+    }
+}
+
+.lookup-results {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    padding: 1.5rem;
+    min-height: 400px;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.results-count {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.lookup-table-wrapper {
+    overflow-x: auto;
+}
+
+.lookup-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.lookup-table th {
+    text-align: left;
+    padding: 1rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+}
+
+.lookup-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.lookup-row {
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.lookup-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.spicy {
+    background: rgba(var(--accent-rgb), 0.05);
+}
+
+.spicy .qty-count {
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+.player-cell {
+    font-weight: 500;
+    color: #fff;
+}
+
+.archetype-cell {
+    color: var(--accent-color);
+}
+
+.format-badge {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.qty-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.spice-tag {
+    font-size: 0.7rem;
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+    padding: 1px 4px;
+    border-radius: 3px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.card-preview-panel {
+    position: sticky;
+    top: 2rem;
+}
+
+.card-image {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lookup-placeholder,
+.no-results {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Reusing some suggested style logic */
+.suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    z-index: 1000;
+    max-height: 250px;
+    overflow-y: auto;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+.suggestion-item {
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.1s;
+}
+
+.suggestion-item:hover {
+    background: var(--accent-color);
+    color: #000;
+}

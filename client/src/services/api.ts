@@ -272,3 +272,47 @@ export async function searchPlayers(query: string): Promise<string[]> {
 
     return response.json();
 }
+export async function searchCardNames(query: string): Promise<string[]> {
+    if (!query || query.length < 2) return [];
+
+    const token = getToken();
+    const response = await fetch(`${API_URL}/cards/search?q=${encodeURIComponent(query)}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!response.ok) return [];
+
+    return response.json();
+}
+
+export interface CardLookupResult {
+    id: number;
+    player_name: string;
+    event_name: string;
+    event_date: string;
+    rank: number;
+    format: string;
+    archetype: string;
+    spice_count: number;
+    card_count: number;
+}
+
+export async function fetchDecksByCard(cardName: string, format: string, days: string): Promise<CardLookupResult[]> {
+    const params = new URLSearchParams({
+        card: cardName,
+        format: format,
+        days: days
+    });
+
+    const token = getToken();
+    const response = await fetch(`${API_URL}/cards/lookup?${params}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch decks by card');
+    return response.json();
+}

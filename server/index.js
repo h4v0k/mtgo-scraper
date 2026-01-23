@@ -589,6 +589,89 @@ app.get('/api/debug', async (req, res) => {
     }
 });
 
+// Card Name Suggestions (Auto-complete)
+app.get('/api/cards/search', authenticateToken, async (req, res) => {
+    const { q } = req.query;
+    if (!q || q.length < 2) return res.json([]);
+
+    try {
+        const recentDecks = await db.execute({
+            sql: `SELECT raw_decklist FROM decks ORDER BY event_date DESC LIMIT 100`,
+            args: []
+        });
+
+        const names = new Set();
+        recentDecks.rows.forEach(r => {
+            const list = r.raw_decklist || '';
+            const lines = list.split('\n');
+            lines.forEach(l => {
+                const parts = l.trim().split(' ');
+                if (parts.length < 2) return;
+                const name = parts.slice(1).join(' ');
+                if (name.toLowerCase().includes(q.toLowerCase())) {
+                    names.add(name);
+                }
+            });
+        });
+
+        res.json(Array.from(names).slice(0, 10));
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Lookup decks by card name
+app.get('/api/cards/lookup', authenticateToken, async (req, res) => {
+    const { card, format, days } = req.query;
+    if (!card) return res.status(400).json({ error: 'Card name required' });
+
+    let cutoffStr = "2000-01-01";
+    if (days && days !== 'all') {
+        const d = new Date();
+        d.setDate(d.getDate() - parseInt(days));
+        cutoffStr = d.toISOString().split('T')[0];
+    }
+
+    try {
+        const query = `
+            SELECT d.id, d.player_name, d.event_name, d.event_date, d.rank, d.format, d.spice_count, d.raw_decklist,
+                   (SELECT name FROM archetypes WHERE id = d.archetype_id) as archetype
+            FROM decks d
+            WHERE d.raw_decklist LIKE ?
+            AND d.event_date >= ?
+            ${format ? 'AND d.format = ?' : ''}
+            ORDER BY d.event_date DESC
+            LIMIT 100
+        `;
+
+        const args = [`%${card}%`, cutoffStr];
+        if (format) args.push(format);
+
+        const result = await db.execute({ sql: query, args });
+
+        const rows = result.rows.map(r => {
+            const lines = (r.raw_decklist || '').split('\n');
+            let cardCount = 0;
+            for (const l of lines) {
+                const trimmed = l.trim();
+                if (trimmed.toLowerCase().includes(card.toLowerCase())) {
+                    const match = trimmed.match(/^(\d+)\s+(.+)$/);
+                    if (match && match[2].toLowerCase() === card.toLowerCase()) {
+                        cardCount = parseInt(match[1]);
+                        break;
+                    }
+                }
+            }
+            const { raw_decklist, ...rest } = r;
+            return { ...rest, card_count: cardCount };
+        }).filter(r => r.card_count > 0);
+
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // Initialize and Start (Standalone only)
 if (require.main === module) {
     initDB().then(() => {

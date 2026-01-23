@@ -14,12 +14,13 @@ import { ConversionMatrix } from './components/Analytics/ConversionMatrix'
 import { Gameplay } from './components/Gameplay/Gameplay'
 import { fetchMeta } from './services/api'
 import type { MetaData } from './services/api'
+import { CardLookup } from './components/CardLookup/CardLookup'
 
 function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('spyglass_token'));
   const [username, setUsername] = useState<string | null>(localStorage.getItem('spyglass_username'));
 
-  const [activeTab, setActiveTab] = useState<'meta' | 'analytics' | 'gameplay' | 'admin'>('meta');
+  const [activeTab, setActiveTab] = useState<'meta' | 'analytics' | 'gameplay' | 'admin' | 'cards'>('meta');
 
   // Dashboard State
   const [format, setFormat] = useState('Standard');
@@ -197,6 +198,16 @@ function App() {
             Player Lookup
           </button>
           <button
+            className={activeTab === 'cards' ? 'active' : ''}
+            onClick={() => {
+              setActiveTab('cards');
+              setSelectedArchetype(null);
+              setSelectedDeckId(null);
+            }}
+          >
+            Card Lookup
+          </button>
+          <button
             className={activeTab === 'analytics' ? 'active' : ''}
             onClick={() => setActiveTab('analytics')}
           >
@@ -227,6 +238,8 @@ function App() {
           <div className="analytics-view">
             <ConversionMatrix />
           </div>
+        ) : activeTab === 'cards' ? (
+          <CardLookup />
         ) : (
           <Gameplay initialPlayerName={initialSearch} />
         )}
