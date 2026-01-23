@@ -25,22 +25,27 @@ export const DeckView: React.FC<DeckViewProps> = ({ deckId, onBack, onPlayerSear
         <div className="deck-view">
             <div className="view-header">
                 <button className="back-btn" onClick={onBack}>&larr; Back to List</button>
-                <div className="player-info-header" style={{ position: 'relative', zIndex: 100 }}>
-                    <h2 style={{ margin: 0 }}>
-                        <button
+                <div className="player-info-header" style={{ position: 'relative', zIndex: 1000 }}>
+                    <h2 style={{ margin: 0, display: 'flex', alignItems: 'center' }}>
+                        <a
+                            href="#"
                             onClick={(e) => {
-                                e.stopPropagation();
                                 e.preventDefault();
-                                console.log(`[DeckView] CLICK CAPTURED: ${deck.player_name}`);
-                                // window.alert(`Clicking ${deck.player_name}`); // Debug
+                                e.stopPropagation();
+                                console.error(`[DeckView] CLICK EVENT FIRED for: ${deck.player_name}`);
                                 onPlayerSearch(deck.player_name);
                             }}
                             className="player-name-link-btn"
                             title="Search Player History"
-                            type="button"
+                            style={{
+                                border: '1px solid rgba(0, 243, 255, 0.3)', // Semi-visible border to see hit area
+                                padding: '2px 8px',
+                                borderRadius: '4px',
+                                userSelect: 'none'
+                            }}
                         >
                             {deck.player_name}
-                        </button>
+                        </a>
                     </h2>
                     <div className="view-subtitle">{deck.format} • {deck.id}</div>
                 </div>
