@@ -198,27 +198,26 @@ async function syncPlayerDecks(playerName, days = 30) {
     const externalDecks = await fetchPlayerHistory(playerName, days);
     console.log(`Found ${externalDecks.length} external decks to potentially sync.`);
 
-    let importedCount = 0;
     const spiceContextCache = {};
+    const BATCH_SIZE = 5; // Process 5 decks in parallel
 
-    for (let i = 0; i < externalDecks.length; i++) {
-        const d = externalDecks[i];
-        if (!d.url) continue;
+    // Helper function to process a single deck
+    const processDeck = async (d, index) => {
+        if (!d.url) return null;
 
         const exists = await findExistingDeckForPlayer(playerName, d.format, d.event_date, d.event_name, d.url);
-        if (exists) continue;
+        if (exists) return null;
 
-        console.log(`[${i + 1}/${externalDecks.length}] Scraping: ${d.url}`);
+        console.log(`[${index + 1}/${externalDecks.length}] Scraping: ${d.url}`);
         const details = await scrapeDeck(d.url);
         if (!details || (!details.raw_decklist && !details.sideboard)) {
             console.warn(`Failed to scrape details for ${d.url}`);
-            continue;
+            return null;
         }
 
         const classification = await classifyDeck(details.raw_decklist, d.format, d.archetype);
         const archName = classification.name;
 
-        // FINAL NORMALIZATION SAFETY (Ensures no dates slip through)
         const finalEventName = normalizeEventNameForStorage(d.event_name, d.format);
 
         console.log(`Persisting: ${archName} | Event: ${finalEventName}`);
@@ -244,7 +243,7 @@ async function syncPlayerDecks(playerName, days = 30) {
             if (unk.rows.length > 0) archId = unk.rows[0].id;
         }
 
-        if (!archId) continue;
+        if (!archId) return null;
 
         let spiceCount = 0;
         let spiceCardsJSON = '[]';
@@ -290,8 +289,17 @@ async function syncPlayerDecks(playerName, days = 30) {
             ]
         });
 
-        importedCount++;
-        await delay(1000);
+        return true;
+    };
+
+    // Process decks in batches
+    let importedCount = 0;
+    for (let i = 0; i < externalDecks.length; i += BATCH_SIZE) {
+        const batch = externalDecks.slice(i, i + BATCH_SIZE);
+        const results = await Promise.all(
+            batch.map((deck, batchIndex) => processDeck(deck, i + batchIndex))
+        );
+        importedCount += results.filter(r => r !== null).length;
     }
 
     console.log(`Sync complete for ${playerName}: Imported ${importedCount} new decks.`);
