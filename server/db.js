@@ -3,7 +3,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 // const fs = require('fs'); // Disable fs to avoid serverless issues
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // FALLBACK CREDENTIALS (EMERGENCY FIX for Production)
 // User requested immediate connection fix.

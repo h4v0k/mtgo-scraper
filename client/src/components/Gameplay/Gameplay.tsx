@@ -73,7 +73,6 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
 
     // State for polling
     const [isPolling, setIsPolling] = useState(false);
-    const [isSyncing, setIsSyncing] = useState(false);
 
     // FIX: League display check - ensure case insensitivity covers all variants
     const isLeague = (eventName: string, rank?: number) =>
@@ -200,23 +199,6 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
         await performSearch(playerName, days);
     };
 
-    const handleManualSync = async () => {
-        if (!searchedName || isSyncing) return;
-
-        setIsSyncing(true);
-        console.log(`[MANUAL SYNC] User triggered sync for ${searchedName}`);
-
-        try {
-            await syncPlayer(searchedName, days);
-            console.log(`[MANUAL SYNC] Sync request sent, starting polling...`);
-            setIsPolling(true);
-        } catch (err) {
-            console.error("[MANUAL SYNC] Failed:", err);
-        } finally {
-            setIsSyncing(false);
-        }
-    };
-
     if (viewDeckId) {
         return <DeckView
             deckId={viewDeckId}
@@ -288,14 +270,6 @@ export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) 
                 <div className="results-section">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                         <h3>History for "{searchedName}" (Last {days} Days)</h3>
-                        <button
-                            onClick={handleManualSync}
-                            disabled={isSyncing}
-                            className="btn-primary"
-                            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
-                        >
-                            {isSyncing ? '⏳ Syncing...' : '🔄 Sync External Decks'}
-                        </button>
                     </div>
 
                     {history.length === 0 ? (

@@ -212,19 +212,22 @@ async function processDeck(deck, ev) {
         const deckText = main.join('\n');
         const sbText = sb.join('\n');
 
-        // 4. Resolve Archetype (From Goldfish Title logic)
+        // 4. Resolve Archetype (Improved logic using signatures)
+        const { classifyDeck } = require('./heuristicService');
+
         // Title: "Archetype Name by Player Name"
         let titleText = $('.deck-view-title').text().trim();
         if (!titleText) titleText = $('h1').first().text().trim();
 
-        // Remove "by Player" robustly (handle newlines etc)
-        // Split by " by " case insensitive
-        let archName = titleText.split(/[\r\n\s]+by[\r\n\s]+/i)[0].trim();
+        // Remove "by Player" robustly
+        let gfArchName = titleText.split(/[\r\n\s]+by[\r\n\s]+/i)[0].trim();
+        if (!gfArchName) gfArchName = 'Unknown';
 
-        if (!archName) archName = 'Unknown';
+        // Normalize using Heuristics/Signatures
+        const classification = await classifyDeck(deckText, ev.format, gfArchName);
+        const archName = classification.name;
 
         // Use Scraper's Heuristic logic to normalize ID
-        // We can re-use the DB logic to find/create ID
         let archId = null;
 
         // Try to finding existing archetype ID
@@ -236,8 +239,7 @@ async function processDeck(deck, ev) {
         if (existing.rows.length > 0) {
             archId = existing.rows[0].id;
         } else {
-            // Heuristic Fallback or Create
-            // Just create for now, normalize later
+            // Create New
             const ins = await db.execute({
                 sql: 'INSERT INTO archetypes (name, format) VALUES (?, ?) RETURNING id',
                 args: [archName, ev.format]

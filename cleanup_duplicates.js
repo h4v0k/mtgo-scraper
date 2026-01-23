@@ -1,73 +1,63 @@
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, 'server/.env') });
 const { db } = require('./server/db');
 
 async function cleanup() {
-    console.log("Cleaning up duplicate League entries...");
+    console.log('--- MTGO Scraper: Duplicate Cleanup Pass ---');
 
-    // Find collisions where Decklist is identical
-    const sql = `
-        SELECT 
-            d1.id as id1, d1.event_name as event1,
-            d2.id as id2, d2.event_name as event2
-        FROM decks d1
-        JOIN decks d2 ON 
-            d1.player_name = d2.player_name AND 
-            d1.event_date = d2.event_date AND 
-            d1.format = d2.format AND 
-            d1.id < d2.id
-        WHERE 
-            d1.raw_decklist = d2.raw_decklist
-    `;
+    try {
+        // 1. URL-based duplicates (Goldfish)
+        console.log('Checking for URL duplicates...');
+        const urlDups = await db.execute(`
+            SELECT player_name, source_url, count(*) as count 
+            FROM decks 
+            WHERE source_url IS NOT NULL 
+            GROUP BY player_name, source_url 
+            HAVING count > 1
+        `);
 
-    const result = await db.execute({ sql, args: [] });
-
-    let deletedCount = 0;
-
-    for (const row of result.rows) {
-        let toDelete = null;
-
-        // Priority: Challenge/Qualifier/Champ > League
-        const isLeague1 = /League/i.test(row.event1);
-        const isLeague2 = /League/i.test(row.event2);
-
-        if (isLeague1 && !isLeague2) {
-            // toDelete = row.id1;
-            console.log(`SKIPPING distinct event types: ${row.event1} vs ${row.event2}`);
-        } else if (!isLeague1 && isLeague2) {
-            // toDelete = row.id2;
-            console.log(`SKIPPING distinct event types: ${row.event2} vs ${row.event1}`);
-        } else if (isLeague1 && isLeague2) {
-            // Both leagues? Prefer the one with more specific name (e.g. not just "MTGO League")
-            // Or if both specific, delete higher ID.
-
-            const isGeneric1 = row.event1 === 'MTGO League' || row.event1 === 'League';
-            const isGeneric2 = row.event2 === 'MTGO League' || row.event2 === 'League';
-
-            if (isGeneric1 && !isGeneric2) {
-                toDelete = row.id1;
-                console.log(`Deleting Generic League ${row.event1} (ID: ${row.id1}) in favor of ${row.event2}`);
-            } else if (!isGeneric1 && isGeneric2) {
-                toDelete = row.id2;
-                console.log(`Deleting Generic League ${row.event2} (ID: ${row.id2}) in favor of ${row.event1}`);
-            } else {
-                toDelete = Math.max(row.id1, row.id2);
-                console.log(`Deleting duplicate League (ID: ${toDelete}) - ${row.event1} vs ${row.event2}`);
-            }
-            // Both are non-leagues (e.g. Challenge 32 vs Challenge 64)
-            // This implies duplicates of specific events, usually safe to delete if decklist is identical
-            toDelete = Math.max(row.id1, row.id2);
-            console.log(`Deleting duplicate Event (ID: ${toDelete}) - ${row.event1} vs ${row.event2}`);
-        }
-
-        if (toDelete) {
-            await db.execute({
-                sql: `DELETE FROM decks WHERE id = ?`,
-                args: [toDelete]
+        console.log(`Found ${urlDups.rows.length} URL-based duplicate sets.`);
+        for (const set of urlDups.rows) {
+            // Keep the one with the lowest ID
+            const idsRes = await db.execute({
+                sql: 'SELECT id FROM decks WHERE player_name = ? AND source_url = ? ORDER BY id ASC',
+                args: [set.player_name, set.source_url]
             });
-            deletedCount++;
-        }
-    }
+            const idsToKeep = idsRes.rows[0].id;
+            const idsToDelete = idsRes.rows.slice(1).map(r => r.id);
 
-    console.log(`Cleanup complete. Deleted ${deletedCount} duplicate records.`);
+            console.log(`  Deleting ${idsToDelete.length} duplicates for ${set.player_name} at ${set.source_url}`);
+            await db.execute(`DELETE FROM decks WHERE id IN (${idsToDelete.join(',')})`);
+        }
+
+        // 2. Name/Date fuzzy duplicates (Multi-source or normalization issues)
+        console.log('Checking for Name/Date/Rank duplicates...');
+        const nameDups = await db.execute(`
+            SELECT player_name, event_name, date(event_date) as day, rank, count(*) as count 
+            FROM decks 
+            GROUP BY player_name, event_name, day, rank 
+            HAVING count > 1
+        `);
+
+        console.log(`Found ${nameDups.rows.length} Name/Date duplicate sets.`);
+        for (const set of nameDups.rows) {
+            const idsRes = await db.execute({
+                sql: 'SELECT id FROM decks WHERE player_name = ? AND event_name = ? AND date(event_date) = ? AND rank = ? ORDER BY id ASC',
+                args: [set.player_name, set.event_name, set.day, set.rank]
+            });
+
+            // Note: If they have different source_urls (Goldfish vs Top8), we might want to keep one.
+            // But usually they are the same deck. If they have different urls, we prefer the one with a URL if possible.
+            // For now, just keep the first one.
+            const idsToDelete = idsRes.rows.slice(1).map(r => r.id);
+            console.log(`  Deleting ${idsToDelete.length} duplicates for ${set.player_name} in ${set.event_name} on ${set.day}`);
+            await db.execute(`DELETE FROM decks WHERE id IN (${idsToDelete.join(',')})`);
+        }
+
+        console.log('Cleanup complete.');
+    } catch (err) {
+        console.error('Cleanup failed:', err);
+    }
 }
 
 cleanup();

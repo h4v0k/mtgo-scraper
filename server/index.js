@@ -209,7 +209,7 @@ app.get('/api/meta', authenticateToken, async (req, res) => {
         cutoffStr = cutoffDate.toISOString();
     }
 
-    const rankFilter = (top8 === 'true') ? 'AND rank <= 8' : '';
+    const rankFilter = (top8 === 'true') ? "AND rank <= 8 AND event_name NOT LIKE '%League%'" : '';
     const eventFilter = eventList ? `AND event_name IN (${eventList.map(() => '?').join(',')})` : '';
 
     let query = `
@@ -281,7 +281,7 @@ app.get('/api/meta/archetype/:name', authenticateToken, async (req, res) => {
     const params = [name, format, cutoffStr];
 
     if (top8 === 'true') {
-        query += ` AND d.rank <= 8`;
+        query += ` AND d.rank <= 8 AND d.event_name NOT LIKE '%League%'`;
     }
 
     if (eventList && eventList.length > 0) {
@@ -471,20 +471,21 @@ app.get('/api/players/search', authenticateToken, async (req, res) => {
     }
 });
 
-// Trigger Lazy Scrape (Fire and Forget)
+// Trigger Lazy Scrape
 app.post('/api/player/:name/sync', authenticateToken, async (req, res) => {
     const { name } = req.params;
-    let { days } = req.body; // Can pass day override body if needed, or query
-    if (!days) days = 30; // Default
+    let { days } = req.body;
+    if (!days) days = 30;
 
-    console.log(`[SYNC ENDPOINT] Received sync request for player: ${name}, days: ${days}`);
+    console.log(`[SYNC] Starting sync for ${name} (${days} days)...`);
 
-    // Start background job
-    goldfish.syncPlayerDecks(name, days).catch(err => {
-        console.error(`Background sync failed for ${name}:`, err);
-    });
-
-    res.json({ message: 'Sync started' });
+    try {
+        const count = await goldfish.syncPlayerDecks(name, days);
+        res.json({ message: 'Sync complete', count });
+    } catch (err) {
+        console.error(`Sync failed for ${name}:`, err);
+        res.status(500).json({ error: 'Sync failed' });
+    }
 });
 
 // Get External History (Goldfish)
