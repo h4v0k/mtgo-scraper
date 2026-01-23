@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
+const rateLimit = require('express-rate-limit');
 const { db, initDB } = require('./db'); // Import db and init helper
 const seedRemote = require('./seed_remote');
 // const scraper = require('./services/scraper'); // DISABLE SCRAPER IN VERCEL (Running manually via seed script)
@@ -26,6 +27,26 @@ if (!JWT_SECRET) {
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+
+// --- Rate Limiting ---
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per window
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later.' }
+});
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Limit each IP to 5 login attempts per window
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many login attempts, please try again later.' }
+});
+
+// Apply general limiter to all API routes
+app.use('/api/', apiLimiter);
 
 // --- Lazy Database Initialization Middleware ---
 let dbInitialized = false;
@@ -89,7 +110,7 @@ app.use('/api/analytics', require('./routes/analytics'));
 
 // Login
 // Login
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', loginLimiter, async (req, res) => {
     const { username, password } = req.body;
 
     try {
@@ -127,8 +148,8 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Create User (Internal/Seed only - typically you wouldn't expose this openly)
-// Create User (Internal/Seed only - typically you wouldn't expose this openly)
-app.post('/api/admin/create-user', async (req, res) => {
+// Create User (Internal/Seed only - protected by AdminSecret AND Admin Check)
+app.post('/api/admin/create-user', authenticateToken, requireAdmin, async (req, res) => {
     // In a real app, protect this route. For now, we'll leave it open for initial setup or add a hardcoded secret check.
     const { username, password, adminSecret } = req.body;
 
@@ -658,8 +679,8 @@ app.get('/api/ping', (req, res) => {
     res.json({ message: 'Pong from Express', timestamp: new Date() });
 });
 
-// Full Database Connection Check
-app.get('/api/debug', async (req, res) => {
+// Full Database Connection Check (Admin Only)
+app.get('/api/debug', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const decks = await db.execute("SELECT COUNT(*) as c FROM decks");
         const archetypes = await db.execute("SELECT COUNT(*) as c FROM archetypes");
@@ -676,8 +697,7 @@ app.get('/api/debug', async (req, res) => {
     } catch (err) {
         res.status(500).json({
             error: 'DB Connection Failed',
-            details: err.message,
-            stack: err.stack
+            details: err.message
         });
     }
 });
