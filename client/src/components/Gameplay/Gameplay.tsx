@@ -17,8 +17,15 @@ interface PlayerDeck {
     spice_count?: number;
 }
 
-export function Gameplay() {
-    const [playerName, setPlayerName] = useState('');
+export function Gameplay({ initialPlayerName }: { initialPlayerName?: string }) {
+    const [playerName, setPlayerName] = useState(initialPlayerName || '');
+
+    useEffect(() => {
+        if (initialPlayerName) {
+            setPlayerName(initialPlayerName);
+            performSearch(initialPlayerName, 30);
+        }
+    }, [initialPlayerName]);
     const [history, setHistory] = useState<PlayerDeck[]>([]);
     const [loading, setLoading] = useState(false);
     const [searchedName, setSearchedName] = useState('');

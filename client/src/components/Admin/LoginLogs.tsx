@@ -48,7 +48,7 @@ export function LoginLogs() {
                     <tbody>
                         {logs.map(log => (
                             <tr key={log.id}>
-                                <td>{new Date(log.login_timestamp).toLocaleString()}</td>
+                                <td>{new Date(log.login_timestamp).toLocaleString('en-US', { timeZone: 'America/New_York' })} (EST)</td>
                                 <td className="user-cell">{log.username}</td>
                                 <td className="mono-cell">{log.ip_address}</td>
                                 <td className="userAgent-cell" title={log.user_agent}>

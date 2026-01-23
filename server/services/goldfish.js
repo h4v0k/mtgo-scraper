@@ -7,18 +7,22 @@ const cheerio = require('cheerio');
 
 
 
+const httpClient = require('./httpClient');
+
+// ... (existing code) ...
+
+
+
 async function scrapeDeck(url) {
     try {
-        const response = await fetch(url, {
+        const response = await httpClient.get(url, {
+            useSecondary: true, // Use Secondary Proxy for on-demand scrapes
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
                 'Referer': 'https://www.mtggoldfish.com/'
             }
         });
 
-        if (!response.ok) throw new Error(`Status ${response.status}`);
-        const html = await response.text();
+        const html = response.data;
         const $ = cheerio.load(html);
 
         const mainDeck = [];
@@ -106,27 +110,14 @@ async function fetchPlayerHistory(playerName, days = 30) {
     console.log(`FETCHING GOLDFISH HISTORY: ${url} (Days: ${days})`);
 
     try {
-        const response = await fetch(url, {
+        const response = await httpClient.get(url, {
+            useSecondary: true, // Use Secondary Proxy for player history
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Referer': 'https://www.mtggoldfish.com/',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1'
+                'Referer': 'https://www.mtggoldfish.com/'
             }
         });
 
-        if (response.status === 404) {
-            console.warn(`Goldfish Player 404: ${playerName}`);
-            return [];
-        }
-
-        if (!response.ok) {
-            throw new Error(`Goldfish returned ${response.status}`);
-        }
-
-        const html = await response.text();
+        const html = response.data;
         const $ = cheerio.load(html);
         const decks = [];
 

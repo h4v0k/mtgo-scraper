@@ -3,6 +3,7 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') }
 const axios = require('axios');
 const cheerio = require('cheerio');
 const { db } = require('../db');
+const { isEventExists, normalizeEventName } = require('./dedupService');
 
 // MTGTop8 Scraper
 const BASE_URL = 'https://www.mtgtop8.com';
@@ -150,8 +151,17 @@ async function scrapeFormat(formatCode, formatName, maxDays) {
                         text.includes('RCQ') ||
                         text.includes('Open')
                     )) {
+                        // Normalize Name: "MTGO Challenge 32" -> "Standard Challenge 32"
+                        let normalizedText = text.trim();
+                        if (normalizedText.startsWith('MTGO Challenge')) {
+                            normalizedText = normalizedText.replace('MTGO Challenge', `${formatName} Challenge`);
+                        }
+                        if (normalizedText === 'MTGO League') {
+                            normalizedText = `${formatName} League`;
+                        }
+
                         events.push({
-                            text: text.trim(),
+                            text: normalizedText,
                             href: BASE_URL + '/' + href,
                             date: eventDateStr
                         });
@@ -177,6 +187,17 @@ async function scrapeFormat(formatCode, formatName, maxDays) {
 
         // 3. Process Events (Detailed Scraping)
         for (const event of events) {
+            // DEDUP CHECK using Shared Service
+            // MTGTop8 date is ISO string "YYYY-MM-DDT12:00:00.000Z"
+            // Split to YYYY-MM-DD
+            const simpleDate = event.date.split('T')[0];
+            const exists = await isEventExists(formatName, simpleDate, event.text);
+
+            if (exists) {
+                console.log(`[SKIP] Exists via Dedup: ${event.text} (${simpleDate})`);
+                continue;
+            }
+
             console.log(`Processing Event: ${event.text} (${event.date})`);
             await delay(1000);
             await processEvent(event, formatName);
@@ -389,7 +410,7 @@ async function processEvent(event, formatName) {
     }
 }
 
-async function scrapeMTGTop8(maxDays = 2) {
+async function scrapeMTGTop8(maxDays = 14) {
     console.log(`Starting Scraper Job (History: ${maxDays} days)...`);
 
     // Run formats in parallel

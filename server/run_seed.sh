@@ -1,6 +1,6 @@
 #!/bin/bash
-export TURSO_DATABASE_URL='libsql://mtgo-scraper-h4v0k.aws-us-east-1.turso.io'
-export TURSO_AUTH_TOKEN='eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3Njc1ODExNDMsImlkIjoiOTM4NWE5YWQtM2YwNy00ZmViLWFmMGYtMWQzZjI2ZTg3NmIwIiwicmlkIjoiNGUzZjY2YjYtNDE1NC00OGMzLThjZjMtOGViNThmYzdjMzI4In0.i5NQHQ6ICS0Bk7_rWnZLgKPXthM-tzFPzF1bgyj3C1mwTjsOiN745kDvxa2ft3h9aPfwpnnT8HMfV-Gmz4e9CQ'
+export TURSO_DATABASE_URL='libsql://inspired-chase-h4v0k.aws-us-east-1.turso.io'
+export TURSO_AUTH_TOKEN='eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NjkxMzM2ODEsImlkIjoiZmU4OTMyZTItNWE3Yi00ZmFmLWIwODItMzk3ODdlYmVmZmVhIiwicmlkIjoiZWI2NGYxNzQtZDM0ZS00MmZiLTlkN2YtZmQyNDI0Yjc5YzczIn0.hl7bGdxR1Rc2Utr8UmIYKfCv9vP61aQhkcekkkBZbEtHUBmS1Tpe0TJtmLv75xzomj_-KJ3ePKeujGRWtWEVDg'
 
 echo "Running seed with configured credentials..."
 node seed.js

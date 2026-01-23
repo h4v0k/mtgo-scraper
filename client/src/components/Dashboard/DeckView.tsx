@@ -6,9 +6,10 @@ import './DeckView.css';
 interface DeckViewProps {
     deckId: number;
     onBack: () => void;
+    onPlayerSearch: (name: string) => void;
 }
 
-export const DeckView: React.FC<DeckViewProps> = ({ deckId, onBack }) => {
+export const DeckView: React.FC<DeckViewProps> = ({ deckId, onBack, onPlayerSearch }) => {
     const [deck, setDeck] = useState<DeckDetail | null>(null);
 
     useEffect(() => {
@@ -25,7 +26,21 @@ export const DeckView: React.FC<DeckViewProps> = ({ deckId, onBack }) => {
             <div className="view-header">
                 <button className="back-btn" onClick={onBack}>&larr; Back to List</button>
                 <div>
-                    <h2>{deck.player_name}</h2>
+                    <h2>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                console.log(`[DeckView] Clicked player: ${deck.player_name}`);
+                                onPlayerSearch(deck.player_name);
+                            }}
+                            className="player-name-link-btn"
+                            title="Search Player History"
+                            type="button"
+                        >
+                            {deck.player_name}
+                        </button>
+                    </h2>
                     <div className="view-subtitle">{deck.format} • {deck.id}</div>
                 </div>
                 <button className="btn-primary" onClick={() => {

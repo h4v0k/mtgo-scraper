@@ -1,5 +1,19 @@
 [
   {
+    "name": "Sultai Elemental Scam",
+    "signature": [
+      "Wistfulness",
+      "Deceit",
+      "Emptiness",
+      "Not Dead After All",
+      "Springleaf Drum",
+      "Overlord of the Balemurk",
+      "Blooming Marsh",
+      "Watery Grave"
+    ],
+    "deckIds": []
+  },
+  {
     "name": "Jeskai Control",
     "signature": [
       "Jeskai Revelation",

@@ -36,6 +36,9 @@ function App() {
   // Event Filter State
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
 
+  // Player Search State
+  const [initialSearch, setInitialSearch] = useState<string>('');
+
   useEffect(() => {
     if (token) {
       localStorage.setItem('spyglass_token', token);
@@ -92,6 +95,11 @@ function App() {
         <DeckView
           deckId={selectedDeckId}
           onBack={() => setSelectedDeckId(null)}
+          onPlayerSearch={(name) => {
+            console.log(`[App] Triggering Player Search for: ${name}`);
+            setInitialSearch(name);
+            setActiveTab('gameplay');
+          }}
         />
       );
     }
@@ -190,12 +198,14 @@ function App() {
           >
             Advanced Analytics
           </button>
-          <button
-            className={activeTab === 'admin' ? 'active' : ''}
-            onClick={() => setActiveTab('admin')}
-          >
-            Admin
-          </button>
+          {username === 'havok' && (
+            <button
+              className={activeTab === 'admin' ? 'active' : ''}
+              onClick={() => setActiveTab('admin')}
+            >
+              Admin
+            </button>
+          )}
           <button onClick={handleLogout} className="logout-btn">
             Logout ({username})
           </button>
@@ -214,7 +224,7 @@ function App() {
             <ConversionMatrix />
           </div>
         ) : (
-          <Gameplay />
+          <Gameplay initialPlayerName={initialSearch} />
         )}
       </main>
     </div>

@@ -9,7 +9,7 @@ on:
         days:
             description: 'Days to scrape'
             required: false
-            default: '2'
+            default: '14'
 
 jobs:
   scrape:

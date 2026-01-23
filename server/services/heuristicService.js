@@ -2,6 +2,7 @@ const { db } = require('../db');
 const fs = require('fs');
 const path = require('path');
 const { getArchetypeForDeck } = require('./goldfishService');
+const { calculateSpice } = require('./spice');
 
 // Dynamically load signatures
 // Since this service is part of the API/Scraper, we load signatures from server/tags
@@ -28,10 +29,7 @@ function loadSignatures() {
 // Helper to get Rules (Legacy or specific overrides not covered by AI signatures)
 // We keep the RULES array for manual overrides if needed, but prioritize signatures.
 const RULES = [
-    {
-        target: 'GX Ouroboroid',
-        required: ['Ouroboroid', 'Stomping Ground']
-    },
+
     {
         target: 'Boros Energy',
         required: ['Guide of Souls', 'Amped Raptor']
@@ -158,10 +156,7 @@ const RULES = [
         target: 'Izzet Looting',
         required: ['Quantum Riddler', 'Spirebluff Canal']
     },
-    {
-        target: 'GX Ouroboroid',
-        required: ['Quantum Riddler', 'Llanowar Elves']
-    },
+
     {
         target: 'Dimir Midrange',
         required: ['Kaito, Bane of Nightmares']
@@ -218,19 +213,7 @@ const RULES = [
         target: 'Kona Combo',
         required: ['Kona, Rescue Beastie', 'Breeding Pool']
     },
-    {
-        target: 'GX Ouroboroid',
-        required: ['Ouroboros Tainted', 'Ouroboros, the Infinite']
-    },
-    {
-        // Fallback for Simic Landfall -> GX Ouroboroid if specific card missing but clearly Simic Landfall
-        target: 'GX Ouroboroid',
-        required: ['Tatyova, Benthic Druid', 'Growth Spiral']
-    },
-    {
-        target: 'GX Ouroboroid',
-        required: ['Ouroboroid']
-    },
+
     {
         target: 'Naya Yuna Enchantments',
         required: ['Yuna, Hope of Spira']
@@ -270,7 +253,7 @@ async function runHeuristicNormalization() {
     let decks = [];
     try {
         const decksRes = await db.execute(`
-            SELECT d.id, d.raw_decklist, d.archetype_id, d.format, d.player_name, d.event_name, d.event_date, a.name as current_arch_name 
+            SELECT d.id, d.raw_decklist, d.sideboard, d.archetype_id, d.format, d.player_name, d.event_name, d.event_date, a.name as current_arch_name 
             FROM decks d
             LEFT JOIN archetypes a ON d.archetype_id = a.id
         `);
@@ -360,9 +343,23 @@ async function runHeuristicNormalization() {
                     const targetId = await getArchId(bestMatch, deck.format);
                     if (deck.archetype_id !== targetId) {
                         console.log(`[High Conf Match] Deck ${deck.id} -> ${bestMatch} (${(maxScore * 100).toFixed(1)}%)`);
+
+                        // Recalculate Spice for new Archetype
+                        let spiceCount = 0;
+                        let spiceCards = '[]';
+                        try {
+                            const contextRes = await db.execute({
+                                sql: `SELECT raw_decklist, sideboard FROM decks WHERE archetype_id = ? AND event_date >= date('now', '-60 days') LIMIT 50`,
+                                args: [targetId]
+                            });
+                            const spiceRes = calculateSpice({ raw_decklist: deck.raw_decklist, sideboard: deck.sideboard }, contextRes.rows);
+                            spiceCount = spiceRes.count;
+                            spiceCards = JSON.stringify(spiceRes.cards);
+                        } catch (e) { }
+
                         await db.execute({
-                            sql: 'UPDATE decks SET archetype_id = ? WHERE id = ?',
-                            args: [targetId, deck.id]
+                            sql: 'UPDATE decks SET archetype_id = ?, spice_count = ?, spice_cards = ? WHERE id = ?',
+                            args: [targetId, spiceCount, spiceCards, deck.id]
                         });
                         batchMoved++;
                     }
@@ -410,9 +407,22 @@ async function runHeuristicNormalization() {
             if (newName !== deck.current_arch_name) {
                 try {
                     const targetId = await getArchId(newName, deck.format);
+                    // Recalculate Spice
+                    let spiceCount = 0;
+                    let spiceCards = '[]';
+                    try {
+                        const contextRes = await db.execute({
+                            sql: `SELECT raw_decklist, sideboard FROM decks WHERE archetype_id = ? AND event_date >= date('now', '-60 days') LIMIT 50`,
+                            args: [targetId]
+                        });
+                        const spiceRes = calculateSpice({ raw_decklist: deck.raw_decklist, sideboard: deck.sideboard }, contextRes.rows);
+                        spiceCount = spiceRes.count;
+                        spiceCards = JSON.stringify(spiceRes.cards);
+                    } catch (e) { }
+
                     await db.execute({
-                        sql: 'UPDATE decks SET archetype_id = ? WHERE id = ?',
-                        args: [targetId, deck.id]
+                        sql: 'UPDATE decks SET archetype_id = ?, spice_count = ?, spice_cards = ? WHERE id = ?',
+                        args: [targetId, spiceCount, spiceCards, deck.id]
                     });
                     batchMoved++;
                     matched = true;
@@ -471,9 +481,22 @@ async function runHeuristicNormalization() {
                     const targetId = await getArchId(goldfishName, deck.format);
                     if (deck.archetype_id !== targetId) {
                         // console.log(`[Goldfish Lookup] Deck ${deck.id} -> ${goldfishName}`);
+                        // Recalculate Spice
+                        let spiceCount = 0;
+                        let spiceCards = '[]';
+                        try {
+                            const contextRes = await db.execute({
+                                sql: `SELECT raw_decklist, sideboard FROM decks WHERE archetype_id = ? AND event_date >= date('now', '-60 days') LIMIT 50`,
+                                args: [targetId]
+                            });
+                            const spiceRes = calculateSpice({ raw_decklist: deck.raw_decklist, sideboard: deck.sideboard }, contextRes.rows);
+                            spiceCount = spiceRes.count;
+                            spiceCards = JSON.stringify(spiceRes.cards);
+                        } catch (e) { }
+
                         await db.execute({
-                            sql: 'UPDATE decks SET archetype_id = ? WHERE id = ?',
-                            args: [targetId, deck.id]
+                            sql: 'UPDATE decks SET archetype_id = ?, spice_count = ?, spice_cards = ? WHERE id = ?',
+                            args: [targetId, spiceCount, spiceCards, deck.id]
                         });
                         batchMoved++;
                     }
@@ -496,9 +519,22 @@ async function runHeuristicNormalization() {
                     const targetId = await getArchId(rule.target, deck.format);
 
                     if (deck.archetype_id !== targetId) {
+                        // Recalculate Spice
+                        let spiceCount = 0;
+                        let spiceCards = '[]';
+                        try {
+                            const contextRes = await db.execute({
+                                sql: `SELECT raw_decklist, sideboard FROM decks WHERE archetype_id = ? AND event_date >= date('now', '-60 days') LIMIT 50`,
+                                args: [targetId]
+                            });
+                            const spiceRes = calculateSpice({ raw_decklist: deck.raw_decklist, sideboard: deck.sideboard }, contextRes.rows);
+                            spiceCount = spiceRes.count;
+                            spiceCards = JSON.stringify(spiceRes.cards);
+                        } catch (e) { }
+
                         await db.execute({
-                            sql: 'UPDATE decks SET archetype_id = ? WHERE id = ?',
-                            args: [targetId, deck.id]
+                            sql: 'UPDATE decks SET archetype_id = ?, spice_count = ?, spice_cards = ? WHERE id = ?',
+                            args: [targetId, spiceCount, spiceCards, deck.id]
                         });
                         batchMoved++;
                     }
