@@ -1,110 +1,156 @@
 const { db } = require('../db');
 
 /**
- * Normalizes event names for comparison
- * e.g. "Standard Challenge 32" -> "challenge 32"
- * e.g. "MTGO Challenge 32" -> "challenge 32"
+ * Clean and normalize event names for comparison and storage.
  */
 function normalizeEventName(name) {
     if (!name) return '';
     return name.toLowerCase()
         .replace(/mtgo/g, '')
-        .replace(/standard|modern|pioneer|legacy|pauper|vintage/g, '')
+        .replace(/standard|modern|pioneer|legacy|pauper|vintage|premodern/g, '')
         .replace(/showcase/g, '')
-        .replace(/\d{4}-\d{2}-\d{2}/g, '') // Remove date
-        .replace(/\(\d+\)/g, '') // Remove (1) suffix
-        .replace(/[^a-z0-9]/g, ' ') // Remove special chars
+        .replace(/\b\d{4}-\d{2}-\d{2}\b/g, '') // ISO Date
+        .replace(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/g, '') // US Date
+        .replace(/\b\d{2}\.\d{2}\.\d{4}\b/g, '') // EU Date (DD.MM.YYYY)
+        .replace(/\(\d{4}-\d{2}-\d{2}\)/g, '') // Date in parens
+        .replace(/\([^)]*\d{2,4}[^)]*\)/g, '') // Any parens with year-like numbers
+        .replace(/\(\s*\)/g, '') // Empty parens
+        .replace(/\(\d+\)/g, '') // (1) suffix
+        .replace(/[^a-z0-9]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+/**
+ * Normalizes event names for consistency in the DB storage.
+ */
+function normalizeEventNameForStorage(name, format) {
+    if (!name) return '';
+    let normalized = name.trim();
+
+    // 1. Strip dates (Robust - multiple formats)
+    normalized = normalized.replace(/\b\d{4}-\d{2}-\d{2}\b/g, ''); // 2026-01-22
+    normalized = normalized.replace(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/g, ''); // 1/22/2026
+    normalized = normalized.replace(/\b\d{2}\.\d{2}\.\d{4}\b/g, ''); // 21.01.2026
+
+    // 2. Strip parenthetical content with dates/years
+    normalized = normalized.replace(/\([^)]*\d{2,4}[^)]*\)/g, ''); // (WntrSpr '26), (2026-01-22), etc.
+
+    // 3. Strip indices (1), (2), etc.
+    normalized = normalized.replace(/\s?\(\d+\)/g, '');
+
+    // 4. Standardize MTGO prefix to Format name
+    if (normalized.toLowerCase().startsWith('mtgo ')) {
+        normalized = normalized.substring(5);
+    }
+
+    // 5. Ensure format name is prepended exactly once
+    if (format) {
+        const fmtRegex = new RegExp(`^${format}\\s+`, 'i');
+        if (normalized.match(fmtRegex)) {
+            normalized = normalized.replace(fmtRegex, '');
+        }
+        normalized = format + ' ' + normalized;
+    }
+
+    // 6. Final cleanup of empty parentheses and double spaces
+    return normalized
+        .replace(/\(\s*\)/g, '')
         .replace(/\s+/g, ' ')
         .trim();
 }
 
 /**
  * Checks if an event already exists in the DB around a given date.
- * @param {string} format "Standard"
- * @param {string} dateStr "2026-01-22"
- * @param {string} eventName "Standard Challenge 32"
- * @returns {Promise<boolean>}
  */
 async function isEventExists(format, dateStr, eventName) {
     const normName = normalizeEventName(eventName);
-
-    // Define date window (Target +/- 1 day)
     const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return false;
+    const isoDate = d.toISOString().split('T')[0];
+
     const dPrev = new Date(d); dPrev.setDate(d.getDate() - 1);
     const dNext = new Date(d); dNext.setDate(d.getDate() + 1);
-
-    const dates = [
-        dPrev.toISOString().split('T')[0],
-        dateStr,
-        dNext.toISOString().split('T')[0]
-    ];
+    const dates = [dPrev.toISOString().split('T')[0], isoDate, dNext.toISOString().split('T')[0]];
 
     try {
-        // Query events in this format and date range
-        // We do fuzzy matching in JS because SQL LIKE is limited for this logic
         const res = await db.execute({
-            sql: `SELECT event_name FROM decks 
+            sql: `SELECT event_name, event_date FROM decks 
                   WHERE format = ? 
                   AND date(event_date) IN (?, ?, ?) 
-                  GROUP BY event_name`,
+                  GROUP BY event_name, event_date`,
             args: [format, ...dates]
         });
 
         for (const row of res.rows) {
             const dbNorm = normalizeEventName(row.event_name);
+            const dbDate = (typeof row.event_date === 'string' ? row.event_date : row.event_date.toISOString()).split(' ')[0].split('T')[0];
 
-            // 1. Exact normalized match
-            if (normName === dbNorm) return true;
-
-            // 2. Specific Challenge Logic
-            // If both are "challenge", but numbers differ? 
-            // "challenge 32" vs "challenge" -> match? No, usually distinct.
-            // "challenge 32" vs "challenge 32" -> match.
-            // If the normalized string contains numbers, match strictly on them.
-            const nums1 = normName.match(/\d+/g);
-            const nums2 = dbNorm.match(/\d+/g);
+            if (normName === dbNorm && isoDate === dbDate) return true;
 
             if (normName.includes('challenge') && dbNorm.includes('challenge')) {
-                // If both have numbers and they match -> TRUE
+                const nums1 = normName.match(/\d+/g);
+                const nums2 = dbNorm.match(/\d+/g);
                 if (nums1 && nums2 && nums1[0] === nums2[0]) return true;
-                // If one lacks numbers (e.g. "challenge" vs "challenge 32"), ambiguous. 
-                // Usually safe to assume SAME if date matches closely.
-                // But let's be strict: if numbers exist, they must match.
-                if (nums1 && nums2 && nums1[0] !== nums2[0]) continue;
-
-                // If numbers match or both missing numbers -> Match
-                return true;
+                if (nums1 || nums2) continue;
+                if (normName === dbNorm) return true;
             }
-
-            // 3. League Logic
-            if (normName.includes('league') && dbNorm.includes('league')) return true;
         }
-
         return false;
     } catch (e) {
-        console.error("Error checking event existence:", e);
-        return false; // Fail safe? Or Fail open? Fail safe = don't skip.
+        return false;
     }
 }
 
 /**
- * Normalizes event names for consistency in the DB
- * e.g. "MTGO League" + "Standard" -> "Standard League"
- * e.g. "Standard Challenge 32" -> "Standard Challenge 32"
+ * Finds if a deck already exists for a player.
  */
-function normalizeEventNameForStorage(name, format) {
-    if (!name) return '';
-    let normalized = name.trim();
-
-    // Replace "MTGO" with the format name if MTGO is the prefix
-    if (normalized.startsWith('MTGO ')) {
-        normalized = normalized.replace('MTGO ', format + ' ');
+async function findExistingDeckForPlayer(playerName, format, dateStr, eventName, sourceUrl = null) {
+    if (sourceUrl) {
+        const urlRes = await db.execute({
+            sql: 'SELECT id FROM decks WHERE player_name = ? AND source_url = ?',
+            args: [playerName, sourceUrl]
+        });
+        if (urlRes.rows.length > 0) return true;
     }
 
-    // If the name doesn't contain the format yet, prepend it (optional, but keep consistent)
-    // Most events from scrapers already include format.
+    const normName = normalizeEventName(eventName);
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return false;
+    const isoDate = d.toISOString().split('T')[0];
 
-    return normalized;
+    const dPrev = new Date(d); dPrev.setDate(d.getDate() - 1);
+    const dNext = new Date(d); dNext.setDate(d.getDate() + 1);
+    const dates = [dPrev.toISOString().split('T')[0], isoDate, dNext.toISOString().split('T')[0]];
+
+    const candidates = await db.execute({
+        sql: `SELECT event_name, event_date, source_url FROM decks 
+              WHERE player_name = ? 
+              AND format = ? 
+              AND date(event_date) IN (?, ?, ?)`,
+        args: [playerName, format, ...dates]
+    });
+
+    for (const cand of candidates.rows) {
+        if (sourceUrl && cand.source_url && cand.source_url !== sourceUrl) {
+            continue;
+        }
+
+        const candNorm = normalizeEventName(cand.event_name);
+        const candDate = (typeof cand.event_date === 'string' ? cand.event_date : cand.event_date.toISOString()).split(' ')[0].split('T')[0];
+
+        if (normName.includes('challenge') && candNorm.includes('challenge')) {
+            const nums1 = normName.match(/\d+/g);
+            const nums2 = candNorm.match(/\d+/g);
+            if (nums1 && nums2 && nums1[0] === nums2[0]) return true;
+            if (nums1 || nums2) continue;
+            if (normName === candNorm && isoDate === candDate) return true;
+        }
+
+        if (normName === candNorm && isoDate === candDate) return true;
+    }
+
+    return false;
 }
 
-module.exports = { isEventExists, normalizeEventName, normalizeEventNameForStorage };
+module.exports = { isEventExists, normalizeEventName, normalizeEventNameForStorage, findExistingDeckForPlayer };

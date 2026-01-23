@@ -1,107 +1,121 @@
-
 const { calculateSpice } = require('./spice');
 const { db } = require('../db');
 const cheerio = require('cheerio');
-
-// ... (existing code) ...
-
-
-
 const httpClient = require('./httpClient');
+const { findExistingDeckForPlayer, normalizeEventNameForStorage } = require('./dedupService');
+const { classifyDeck } = require('./heuristicService');
 
-// ... (existing code) ...
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-
-
+/**
+ * Robustly scrapes a deck from Goldfish, handling individual deck pages 
+ * and fallback formats (xml/txt) which are safer for "EXT" decks.
+ */
 async function scrapeDeck(url) {
     try {
         const response = await httpClient.get(url, {
-            useSecondary: true, // Use Secondary Proxy for on-demand scrapes
-            headers: {
-                'Referer': 'https://www.mtggoldfish.com/'
-            }
+            useSecondary: true,
+            headers: { 'Referer': 'https://www.mtggoldfish.com/' }
         });
 
         const html = response.data;
         const $ = cheerio.load(html);
 
-        const mainDeck = [];
-        const sideboard = [];
-
-        // 1. Try hidden input (Most reliable for raw list)
-        // Format is usually "Qty Name\nQty Name"
-        // Sideboard is sometimes separated by empty line or "Sideboard" header in text, 
-        // OR it's just a flat list. ID #deck_input_deck seems to convert to MTGO format.
-        const deckInputVal = $('#deck_input_deck').val();
-
-        if (deckInputVal) {
-            const lines = deckInputVal.split('\n');
-            let isSb = false;
-            for (const line of lines) {
-                const trimmed = line.trim();
-                if (!trimmed) continue;
-                // Goldfish export format usually puts "Sideboard" line if it exists
-                if (trimmed.toLowerCase() === 'sideboard') {
-                    isSb = true;
-                    continue;
+        // STRATEGY 0: Try to find a direct Download link first (MTGO .dek or .txt)
+        // This is the most reliable way for EXT decks.
+        let downloadUrl = null;
+        $('a').each((i, el) => {
+            const h = $(el).attr('href');
+            if (h && (h.includes('/deck/download/') || h.includes('/deck/arena_download/'))) {
+                // Prioritize MTGO .dek or MTGO .txt
+                if (h.includes('output=dek') || h.includes('output=txt')) {
+                    downloadUrl = 'https://www.mtggoldfish.com' + h;
+                    return false; // break
                 }
-                if (isSb) sideboard.push(trimmed);
-                else mainDeck.push(trimmed);
             }
-        } else {
-            // 2. Fallback to Copy/Paste Textarea
-            const deckTextArea = $('textarea.copy-paste-box').val();
-            if (deckTextArea) {
-                const lines = deckTextArea.split('\n');
+        });
+
+        if (downloadUrl) {
+            // console.log(`   [Scrape] Downloading raw list from: ${downloadUrl}`);
+            const dlRes = await httpClient.get(downloadUrl, { useSecondary: true });
+            const rawContent = dlRes.data;
+
+            if (downloadUrl.includes('output=dek')) {
+                // Parse XML (.dek)
+                const main = [];
+                const sb = [];
+                const lines = rawContent.split('\n');
+                for (const line of lines) {
+                    const match = line.match(/Quantity="(\d+)".*Sideboard="(true|false)".*Name="([^"]+)"/);
+                    if (match) {
+                        const qty = match[1];
+                        const isSb = match[2] === 'true';
+                        const cardName = match[3].replace(/&amp;/g, '&').replace(/&apos;/g, "'");
+                        const entry = `${qty} ${cardName}`;
+                        if (isSb) sb.push(entry);
+                        else main.push(entry);
+                    }
+                }
+                if (main.length > 0) {
+                    return { raw_decklist: main.join('\n'), sideboard: sb.join('\n') };
+                }
+            } else {
+                // Parse Text/Arena format
+                const main = [];
+                const sb = [];
                 let isSb = false;
+                const lines = rawContent.split(/[\r\n]+/);
                 for (const line of lines) {
                     const trimmed = line.trim();
                     if (!trimmed) continue;
-                    if (trimmed.toLowerCase().includes('sideboard')) {
-                        isSb = true;
-                        continue;
-                    }
-                    if (isSb) sideboard.push(trimmed);
-                    else mainDeck.push(trimmed);
+                    if (trimmed.toLowerCase().includes('sideboard')) { isSb = true; continue; }
+                    if (isSb) sb.push(trimmed);
+                    else main.push(trimmed);
                 }
-            } else {
-                // 3. Fallback to Table Parsing (Least reliable due to layout changes)
-                // Goldfish separates main/side with headers in standard view
-                let tableSbMode = false;
-                $('table.deck-view-deck-table').each((tIdx, table) => {
-                    // Heuristic: If we see a header row saying Sideboard, switch mode
-                    if ($(table).prev().text().toLowerCase().includes('sideboard')) tableSbMode = true;
-
-                    $(table).find('tr').each((i, row) => {
-                        if ($(row).find('th').text().toLowerCase().includes('sideboard')) {
-                            tableSbMode = true;
-                            return;
-                        }
-                        const qty = $(row).find('.deck-col-qty').text().trim();
-                        const name = $(row).find('.deck-col-card a').text().trim();
-                        if (qty && name) {
-                            if (tableSbMode) sideboard.push(`${qty} ${name}`);
-                            else mainDeck.push(`${qty} ${name}`);
-                        }
-                    });
-                    // If multiple tables, usually 2nd is sideboard?
-                    // if (tIdx > 0 && !tableSbMode) tableSbMode = true; 
-                });
+                if (main.length > 0) {
+                    return { raw_decklist: main.join('\n'), sideboard: sb.join('\n') };
+                }
             }
         }
 
-        if (mainDeck.length === 0 && sideboard.length === 0) {
-            console.warn("Goldfish scraper found no deck content.");
-            return null;
+        // STRATEGY 1: Try hidden input (Goldfish internally stores deck lists here)
+        const deckInputVal = $('#deck_input_deck').val();
+        if (deckInputVal) {
+            const lines = deckInputVal.split('\n');
+            let isSb = false;
+            const main = [];
+            const sb = [];
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed) continue;
+                if (trimmed.toLowerCase() === 'sideboard') { isSb = true; continue; }
+                if (isSb) sb.push(trimmed);
+                else main.push(trimmed);
+            }
+            return { raw_decklist: main.join('\n'), sideboard: sb.join('\n') };
         }
 
-        return {
-            raw_decklist: mainDeck.join('\n'),
-            sideboard: sideboard.join('\n')
-        };
+        // STRATEGY 2: Textarea Fallback
+        const deckTextArea = $('textarea.copy-paste-box').val();
+        if (deckTextArea) {
+            const lines = deckTextArea.split('\n');
+            let isSb = false;
+            const main = [];
+            const sb = [];
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed) continue;
+                if (trimmed.toLowerCase().includes('sideboard')) { isSb = true; continue; }
+                if (isSb) sb.push(trimmed);
+                else main.push(trimmed);
+            }
+            return { raw_decklist: main.join('\n'), sideboard: sb.join('\n') };
+        }
+
+        return null;
     } catch (e) {
-        console.error(`Error scraping deck ${url}:`, e);
-        return null; // Fail gracefully
+        console.error(`Error scraping deck ${url}:`, e.message);
+        return null;
     }
 }
 
@@ -111,10 +125,8 @@ async function fetchPlayerHistory(playerName, days = 30) {
 
     try {
         const response = await httpClient.get(url, {
-            useSecondary: true, // Use Secondary Proxy for player history
-            headers: {
-                'Referer': 'https://www.mtggoldfish.com/'
-            }
+            useSecondary: true,
+            headers: { 'Referer': 'https://www.mtggoldfish.com/' }
         });
 
         const html = response.data;
@@ -140,17 +152,13 @@ async function fetchPlayerHistory(playerName, days = 30) {
                         const rankRaw = $(cols[4]).text().trim();
 
                         const isLeague = event.toLowerCase().includes('league') || format.toLowerCase().includes('league');
-
                         let rank = null;
                         const rankMatch = rankRaw.match(/(\d+)/);
                         if (rankMatch) rank = parseInt(rankMatch[1]);
 
-                        // League Logic: Only 5-0s, store as rank 0
                         if (isLeague) {
-                            if (rankRaw !== '5-0' && rank !== 5) { // Goldfish history often shows '5-0' or '5' for leagues
-                                return;
-                            }
-                            rank = 0; // Sentinel for 5-0
+                            if (rankRaw !== '5-0' && rank !== 5) return;
+                            rank = 0;
                         }
 
                         const eventDate = new Date(dateRaw);
@@ -160,15 +168,14 @@ async function fetchPlayerHistory(playerName, days = 30) {
 
                         if (eventDate.getTime() < cutoffDate.getTime()) return;
 
-                        // Normalize Event Name (Per User Request)
-                        const { normalizeEventNameForStorage } = require('./dedupService');
-                        let normalizedEvent = normalizeEventNameForStorage(event, format);
+                        // INITIAL NORMALIZATION
+                        const normalizedEvent = normalizeEventNameForStorage(event, format);
 
                         decks.push({
                             source: 'mtggoldfish',
                             id: deckLink || `gf-${Date.now()}-${Math.random()}`,
                             event_date: dateRaw,
-                            event_name: normalizedEvent, // Use Normalized Name
+                            event_name: normalizedEvent,
                             format: format,
                             archetype: deckName,
                             rank: rank || 0,
@@ -180,7 +187,6 @@ async function fetchPlayerHistory(playerName, days = 30) {
         });
 
         return decks;
-
     } catch (err) {
         console.error('Error fetching from Goldfish:', err);
         return [];
@@ -193,91 +199,35 @@ async function syncPlayerDecks(playerName, days = 30) {
     console.log(`Found ${externalDecks.length} external decks to potentially sync.`);
 
     let importedCount = 0;
+    const spiceContextCache = {};
 
-    for (const d of externalDecks) {
+    for (let i = 0; i < externalDecks.length; i++) {
+        const d = externalDecks[i];
         if (!d.url) continue;
 
-        // 1. Strict Name Check (Fast Fail)
-        const existing = await db.execute({
-            sql: `SELECT id FROM decks WHERE player_name = ? AND event_name = ? AND event_date LIKE ?`,
-            args: [playerName, d.event_name, `${d.event_date}%`]
-        });
+        const exists = await findExistingDeckForPlayer(playerName, d.format, d.event_date, d.event_name, d.url);
+        if (exists) continue;
 
-        if (existing.rows.length > 0) {
-            continue;
-        }
-
-        console.log(`Scraping DETAILS for: ${d.url}`);
+        console.log(`[${i + 1}/${externalDecks.length}] Scraping: ${d.url}`);
         const details = await scrapeDeck(d.url);
         if (!details || (!details.raw_decklist && !details.sideboard)) {
             console.warn(`Failed to scrape details for ${d.url}`);
             continue;
         }
 
-        // 2. Content-Based Deduplication (Smart Check)
-        const contentMatch = await db.execute({
-            sql: `SELECT id, event_name, event_date FROM decks 
-                  WHERE player_name = ? 
-                  AND format = ? 
-                  AND raw_decklist = ? 
-                  AND (event_date LIKE ? OR abs(julianday(event_date) - julianday(?)) < 1)`,
-            args: [playerName, d.format, details.raw_decklist, `${d.event_date}%`, d.event_date]
-        });
+        const classification = await classifyDeck(details.raw_decklist, d.format, d.archetype);
+        const archName = classification.name;
 
-        if (contentMatch.rows.length > 0) {
-            const match = contentMatch.rows[0];
-            const e1 = match.event_name.toLowerCase();
-            const e2 = d.event_name.toLowerCase();
+        // FINAL NORMALIZATION SAFETY (Ensures no dates slip through)
+        const finalEventName = normalizeEventNameForStorage(d.event_name, d.format);
 
-            // STRICT CHECK: Do not allow cross-type deduplication (e.g. League vs Challenge)
-            const getType = (e) => {
-                if (e.includes('league')) return 'league';
-                if (e.includes('challenge')) return 'challenge';
-                if (e.includes('qualifier')) return 'qualifier';
-                if (e.includes('showcase')) return 'showcase';
-                if (e.includes('preliminary')) return 'preliminary';
-                if (e.includes('championship')) return 'championship';
-                return 'other';
-            };
-
-            const t1 = getType(e1);
-            const t2 = getType(e2);
-
-            if (t1 !== t2) {
-                console.log(`Skipping duplicate content check (Events are distinct types: ${match.event_name} vs ${d.event_name})`);
-                // Proceed to insert as distinct event
-            } else {
-                // Same type (e.g. League vs League). Check for Generic Alias upgrade.
-                const isGeneric1 = e1.startsWith('mtgo ');
-                const isGeneric2 = e2.startsWith('mtgo ');
-
-                let shouldReplace = false;
-
-                if (isGeneric1 && !isGeneric2) {
-                    shouldReplace = true;
-                }
-
-                if (shouldReplace) {
-                    console.log(`UPGRADING event: Replacing Generic ${match.event_name} with Specific ${d.event_name}`);
-                    await db.execute({
-                        sql: 'DELETE FROM decks WHERE id = ?',
-                        args: [match.id]
-                    });
-                    // Continue to insert
-                } else {
-                    console.log(`Skipping duplicate content (Already exists as ${match.event_name})`);
-                    continue;
-                }
-            }
-        }
-
-        console.log(`Persisting new deck: ${d.archetype} for ${playerName}`);
+        console.log(`Persisting: ${archName} | Event: ${finalEventName}`);
 
         let archId = null;
         try {
             const exArch = await db.execute({
                 sql: 'SELECT id FROM archetypes WHERE name = ? AND format = ?',
-                args: [d.archetype, d.format]
+                args: [archName, d.format]
             });
 
             if (exArch.rows.length > 0) {
@@ -285,10 +235,9 @@ async function syncPlayerDecks(playerName, days = 30) {
             } else {
                 const ins = await db.execute({
                     sql: 'INSERT INTO archetypes (name, format) VALUES (?, ?) RETURNING id',
-                    args: [d.archetype, d.format]
+                    args: [archName, d.format]
                 });
-                if (ins.rows.length > 0) archId = ins.rows[0].id;
-                else archId = ins.lastInsertRowid.toString();
+                archId = ins.rows[0].id;
             }
         } catch (e) {
             const unk = await db.execute({ sql: `SELECT id FROM archetypes WHERE name = 'Unknown' AND format = ?`, args: [d.format] });
@@ -297,21 +246,19 @@ async function syncPlayerDecks(playerName, days = 30) {
 
         if (!archId) continue;
 
-        // Calculate Spice
-        // First, calculate SPICE
-        // Get context: Decks of same archetype within last 60 days
         let spiceCount = 0;
         let spiceCardsJSON = '[]';
         try {
-            const contextRes = await db.execute({
-                sql: `SELECT raw_decklist, sideboard 
-                      FROM decks 
-                      WHERE archetype_id = ? 
-                      AND event_date >= date('now', '-60 days')`,
-                args: [archId]
-            });
-            const contextDecks = contextRes.rows;
-            // Add current deck to context
+            const cacheKey = `${archId}|${d.format}`;
+            if (!spiceContextCache[cacheKey]) {
+                const contextRes = await db.execute({
+                    sql: `SELECT raw_decklist, sideboard FROM decks WHERE archetype_id = ? AND event_date >= date('now', '-60 days')`,
+                    args: [archId]
+                });
+                spiceContextCache[cacheKey] = contextRes.rows;
+            }
+
+            const contextDecks = [...spiceContextCache[cacheKey]];
             contextDecks.push({ raw_decklist: details.raw_decklist, sideboard: details.sideboard });
 
             const spiceResult = calculateSpice({
@@ -323,7 +270,6 @@ async function syncPlayerDecks(playerName, days = 30) {
             spiceCardsJSON = JSON.stringify(spiceResult.cards);
         } catch (err) {
             console.error("Error calculating spice during ingest:", err);
-            // Default to 0, non-fatal
         }
 
         await db.execute({
@@ -331,10 +277,10 @@ async function syncPlayerDecks(playerName, days = 30) {
                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             args: [
                 playerName,
-                d.event_name,
+                finalEventName,
                 d.event_date,
                 d.format,
-                d.rank || 0, // Ensure rank is present
+                d.rank || 0,
                 archId,
                 d.url,
                 details.raw_decklist,
@@ -345,6 +291,7 @@ async function syncPlayerDecks(playerName, days = 30) {
         });
 
         importedCount++;
+        await delay(1000);
     }
 
     console.log(`Sync complete for ${playerName}: Imported ${importedCount} new decks.`);
