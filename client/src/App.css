@@ -169,3 +169,30 @@
 .app-footer a:hover {
   text-decoration: underline;
 }
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  .app-header {
+    padding: var(--space-md);
+  }
+
+  .main-nav {
+    gap: var(--space-md);
+    flex-wrap: wrap;
+    padding-top: var(--space-sm);
+  }
+
+  .main-nav button {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+    letter-spacing: 1px;
+  }
+
+  .content-area {
+    padding: var(--space-md);
+  }
+
+  .logo-container {
+    margin-bottom: var(--space-sm);
+  }
+}

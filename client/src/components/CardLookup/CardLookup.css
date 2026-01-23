@@ -315,3 +315,51 @@
     background: var(--accent-color);
     color: #000;
 }
+
+@media (max-width: 768px) {
+    .card-lookup-container {
+        padding: 1rem;
+    }
+
+    .lookup-header h2 {
+        font-size: 1.8rem;
+    }
+
+    .lookup-controls {
+        padding: 1.5rem;
+        gap: 1.5rem;
+    }
+
+    .search-main-row {
+        flex-direction: column;
+    }
+
+    .search-btn-primary {
+        width: 100%;
+        padding: 1rem;
+        min-height: 50px;
+    }
+
+    .filter-secondary-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.5rem;
+    }
+
+    .filter-item,
+    .lookup-select {
+        width: 100%;
+    }
+
+    .days-selector {
+        justify-content: space-between;
+    }
+
+    .days-btn {
+        flex: 1;
+        text-align: center;
+        padding: 0.6rem 0.2rem;
+        min-width: 0;
+        /* Allow shrinking */
+    }
+}

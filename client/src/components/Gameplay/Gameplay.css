@@ -297,3 +297,39 @@
     background: rgba(255, 255, 255, 0.02);
     border-radius: 8px;
 }
+
+@media (max-width: 768px) {
+    .gameplay-container {
+        padding: 1rem;
+    }
+
+    .gameplay-header h2 {
+        font-size: 1.8rem;
+    }
+
+    .player-search-form {
+        flex-direction: column;
+    }
+
+    .search-btn {
+        width: 100%;
+        padding: 0.8rem;
+    }
+
+    .input-group {
+        width: 100%;
+    }
+
+    .days-selector {
+        justify-content: space-between;
+    }
+
+    .days-btn {
+        flex: 1;
+        text-align: center;
+    }
+
+    .history-grid {
+        grid-template-columns: 1fr;
+    }
+}

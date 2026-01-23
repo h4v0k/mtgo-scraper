@@ -103,3 +103,30 @@ input[type="radio"] {
     width: 1.2em;
     height: 1.2em;
 }
+
+@media (max-width: 768px) {
+    .dashboard-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+        padding: 1rem !important;
+    }
+
+    .control-group,
+    .radio-options,
+    select {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .radio-options {
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    /* Ensure top 8 toggle doesn't get squished */
+    .radio-options label {
+        font-size: 0.9rem;
+    }
+}
