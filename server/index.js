@@ -321,7 +321,14 @@ app.get('/api/meta', async (req, res) => {
     }
 
     const rankFilter = (top8 === 'true') ? "AND rank <= 8 AND event_name NOT LIKE '%League%'" : '';
-    const eventFilter = eventList ? `AND event_name IN (${eventList.map(() => '?').join(',')})` : '';
+
+    // Updated Event Filter: If "Standard Challenge 32" is selected, match "Standard Challenge 32 (1)", etc.
+    let eventFilter = '';
+    const eventParams = [];
+    if (eventList && eventList.length > 0) {
+        eventFilter = `AND (${eventList.map(() => `event_name LIKE ?`).join(' OR ')})`;
+        eventList.forEach(e => eventParams.push(`${e}%`)); // Match base name and variations
+    }
 
     let query = `
         SELECT 
@@ -345,7 +352,7 @@ app.get('/api/meta', async (req, res) => {
 
     // Params construction:
     const baseParams = [format, cutoffStr];
-    const eventParams = eventList || [];
+    // eventParams is already defined and populated above (lines 327-331)
 
     const finalParams = [
         ...baseParams, ...eventParams, // for subquery
@@ -397,8 +404,8 @@ app.get('/api/meta/archetype/:name', async (req, res) => {
     }
 
     if (eventList && eventList.length > 0) {
-        query += ` AND d.event_name IN (${eventList.map(() => '?').join(',')})`;
-        params.push(...eventList);
+        query += ` AND (${eventList.map(() => `d.event_name LIKE ?`).join(' OR ')})`;
+        eventList.forEach(e => params.push(`${e}%`));
     }
 
     query += ` ORDER BY d.event_date DESC`;
@@ -706,8 +713,11 @@ app.get('/api/challenges', async (req, res) => {
                 };
                 const estTimeStr = new Intl.DateTimeFormat('en-US', options).format(dateObj);
 
+                // Strip trailing (1), (2), etc. for group display but keep events distinct in map
+                const displayName = d.event_name.replace(/\s?\(\d+\)$/, '');
+
                 eventsMap[uniqueKey] = {
-                    name: `${d.event_name} (${estTimeStr} EST)`,
+                    name: `${displayName} (${estTimeStr} EST)`,
                     raw_date: isoKey,
                     decks: []
                 };
@@ -767,7 +777,17 @@ app.get('/api/events', async (req, res) => {
             sql: query,
             args: [format, cutoffStr]
         });
-        res.json(result.rows.map(e => e.event_name));
+
+        // Clean names: "Standard Challenge 32 (1)" -> "Standard Challenge 32"
+        // Also handling cases like "Standard Challenge 32 (Run 1)" or similar
+        const names = result.rows.map(e => {
+            return e.event_name
+                .replace(/\s?\(\d+\)$/, '')
+                .replace(/\s?\(Run\s\d+\)$/i, '')
+                .trim();
+        });
+        // Unique only
+        res.json([...new Set(names)]);
     } catch (e) {
         res.status(500).json({ error: e.message });
     }

@@ -84,11 +84,12 @@ export const ChallengeView: React.FC = () => {
 
 const DeckCardGrid: React.FC<{ deck: DeckDetail; onView: () => void }> = ({ deck, onView }) => {
     // We want to show a nice grid of cards. 
-    // Logic: Take unique non-land cards, sorted by cost or just name.
-    // Limit to top 15-20 distinct cards to fit the graphic.
-    const displayCards = deck.cards
+    // Logic: Take unique non-land cards from main and side
+    const nonLands = (deck.cards || []).concat(deck.sideboard || [])
         .filter(c => !['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'].includes(c.name))
-        .slice(0, 20);
+
+    // Limit to top 20 distinct cards to fit the graphic.
+    const displayCards = nonLands.slice(0, 20);
 
     return (
         <div className="deck-graphic-card">
@@ -110,7 +111,7 @@ const DeckCardGrid: React.FC<{ deck: DeckDetail; onView: () => void }> = ({ deck
                 </button>
             </div>
             <div className="visual-grid">
-                {displayCards.map((card, idx) => (
+                {displayCards.length > 0 ? displayCards.map((card, idx) => (
                     <div key={idx} className="card-item">
                         <img
                             src={`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card.name)}&format=image`}
@@ -120,7 +121,7 @@ const DeckCardGrid: React.FC<{ deck: DeckDetail; onView: () => void }> = ({ deck
                         />
                         <span className="card-qty-badge">{card.count}</span>
                     </div>
-                ))}
+                )) : <div className="no-cards">No cards found</div>}
             </div>
         </div>
     );

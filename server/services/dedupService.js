@@ -15,7 +15,7 @@ function normalizeEventName(name) {
         .replace(/\(\d{4}-\d{2}-\d{2}\)/g, '') // Date in parens
         .replace(/\([^)]*\d{2,4}[^)]*\)/g, '') // Any parens with year-like numbers
         .replace(/\(\s*\)/g, '') // Empty parens
-        .replace(/\(\d+\)/g, '') // (1) suffix
+        // .replace(/\(\d+\)/g, '') // STOP STRIPPING (1) suffix to distinguish multiple events per day
         .replace(/[^a-z0-9]/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
@@ -38,7 +38,7 @@ function normalizeEventNameForStorage(name, format) {
     normalized = normalized.replace(/\[.*?\]/g, ''); // [Lyon Sat 09:00]
 
     // 3. Strip indices (1), (2), etc.
-    normalized = normalized.replace(/\s?\(\d+\)/g, '');
+    // normalized = normalized.replace(/\s?\(\d+\)/g, ''); // STOP STRIPPING (1) suffix to distinguish multiple events per day
 
     // 4. Standardize MTGO prefix to Format name
     if (normalized.toLowerCase().startsWith('mtgo ')) {
