@@ -676,27 +676,39 @@ app.get('/api/challenges', async (req, res) => {
             args: [format, `${datePart}%`]
         });
 
-        // Group by Event Name + Date to handle multiple runs (e.g. AM/PM)
+        // Group by Event Name + Date to handle multiple runs
         const eventsMap = {};
 
         result.rows.forEach(d => {
-            // Create a unique key for grouping
-            const uniqueKey = `${d.event_name}_${d.event_date}`;
+            // Normalize Date object to handle mixed formats (e.g. "2026-01-22" vs "2026-01-22T00:00:00.000Z")
+            // Append 'T00:00:00Z' if it's just a date string to ensure it parses as UTC
+            let dateStr = d.event_date;
+            if (dateStr.length === 10) dateStr += 'T00:00:00Z';
+
+            const dateObj = new Date(dateStr);
+            const isoKey = dateObj.toISOString(); // Standardized key (e.g. 2026-01-22T00:00:00.000Z)
+
+            const uniqueKey = `${d.event_name}_${isoKey}`;
 
             if (!eventsMap[uniqueKey]) {
-                // Determine if we need to add a time label
-                // For now, let's just properly format the Time being appended
-                const dateObj = new Date(d.event_date);
-                const hours = dateObj.getUTCHours();
-                const timeLabel = hours < 12 ? 'Morning' : 'Evening';
+                // Convert to EST (UTC-5 for Jan / Standard Time)
+                // We'll use a simple offset adjust for now or Intl if available
+                // To be safe and simple without external libs:
 
-                // User asked for "Morning" / "Evening".
-                // We'll append the UTC time to be precise as well: " (12:00 UTC)"
-                const timeStr = `${hours.toString().padStart(2, '0')}:00 UTC`;
+                // Create a formatter for EST (America/New_York)
+                const options = {
+                    timeZone: 'America/New_York',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                    month: 'numeric',
+                    day: 'numeric'
+                };
+                const estTimeStr = new Intl.DateTimeFormat('en-US', options).format(dateObj);
 
                 eventsMap[uniqueKey] = {
-                    name: `${d.event_name} (${timeStr})`,
-                    raw_date: d.event_date,
+                    name: `${d.event_name} (${estTimeStr} EST)`,
+                    raw_date: isoKey,
                     decks: []
                 };
             }
@@ -708,7 +720,7 @@ app.get('/api/challenges', async (req, res) => {
             });
         });
 
-        // Convert to array and Sort by Date (descending or ascending)
+        // Convert to array and Sort by Date
         const events = Object.values(eventsMap)
             .sort((a, b) => new Date(a.raw_date).getTime() - new Date(b.raw_date).getTime())
             .map(group => ({
