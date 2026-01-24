@@ -1,0 +1,186 @@
+/* Challenge View Container */
+.challenge-view {
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.challenge-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-items: center;
+    background: #1f1f1f;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.format-select,
+.date-select {
+    padding: 0.8rem;
+    font-size: 1rem;
+    background: #333;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 6px;
+    min-width: 200px;
+}
+
+.format-select:focus,
+.date-select:focus {
+    outline: none;
+    border-color: #88aaff;
+}
+
+/* Results Grid */
+.results-header {
+    margin-bottom: 1.5rem;
+    color: #e0e0e0;
+    font-size: 1.8rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    border-bottom: 2px solid #333;
+    padding-bottom: 0.5rem;
+}
+
+.top-decks-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Deck Graphic Card (The Main Item) */
+.deck-graphic-card {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 1px solid #444;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s;
+}
+
+.deck-graphic-card:hover {
+    transform: translateY(-2px);
+    border-color: #666;
+}
+
+.deck-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #333;
+    padding-bottom: 1rem;
+}
+
+.rank-badge {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #ffd700;
+    /* Gold */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 50%;
+    border: 2px solid #ffd700;
+}
+
+.deck-info {
+    flex: 1;
+    margin-left: 1.5rem;
+}
+
+.player-name {
+    margin: 0;
+    color: #fff;
+    font-size: 1.4rem;
+}
+
+.archetype-name {
+    color: #aaa;
+    font-size: 1.1rem;
+    font-style: italic;
+}
+
+.view-btn {
+    padding: 0.6rem 1.2rem;
+    background: #444;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.view-btn:hover {
+    background: #666;
+}
+
+/* The Visual Grid of Cards */
+.visual-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.8rem;
+}
+
+.card-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 2.5/3.5;
+    background: #000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+    transition: transform 0.2s;
+}
+
+.card-item:hover {
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
+}
+
+.card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.card-qty-badge {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    border: 1px solid #666;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    backdrop-filter: blur(2px);
+}
+
+.empty-state,
+.loading-state {
+    text-align: center;
+    padding: 4rem;
+    font-size: 1.5rem;
+    color: #888;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

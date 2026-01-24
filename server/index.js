@@ -633,6 +633,66 @@ app.get('/api/player/:name/goldfish', async (req, res) => {
 
 
 // Get Available Events
+// Get Challenge Results (Top 4)
+app.get('/api/challenges', async (req, res) => {
+    let { format, date } = req.query;
+    if (!format) format = 'Standard';
+
+    try {
+        // If no date provided, find the latest challenge date for this format
+        if (!date) {
+            const dateRes = await db.execute({
+                sql: `SELECT MAX(event_date) as last_date 
+                      FROM decks 
+                      WHERE format = ? 
+                      AND event_name LIKE '%Challenge%'`,
+                args: [format]
+            });
+            if (dateRes.rows.length > 0 && dateRes.rows[0].last_date) {
+                date = dateRes.rows[0].last_date;
+            } else {
+                return res.json({ date: null, decks: [] });
+            }
+        }
+
+        // Fetch Top 4 decks for that specific date and format
+        const query = `
+            SELECT d.id, d.player_name, d.event_name, d.event_date, d.rank, d.raw_decklist, d.sideboard,
+                   a.name as archetype
+            FROM decks d
+            JOIN archetypes a ON d.archetype_id = a.id
+            WHERE d.format = ? 
+            AND d.event_name LIKE '%Challenge%'
+            AND d.event_date LIKE ?
+            AND d.rank <= 4
+            ORDER BY d.rank ASC
+        `;
+
+        // Create fuzzy date matcher (date part only)
+        const datePart = new Date(date).toISOString().split('T')[0];
+
+        const result = await db.execute({
+            sql: query,
+            args: [format, `${datePart}%`]
+        });
+
+        // Basic card parsing for the UI to use
+        const decks = result.rows.map(d => {
+            const main = d.raw_decklist ? d.raw_decklist.split('\n').length : 0;
+            return {
+                ...d,
+                card_count: main
+            };
+        });
+
+        res.json({ date: datePart, decks });
+
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // Get Available Events
 app.get('/api/events', async (req, res) => {
     let { format, days } = req.query;

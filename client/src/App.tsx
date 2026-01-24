@@ -15,6 +15,7 @@ import { Gameplay } from './components/Gameplay/Gameplay'
 import { fetchMeta } from './services/api'
 import type { MetaData } from './services/api'
 import { CardLookup } from './components/CardLookup/CardLookup'
+import { ChallengeView } from './components/Challenges/ChallengeView'
 
 function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('spyglass_token'));
@@ -23,7 +24,7 @@ function App() {
   const isAdminPath = window.location.pathname === '/admin' || window.location.pathname === '/admin/';
   const isAdminDomain = window.location.hostname === 'mtgo-scraper-client-new.vercel.app' || window.location.hostname === 'localhost';
 
-  const [activeTab, setActiveTab] = useState<'meta' | 'analytics' | 'gameplay' | 'admin' | 'cards'>(
+  const [activeTab, setActiveTab] = useState<'meta' | 'analytics' | 'gameplay' | 'admin' | 'cards' | 'challenges'>(
     (isAdminPath && isAdminDomain) ? 'admin' : 'meta'
   );
   const [showLogin, setShowLogin] = useState(isAdminPath && isAdminDomain);
@@ -246,6 +247,16 @@ function App() {
             Card Lookup
           </button>
           <button
+            className={activeTab === 'challenges' ? 'active' : ''}
+            onClick={() => {
+              setActiveTab('challenges');
+              setSelectedArchetype(null);
+              setSelectedDeckId(null);
+            }}
+          >
+            Daily Challenge Results
+          </button>
+          <button
             className={activeTab === 'analytics' ? 'active' : ''}
             onClick={() => setActiveTab('analytics')}
           >
@@ -280,6 +291,8 @@ function App() {
           </div>
         ) : activeTab === 'cards' ? (
           <CardLookup />
+        ) : activeTab === 'challenges' ? (
+          <ChallengeView />
         ) : (
           <Gameplay initialPlayerName={initialSearch} />
         )}

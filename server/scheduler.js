@@ -1,8 +1,8 @@
 const { runRemoteNormalization } = require('./remote_normalize');
 const { scrapeGoldfishEvents } = require('./services/goldfishScraper');
 
-// Interval: 6 Hours (in milliseconds)
-const INTERVAL_MS = 6 * 60 * 60 * 1000;
+// Interval: 3 Hours (in milliseconds)
+const INTERVAL_MS = 3 * 60 * 60 * 1000;
 
 async function startScheduler() {
     console.log(`[Scheduler] Starting... Normalization job scheduled every 6 hours.`);

@@ -1,0 +1,105 @@
+import React, { useEffect, useState } from 'react';
+import { fetchChallengeResults } from '../../services/api';
+import type { ChallengeResult, DeckDetail } from '../../services/api';
+import './ChallengeView.css';
+
+export const ChallengeView: React.FC = () => {
+    const [format, setFormat] = useState('Standard');
+    const [date, setDate] = useState<string>('');
+    const [data, setData] = useState<ChallengeResult | null>(null);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        setLoading(true);
+        fetchChallengeResults(format, date)
+            .then(res => {
+                setData(res);
+                if (res.date) setDate(res.date); // Update date if we fetched latest
+            })
+            .catch(console.error)
+            .finally(() => setLoading(false));
+    }, [format, date]); // If date is empty, API finds latest.
+
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setDate(e.target.value);
+    };
+
+    return (
+        <div className="challenge-view">
+            <div className="challenge-controls">
+                <select value={format} onChange={(e) => setFormat(e.target.value)} className="format-select">
+                    <option value="Standard">Standard</option>
+                    <option value="Pioneer">Pioneer</option>
+                    <option value="Modern">Modern</option>
+                    <option value="Legacy">Legacy</option>
+                    <option value="Vintage">Vintage</option>
+                    <option value="Pauper">Pauper</option>
+                </select>
+                <input
+                    type="date"
+                    value={date}
+                    onChange={handleDateChange}
+                    className="date-select"
+                    max={new Date().toISOString().split('T')[0]}
+                />
+            </div>
+
+            {loading ? (
+                <div className="loading-state">Fetching Challenge Results...</div>
+            ) : !data || data.decks.length === 0 ? (
+                <div className="empty-state">No challenge results found for this date.</div>
+            ) : (
+                <div className="results-container">
+                    <h2 className="results-header">Top 4 - {data.date} ({format})</h2>
+                    <div className="top-decks-grid">
+                        {data.decks.map((deck) => (
+                            <DeckCardGrid key={deck.id} deck={deck} />
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+const DeckCardGrid: React.FC<{ deck: DeckDetail }> = ({ deck }) => {
+    // We want to show a nice grid of cards. 
+    // Logic: Take unique non-land cards, sorted by cost or just name.
+    // Limit to top 15-20 distinct cards to fit the graphic.
+    const displayCards = deck.cards
+        .filter(c => !['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'].includes(c.name))
+        .slice(0, 20);
+
+    return (
+        <div className="deck-graphic-card">
+            <div className="deck-header">
+                <div className="rank-badge">#{deck.rank}</div>
+                <div className="deck-info">
+                    <h3 className="player-name">{deck.player_name}</h3>
+                    <span className="archetype-name">{deck.archetype || 'Unknown Archetype'}</span>
+                </div>
+                <a
+                    href={deck.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="view-btn"
+                >
+                    View
+                </a>
+            </div>
+            <div className="visual-grid">
+                {displayCards.map((card, idx) => (
+                    <div key={idx} className="card-item">
+                        <img
+                            src={`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card.name)}&format=image`}
+                            alt={card.name}
+                            loading="lazy"
+                            className="card-img"
+                        />
+                        <span className="card-qty-badge">{card.count}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};

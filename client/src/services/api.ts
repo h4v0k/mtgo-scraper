@@ -29,6 +29,8 @@ export interface DeckDetail {
     sideboard?: Card[];
     spice_cards?: string[];
     source_url?: string;
+    rank?: number;
+    archetype?: string;
 }
 
 export interface MetaData {
@@ -374,4 +376,47 @@ export async function fetchDecksByCard(cardName: string, format: string, days: s
 
     if (!response.ok) throw new Error('Failed to fetch decks by card');
     return response.json();
+}
+
+export interface ChallengeResult {
+    date: string;
+    decks: DeckDetail[];
+}
+
+export async function fetchChallengeResults(format: string, date?: string): Promise<ChallengeResult> {
+    const params = new URLSearchParams({ format });
+    if (date) params.append('date', date);
+
+    const token = getToken();
+    const response = await fetch(`${API_URL}/challenges?${params}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch challenge results');
+
+    // We need to parse the decks similar to fetchDeck to be usable in views
+    const data = await response.json();
+    if (data.decks) {
+        data.decks = data.decks.map((d: any) => {
+            // Re-use logic or simple parse
+            const parse = (list: string) => {
+                if (!list) return [];
+                return list.split('\n')
+                    .map(l => l.trim())
+                    .filter(l => l)
+                    .map(l => {
+                        const parts = l.split(' ');
+                        const count = parseInt(parts[0]);
+                        const name = parts.slice(1).join(' ');
+                        return { count: isNaN(count) ? 0 : count, name, isSpice: false, frequency: 0 };
+                    });
+            };
+            return {
+                ...d,
+                cards: parse(d.raw_decklist),
+                sideboard: parse(d.sideboard)
+            };
+        });
+    }
+    return data;
 }
