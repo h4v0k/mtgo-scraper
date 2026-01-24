@@ -90,13 +90,6 @@ const DeckCardGrid: React.FC<{ deck: DeckDetail; onView: () => void }> = ({ deck
     const sideNonLands = (deck.sideboard || [])
         .filter(c => !['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'].includes(c.name));
 
-    // Limit to 20 cards total. 
-    // Take Top 16 from main, 4 from side if possible.
-    const displayCards = [
-        ...mainNonLands.slice(0, 16),
-        ...sideNonLands.slice(0, 4)
-    ];
-
     return (
         <div className="deck-graphic-card">
             <div className="deck-header">
@@ -111,7 +104,6 @@ const DeckCardGrid: React.FC<{ deck: DeckDetail; onView: () => void }> = ({ deck
                         onView();
                     }}
                     className="view-btn"
-                    style={{ cursor: 'pointer', border: 'none', fontSize: '1rem' }}
                 >
                     View
                 </button>
