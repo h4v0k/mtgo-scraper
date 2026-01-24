@@ -3,6 +3,9 @@
     max-width: 1400px;
     margin: 0 auto;
     color: var(--text-primary);
+    box-sizing: border-box;
+    overflow-x: hidden;
+    /* Prevent global scroll */
 }
 
 .lookup-header {
@@ -27,6 +30,8 @@
     border: 1px solid var(--border-color);
     margin-bottom: 3rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    max-width: 100%;
 }
 
 .search-main-row {
@@ -172,6 +177,8 @@
     border: 1px solid var(--border-color);
     padding: 1.5rem;
     min-height: 400px;
+    box-sizing: border-box;
+    max-width: 100%;
 }
 
 .results-header {
