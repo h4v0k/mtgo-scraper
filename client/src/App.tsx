@@ -308,7 +308,8 @@ function App() {
           </p>
         </footer>
       </div>
-      )
+    </>
+  )
 }
 
-      export default App
+export default App
