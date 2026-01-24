@@ -7,6 +7,9 @@
     /* Gold Border */
     margin-top: 24px;
     color: var(--color-text-main);
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 .controls {
@@ -24,6 +27,8 @@
     border-radius: 8px;
     border: 1px solid var(--color-primary-dim);
     padding: 40px 40px 60px 60px;
+    box-sizing: border-box;
+    overflow-x: auto;
 }
 
 /* Axis Labels */
@@ -137,6 +142,9 @@
     border-collapse: collapse;
     margin-top: 16px;
     font-family: var(--font-family-base);
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
 }
 
 .matrix-table th {

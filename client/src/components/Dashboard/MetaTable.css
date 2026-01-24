@@ -2,6 +2,8 @@
     /* Inherits .card styles from React component */
     overflow: hidden;
     /* For rounded corners on table */
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .meta-table-header-actions {
@@ -143,6 +145,9 @@
         -webkit-overflow-scrolling: touch;
         margin: 0;
         width: 100%;
+        box-sizing: border-box;
+        padding-bottom: 5px;
+        /* Scrollbar space */
     }
 
     .meta-table th,
