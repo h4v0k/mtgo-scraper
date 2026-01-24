@@ -676,26 +676,45 @@ app.get('/api/challenges', async (req, res) => {
             args: [format, `${datePart}%`]
         });
 
-        // Group by Event Name
+        // Group by Event Name + Date to handle multiple runs (e.g. AM/PM)
         const eventsMap = {};
 
         result.rows.forEach(d => {
-            if (!eventsMap[d.event_name]) {
-                eventsMap[d.event_name] = [];
+            // Create a unique key for grouping
+            const uniqueKey = `${d.event_name}_${d.event_date}`;
+
+            if (!eventsMap[uniqueKey]) {
+                // Determine if we need to add a time label
+                // For now, let's just properly format the Time being appended
+                const dateObj = new Date(d.event_date);
+                const hours = dateObj.getUTCHours();
+                const timeLabel = hours < 12 ? 'Morning' : 'Evening';
+
+                // User asked for "Morning" / "Evening".
+                // We'll append the UTC time to be precise as well: " (12:00 UTC)"
+                const timeStr = `${hours.toString().padStart(2, '0')}:00 UTC`;
+
+                eventsMap[uniqueKey] = {
+                    name: `${d.event_name} (${timeStr})`,
+                    raw_date: d.event_date,
+                    decks: []
+                };
             }
 
             const main = d.raw_decklist ? d.raw_decklist.split('\n').length : 0;
-            eventsMap[d.event_name].push({
+            eventsMap[uniqueKey].decks.push({
                 ...d,
                 card_count: main
             });
         });
 
-        // Convert to array
-        const events = Object.keys(eventsMap).map(name => ({
-            event_name: name,
-            decks: eventsMap[name]
-        }));
+        // Convert to array and Sort by Date (descending or ascending)
+        const events = Object.values(eventsMap)
+            .sort((a, b) => new Date(a.raw_date).getTime() - new Date(b.raw_date).getTime())
+            .map(group => ({
+                event_name: group.name,
+                decks: group.decks
+            }));
 
         res.json({ date: datePart, events });
 
