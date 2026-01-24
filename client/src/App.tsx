@@ -16,6 +16,9 @@ import { fetchMeta } from './services/api'
 import type { MetaData } from './services/api'
 import { CardLookup } from './components/CardLookup/CardLookup'
 import { ChallengeView } from './components/Challenges/ChallengeView'
+import { MaintenanceBanner } from './components/MaintenanceBanner'
+
+const MAINTENANCE_MODE = true;
 
 function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('spyglass_token'));
@@ -199,111 +202,113 @@ function App() {
   }
 
   return (
-    <div className="app-container">
-      {/* Donation Banner - Fixed Top */}
-      <div className="donation-banner" style={{
-        backgroundColor: '#1f1f1f',
-        color: '#e0e0e0',
-        textAlign: 'center',
-        padding: '0.6rem',
-        fontSize: '0.9rem',
-        borderBottom: '1px solid #333',
-        width: '100%',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}>
-        This project is self-funded. If you enjoy the application, <a href="https://paypal.me/mpr0317" target="_blank" rel="noopener noreferrer" style={{ color: '#88aaff', textDecoration: 'underline', fontWeight: 'bold' }}>feel free to donate</a>.
-      </div>
-
-      <header className="app-header">
-        <div className="logo-container">
-          <img src={logo} alt="Havok's Spyglass" className="banner-img" />
+    <>
+      {MAINTENANCE_MODE && <MaintenanceBanner />}
+      <div className="app-container">
+        {/* Donation Banner - Fixed Top */}
+        <div className="donation-banner" style={{
+          backgroundColor: '#1f1f1f',
+          color: '#e0e0e0',
+          textAlign: 'center',
+          padding: '0.6rem',
+          fontSize: '0.9rem',
+          borderBottom: '1px solid #333',
+          width: '100%',
+          boxSizing: 'border-box',
+          display: 'block'
+        }}>
+          This project is self-funded. If you enjoy the application, <a href="https://paypal.me/mpr0317" target="_blank" rel="noopener noreferrer" style={{ color: '#88aaff', textDecoration: 'underline', fontWeight: 'bold' }}>feel free to donate</a>.
         </div>
-        <nav className="main-nav">
-          <button
-            className={activeTab === 'meta' ? 'active' : ''}
-            onClick={() => {
-              setActiveTab('meta');
-              setSelectedArchetype(null);
-              setSelectedDeckId(null);
-            }}
-          >
-            Meta Analysis
-          </button>
-          <button
-            className={activeTab === 'gameplay' ? 'active' : ''}
-            onClick={() => setActiveTab('gameplay')}
-          >
-            Player Lookup
-          </button>
-          <button
-            className={activeTab === 'cards' ? 'active' : ''}
-            onClick={() => {
-              setActiveTab('cards');
-              setSelectedArchetype(null);
-              setSelectedDeckId(null);
-            }}
-          >
-            Card Lookup
-          </button>
-          <button
-            className={activeTab === 'challenges' ? 'active' : ''}
-            onClick={() => {
-              setActiveTab('challenges');
-              setSelectedArchetype(null);
-              setSelectedDeckId(null);
-            }}
-          >
-            Daily Challenge Results
-          </button>
-          <button
-            className={activeTab === 'analytics' ? 'active' : ''}
-            onClick={() => setActiveTab('analytics')}
-          >
-            Advanced Analytics
-          </button>
-          {username === 'havok' && token && isAdminDomain && isAdminPath && (
-            <button
-              className={activeTab === 'admin' ? 'active' : ''}
-              onClick={() => setActiveTab('admin')}
-            >
-              Admin
-            </button>
-          )}
-          {token && (
-            <button onClick={handleLogout} className="logout-btn">
-              Logout ({username})
-            </button>
-          )}
-        </nav>
-      </header>
 
-      <main className="content-area">
-        {activeTab === 'meta' ? (
-          <div className="dashboard-view">
-            {renderDashboardContent()}
+        <header className="app-header">
+          <div className="logo-container">
+            <img src={logo} alt="Havok's Spyglass" className="banner-img" />
           </div>
-        ) : activeTab === 'admin' ? (
-          <AdminPanel />
-        ) : activeTab === 'analytics' ? (
-          <div className="analytics-view">
-            <ConversionMatrix />
-          </div>
-        ) : activeTab === 'cards' ? (
-          <CardLookup />
-        ) : activeTab === 'challenges' ? (
-          <ChallengeView />
-        ) : (
-          <Gameplay initialPlayerName={initialSearch} />
-        )}
-      </main>
-      <footer className="app-footer">
-        <p>
-          For questions/comments/concerns, feature requests or feedback, contact me at <a href="mailto:reignofhavok@proton.me">reignofhavok@proton.me</a>
-        </p>
-      </footer>
-    </div>
-  )
+          <nav className="main-nav">
+            <button
+              className={activeTab === 'meta' ? 'active' : ''}
+              onClick={() => {
+                setActiveTab('meta');
+                setSelectedArchetype(null);
+                setSelectedDeckId(null);
+              }}
+            >
+              Meta Analysis
+            </button>
+            <button
+              className={activeTab === 'gameplay' ? 'active' : ''}
+              onClick={() => setActiveTab('gameplay')}
+            >
+              Player Lookup
+            </button>
+            <button
+              className={activeTab === 'cards' ? 'active' : ''}
+              onClick={() => {
+                setActiveTab('cards');
+                setSelectedArchetype(null);
+                setSelectedDeckId(null);
+              }}
+            >
+              Card Lookup
+            </button>
+            <button
+              className={activeTab === 'challenges' ? 'active' : ''}
+              onClick={() => {
+                setActiveTab('challenges');
+                setSelectedArchetype(null);
+                setSelectedDeckId(null);
+              }}
+            >
+              Daily Challenge Results
+            </button>
+            <button
+              className={activeTab === 'analytics' ? 'active' : ''}
+              onClick={() => setActiveTab('analytics')}
+            >
+              Advanced Analytics
+            </button>
+            {username === 'havok' && token && isAdminDomain && isAdminPath && (
+              <button
+                className={activeTab === 'admin' ? 'active' : ''}
+                onClick={() => setActiveTab('admin')}
+              >
+                Admin
+              </button>
+            )}
+            {token && (
+              <button onClick={handleLogout} className="logout-btn">
+                Logout ({username})
+              </button>
+            )}
+          </nav>
+        </header>
+
+        <main className="content-area">
+          {activeTab === 'meta' ? (
+            <div className="dashboard-view">
+              {renderDashboardContent()}
+            </div>
+          ) : activeTab === 'admin' ? (
+            <AdminPanel />
+          ) : activeTab === 'analytics' ? (
+            <div className="analytics-view">
+              <ConversionMatrix />
+            </div>
+          ) : activeTab === 'cards' ? (
+            <CardLookup />
+          ) : activeTab === 'challenges' ? (
+            <ChallengeView />
+          ) : (
+            <Gameplay initialPlayerName={initialSearch} />
+          )}
+        </main>
+        <footer className="app-footer">
+          <p>
+            For questions/comments/concerns, feature requests or feedback, contact me at <a href="mailto:reignofhavok@proton.me">reignofhavok@proton.me</a>
+          </p>
+        </footer>
+      </div>
+      )
 }
 
-export default App
+      export default App
