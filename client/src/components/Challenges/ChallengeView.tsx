@@ -84,12 +84,18 @@ export const ChallengeView: React.FC = () => {
 
 const DeckCardGrid: React.FC<{ deck: DeckDetail; onView: () => void }> = ({ deck, onView }) => {
     // We want to show a nice grid of cards. 
-    // Logic: Take unique non-land cards from main and side
-    const nonLands = (deck.cards || []).concat(deck.sideboard || [])
-        .filter(c => !['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'].includes(c.name))
+    const mainNonLands = (deck.cards || [])
+        .filter(c => !['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'].includes(c.name));
 
-    // Limit to top 20 distinct cards to fit the graphic.
-    const displayCards = nonLands.slice(0, 20);
+    const sideNonLands = (deck.sideboard || [])
+        .filter(c => !['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'].includes(c.name));
+
+    // Limit to 20 cards total. 
+    // Take Top 16 from main, 4 from side if possible.
+    const displayCards = [
+        ...mainNonLands.slice(0, 16),
+        ...sideNonLands.slice(0, 4)
+    ];
 
     return (
         <div className="deck-graphic-card">
