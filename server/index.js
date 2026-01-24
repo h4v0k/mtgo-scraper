@@ -683,26 +683,39 @@ app.get('/api/challenges', async (req, res) => {
             args: [format, `${datePart}%`]
         });
 
+        // Parser helper
+        const parseList = (list) => {
+            if (!list) return [];
+            return list.split('\n').map(line => {
+                const parts = line.trim().split(' ');
+                const count = parseInt(parts[0]);
+                if (isNaN(count)) return null;
+                return { count, name: parts.slice(1).join(' ') };
+            }).filter(Boolean);
+        };
+
+        const processedDecks = result.rows.map(d => ({
+            ...d,
+            cards: parseList(d.raw_decklist),
+            sideboard: parseList(d.sideboard)
+        }));
+
         // Group by Event Name + Date to handle multiple runs
         const eventsMap = {};
 
-        result.rows.forEach(d => {
-            // Normalize Date object to handle mixed formats (e.g. "2026-01-22" vs "2026-01-22T00:00:00.000Z")
-            // Append 'T00:00:00Z' if it's just a date string to ensure it parses as UTC
+        processedDecks.forEach(d => {
             let dateStr = d.event_date;
             if (dateStr.length === 10) dateStr += 'T00:00:00Z';
-
             const dateObj = new Date(dateStr);
-            const isoKey = dateObj.toISOString(); // Standardized key (e.g. 2026-01-22T00:00:00.000Z)
+            const isoKey = dateObj.toISOString();
 
-            const uniqueKey = `${d.event_name}_${isoKey}`;
+            // DEDUP LOGIC: Use a "Content Hash" based on Top 4 players
+            // If another event on the same day has the same players in the same ranks, it's a dupe.
+            // But simpler for now: Group by (Stripped Name + Date)
+            const strippedName = d.event_name.replace(/\s?\(\d+\)$/, '').replace(/\s?\(Run\s\d+\)$/i, '').trim();
+            const uniqueKey = `${strippedName}_${isoKey}`;
 
             if (!eventsMap[uniqueKey]) {
-                // Convert to EST (UTC-5 for Jan / Standard Time)
-                // We'll use a simple offset adjust for now or Intl if available
-                // To be safe and simple without external libs:
-
-                // Create a formatter for EST (America/New_York)
                 const options = {
                     timeZone: 'America/New_York',
                     hour: 'numeric',
@@ -713,21 +726,25 @@ app.get('/api/challenges', async (req, res) => {
                 };
                 const estTimeStr = new Intl.DateTimeFormat('en-US', options).format(dateObj);
 
-                // Strip trailing (1), (2), etc. for group display but keep events distinct in map
-                const displayName = d.event_name.replace(/\s?\(\d+\)$/, '');
-
                 eventsMap[uniqueKey] = {
-                    name: `${displayName} (${estTimeStr} EST)`,
+                    name: `${strippedName} (${estTimeStr} EST)`,
                     raw_date: isoKey,
                     decks: []
                 };
             }
 
-            const main = d.raw_decklist ? d.raw_decklist.split('\n').length : 0;
-            eventsMap[uniqueKey].decks.push({
-                ...d,
-                card_count: main
-            });
+            // Internal Dedup: Don't add if player + rank already in this event's Top 4!
+            // This catches MTGGoldfish duplicate entries with different URLs but same content.
+            const isDuplicateDeck = eventsMap[uniqueKey].decks.some(existing =>
+                existing.player_name === d.player_name && existing.rank === d.rank
+            );
+
+            if (!isDuplicateDeck) {
+                eventsMap[uniqueKey].decks.push({
+                    ...d,
+                    card_count: d.cards.reduce((sum, c) => sum + c.count, 0)
+                });
+            }
         });
 
         // Convert to array and Sort by Date
