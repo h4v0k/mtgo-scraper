@@ -696,7 +696,12 @@ app.get('/api/challenges', async (req, res) => {
         `;
 
         // Create fuzzy date matcher (date part only)
-        const datePart = new Date(date).toISOString().split('T')[0];
+        let datePart = date;
+        if (date.includes('T')) {
+            datePart = date.split('T')[0];
+        } else if (date.length > 10) {
+            datePart = date.substring(0, 10);
+        }
 
         const result = await db.execute({
             sql: query,
