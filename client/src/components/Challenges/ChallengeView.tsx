@@ -116,18 +116,40 @@ const DeckCardGrid: React.FC<{ deck: DeckDetail; onView: () => void }> = ({ deck
                     View
                 </button>
             </div>
-            <div className="visual-grid">
-                {displayCards.length > 0 ? displayCards.map((card, idx) => (
-                    <div key={idx} className="card-item">
-                        <img
-                            src={`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card.name)}&format=image`}
-                            alt={card.name}
-                            loading="lazy"
-                            className="card-img"
-                        />
-                        <span className="card-qty-badge">{card.count}</span>
+            <div className="visual-sections">
+                <div className="grid-section">
+                    <div className="section-label">Mainboard</div>
+                    <div className="visual-grid">
+                        {mainNonLands.map((card, idx) => (
+                            <div key={idx} className="card-item">
+                                <img
+                                    src={`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card.name)}&format=image&version=small`}
+                                    alt={card.name}
+                                    className="card-img"
+                                />
+                                <span className="card-qty-badge">{card.count}</span>
+                            </div>
+                        ))}
                     </div>
-                )) : <div className="no-cards">No cards found</div>}
+                </div>
+
+                {sideNonLands.length > 0 && (
+                    <div className="grid-section sideboard-section">
+                        <div className="section-label">Sideboard</div>
+                        <div className="visual-grid">
+                            {sideNonLands.map((card, idx) => (
+                                <div key={idx} className="card-item sideboard-item">
+                                    <img
+                                        src={`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card.name)}&format=image&version=small`}
+                                        alt={card.name}
+                                        className="card-img"
+                                    />
+                                    <span className="card-qty-badge side-badge">{card.count}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

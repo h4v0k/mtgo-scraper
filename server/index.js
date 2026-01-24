@@ -320,14 +320,28 @@ app.get('/api/meta', async (req, res) => {
         cutoffStr = cutoffDate.toISOString();
     }
 
-    const rankFilter = (top8 === 'true') ? "AND rank <= 8 AND event_name NOT LIKE '%League%'" : '';
-
     // Updated Event Filter: If "Standard Challenge 32" is selected, match "Standard Challenge 32 (1)", etc.
     let eventFilter = '';
     const eventParams = [];
     if (eventList && eventList.length > 0) {
-        eventFilter = `AND (${eventList.map(() => `event_name LIKE ?`).join(' OR ')})`;
-        eventList.forEach(e => eventParams.push(`${e}%`)); // Match base name and variations
+        eventFilter = `AND (${eventList.map(e => {
+            if (e === 'LCQ') {
+                return `event_name LIKE '%LCQ%'`;
+            }
+            return `event_name LIKE ?`;
+        }).join(' OR ')})`;
+
+        eventList.forEach(e => {
+            if (e !== 'LCQ') {
+                eventParams.push(`${e}%`);
+            }
+        });
+    }
+
+    // Strict Rank Filter: Top 8 should EXCLUDE LCQs and Leagues
+    let rankFilter = '';
+    if (top8 === 'true') {
+        rankFilter = "AND rank <= 8 AND event_name NOT LIKE '%League%' AND event_name NOT LIKE '%LCQ%'";
     }
 
     let query = `
@@ -400,12 +414,18 @@ app.get('/api/meta/archetype/:name', async (req, res) => {
     const params = [name, format, cutoffStr];
 
     if (top8 === 'true') {
-        query += ` AND d.rank <= 8 AND d.event_name NOT LIKE '%League%'`;
+        query += ` AND d.rank <= 8 AND d.event_name NOT LIKE '%League%' AND d.event_name NOT LIKE '%LCQ%'`;
     }
 
     if (eventList && eventList.length > 0) {
-        query += ` AND (${eventList.map(() => `d.event_name LIKE ?`).join(' OR ')})`;
-        eventList.forEach(e => params.push(`${e}%`));
+        query += ` AND (${eventList.map(e => {
+            if (e === 'LCQ') return `d.event_name LIKE '%LCQ%'`;
+            return `d.event_name LIKE ?`;
+        }).join(' OR ')})`;
+
+        eventList.forEach(e => {
+            if (e !== 'LCQ') params.push(`${e}%`);
+        });
     }
 
     query += ` ORDER BY d.event_date DESC`;
@@ -795,16 +815,20 @@ app.get('/api/events', async (req, res) => {
             args: [format, cutoffStr]
         });
 
-        // Clean names: "Standard Challenge 32 (1)" -> "Standard Challenge 32"
-        // Also handling cases like "Standard Challenge 32 (Run 1)" or similar
+        // Multi-stage cleaning:
+        // 1. Map all LCQs to "LCQ"
+        // 2. Strip suffixes like (1), (2), (Run 1)
         const names = result.rows.map(e => {
-            return e.event_name
+            const name = e.event_name;
+            if (name.toUpperCase().includes('LCQ')) return 'LCQ';
+
+            return name
                 .replace(/\s?\(\d+\)$/, '')
                 .replace(/\s?\(Run\s\d+\)$/i, '')
                 .trim();
         });
         // Unique only
-        res.json([...new Set(names)]);
+        res.json([...new Set(names)].sort());
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
