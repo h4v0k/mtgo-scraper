@@ -690,12 +690,12 @@ app.get('/api/challenges', async (req, res) => {
             JOIN archetypes a ON d.archetype_id = a.id
             WHERE d.format = ? 
             AND d.event_name LIKE '%Challenge%'
-            AND d.event_date LIKE ?
+            AND d.event_date = ?
             AND d.rank <= 4
             ORDER BY d.event_name DESC, d.rank ASC
         `;
 
-        // Create fuzzy date matcher (date part only)
+        // Extract date part only (dates are now stored as YYYY-MM-DD)
         let datePart = date;
         if (date.includes('T')) {
             datePart = date.split('T')[0];
@@ -705,7 +705,7 @@ app.get('/api/challenges', async (req, res) => {
 
         const result = await db.execute({
             sql: query,
-            args: [format, `${datePart}%`]
+            args: [format, datePart]
         });
 
         // Parser helper
