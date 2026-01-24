@@ -655,7 +655,7 @@ app.get('/api/challenges', async (req, res) => {
             }
         }
 
-        // Fetch Top 4 decks for that specific date and format
+        // Fetch Top 4 decks for that specific date and format, ordered by event name then rank
         const query = `
             SELECT d.id, d.player_name, d.event_name, d.event_date, d.rank, d.raw_decklist, d.sideboard,
                    a.name as archetype
@@ -665,7 +665,7 @@ app.get('/api/challenges', async (req, res) => {
             AND d.event_name LIKE '%Challenge%'
             AND d.event_date LIKE ?
             AND d.rank <= 4
-            ORDER BY d.rank ASC
+            ORDER BY d.event_name DESC, d.rank ASC
         `;
 
         // Create fuzzy date matcher (date part only)
@@ -676,16 +676,28 @@ app.get('/api/challenges', async (req, res) => {
             args: [format, `${datePart}%`]
         });
 
-        // Basic card parsing for the UI to use
-        const decks = result.rows.map(d => {
+        // Group by Event Name
+        const eventsMap = {};
+
+        result.rows.forEach(d => {
+            if (!eventsMap[d.event_name]) {
+                eventsMap[d.event_name] = [];
+            }
+
             const main = d.raw_decklist ? d.raw_decklist.split('\n').length : 0;
-            return {
+            eventsMap[d.event_name].push({
                 ...d,
                 card_count: main
-            };
+            });
         });
 
-        res.json({ date: datePart, decks });
+        // Convert to array
+        const events = Object.keys(eventsMap).map(name => ({
+            event_name: name,
+            decks: eventsMap[name]
+        }));
+
+        res.json({ date: datePart, events });
 
     } catch (e) {
         console.error(e);

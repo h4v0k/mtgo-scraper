@@ -46,16 +46,24 @@ export const ChallengeView: React.FC = () => {
 
             {loading ? (
                 <div className="loading-state">Fetching Challenge Results...</div>
-            ) : !data || data.decks.length === 0 ? (
+            ) : !data || !data.events || data.events.length === 0 ? (
                 <div className="empty-state">No challenge results found for this date.</div>
             ) : (
                 <div className="results-container">
                     <h2 className="results-header">Top 4 - {data.date} ({format})</h2>
-                    <div className="top-decks-grid">
-                        {data.decks.map((deck) => (
-                            <DeckCardGrid key={deck.id} deck={deck} />
-                        ))}
-                    </div>
+
+                    {data.events.map((event, idx) => (
+                        <div key={idx} className="event-section" style={{ marginBottom: '3rem' }}>
+                            <h3 className="event-subheader" style={{ color: '#88aaff', borderBottom: '1px solid #444', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
+                                {event.event_name}
+                            </h3>
+                            <div className="top-decks-grid">
+                                {event.decks.map((deck) => (
+                                    <DeckCardGrid key={deck.id} deck={deck} />
+                                ))}
+                            </div>
+                        </div>
+                    ))}
                 </div>
             )}
         </div>

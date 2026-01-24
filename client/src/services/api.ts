@@ -378,9 +378,14 @@ export async function fetchDecksByCard(cardName: string, format: string, days: s
     return response.json();
 }
 
+export interface ChallengeEvent {
+    event_name: string;
+    decks: DeckDetail[];
+}
+
 export interface ChallengeResult {
     date: string;
-    decks: DeckDetail[];
+    events: ChallengeEvent[];
 }
 
 export async function fetchChallengeResults(format: string, date?: string): Promise<ChallengeResult> {
@@ -396,26 +401,30 @@ export async function fetchChallengeResults(format: string, date?: string): Prom
 
     // We need to parse the decks similar to fetchDeck to be usable in views
     const data = await response.json();
-    if (data.decks) {
-        data.decks = data.decks.map((d: any) => {
-            // Re-use logic or simple parse
-            const parse = (list: string) => {
-                if (!list) return [];
-                return list.split('\n')
-                    .map(l => l.trim())
-                    .filter(l => l)
-                    .map(l => {
-                        const parts = l.split(' ');
-                        const count = parseInt(parts[0]);
-                        const name = parts.slice(1).join(' ');
-                        return { count: isNaN(count) ? 0 : count, name, isSpice: false, frequency: 0 };
-                    });
-            };
-            return {
-                ...d,
-                cards: parse(d.raw_decklist),
-                sideboard: parse(d.sideboard)
-            };
+    if (data.events) {
+        data.events.forEach((evt: any) => {
+            if (evt.decks) {
+                evt.decks = evt.decks.map((d: any) => {
+                    // Re-use logic or simple parse
+                    const parse = (list: string) => {
+                        if (!list) return [];
+                        return list.split('\n')
+                            .map(l => l.trim())
+                            .filter(l => l)
+                            .map(l => {
+                                const parts = l.split(' ');
+                                const count = parseInt(parts[0]);
+                                const name = parts.slice(1).join(' ');
+                                return { count: isNaN(count) ? 0 : count, name, isSpice: false, frequency: 0 };
+                            });
+                    };
+                    return {
+                        ...d,
+                        cards: parse(d.raw_decklist),
+                        sideboard: parse(d.sideboard)
+                    };
+                });
+            }
         });
     }
     return data;
