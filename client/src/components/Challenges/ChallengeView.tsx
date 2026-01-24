@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchChallengeResults } from '../../services/api';
 import type { ChallengeResult, DeckDetail } from '../../services/api';
+import { DeckView } from '../Dashboard/DeckView';
 import './ChallengeView.css';
 
 export const ChallengeView: React.FC = () => {
@@ -8,6 +9,7 @@ export const ChallengeView: React.FC = () => {
     const [date, setDate] = useState<string>('');
     const [data, setData] = useState<ChallengeResult | null>(null);
     const [loading, setLoading] = useState(false);
+    const [selectedDeckId, setSelectedDeckId] = useState<number | null>(null);
 
     useEffect(() => {
         setLoading(true);
@@ -23,6 +25,16 @@ export const ChallengeView: React.FC = () => {
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setDate(e.target.value);
     };
+
+    if (selectedDeckId !== null) {
+        return (
+            <DeckView
+                deckId={selectedDeckId}
+                onBack={() => setSelectedDeckId(null)}
+                onPlayerSearch={(name) => console.log("Player search from challenge not implemented yet", name)}
+            />
+        );
+    }
 
     return (
         <div className="challenge-view">
@@ -59,7 +71,7 @@ export const ChallengeView: React.FC = () => {
                             </h3>
                             <div className="top-decks-grid">
                                 {event.decks.map((deck) => (
-                                    <DeckCardGrid key={deck.id} deck={deck} />
+                                    <DeckCardGrid key={deck.id} deck={deck} onView={() => setSelectedDeckId(deck.id)} />
                                 ))}
                             </div>
                         </div>
@@ -70,7 +82,7 @@ export const ChallengeView: React.FC = () => {
     );
 };
 
-const DeckCardGrid: React.FC<{ deck: DeckDetail }> = ({ deck }) => {
+const DeckCardGrid: React.FC<{ deck: DeckDetail; onView: () => void }> = ({ deck, onView }) => {
     // We want to show a nice grid of cards. 
     // Logic: Take unique non-land cards, sorted by cost or just name.
     // Limit to top 15-20 distinct cards to fit the graphic.
@@ -86,14 +98,16 @@ const DeckCardGrid: React.FC<{ deck: DeckDetail }> = ({ deck }) => {
                     <h3 className="player-name">{deck.player_name}</h3>
                     <span className="archetype-name">{deck.archetype || 'Unknown Archetype'}</span>
                 </div>
-                <a
-                    href={deck.source_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                <button
+                    onClick={(e) => {
+                        e.preventDefault();
+                        onView();
+                    }}
                     className="view-btn"
+                    style={{ cursor: 'pointer', border: 'none', fontSize: '1rem' }}
                 >
                     View
-                </a>
+                </button>
             </div>
             <div className="visual-grid">
                 {displayCards.map((card, idx) => (
