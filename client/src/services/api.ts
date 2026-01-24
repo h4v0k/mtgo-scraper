@@ -405,9 +405,14 @@ export async function fetchChallengeResults(format: string, date?: string): Prom
         data.events.forEach((evt: any) => {
             if (evt.decks) {
                 evt.decks = evt.decks.map((d: any) => {
-                    // Re-use logic or simple parse
-                    const parse = (list: string) => {
+                    // Defensive Parse: If backend already parsed it, use it.
+                    if (Array.isArray(d.cards) && d.cards.length > 0) return d;
+
+                    const parse = (list: any) => {
                         if (!list) return [];
+                        if (Array.isArray(list)) return list; // Already parsed
+                        if (typeof list !== 'string') return [];
+
                         return list.split('\n')
                             .map(l => l.trim())
                             .filter(l => l)
