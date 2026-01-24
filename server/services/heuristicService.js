@@ -106,7 +106,12 @@ async function classifyDeck(rawDecklist, format, goldfishName = null) {
     const signatures = getSignatures();
     const fmtSigs = signatures[format] || [];
 
-    // 1. High Confidence Match (>75%) - Prioritize AI
+    // 1. Fallback to Goldfish (if specific) - PRIORITIZED per user request
+    if (goldfishName && !isGeneric(goldfishName)) {
+        return { name: goldfishName, score: 0, method: 'Goldfish' };
+    }
+
+    // 2. High Confidence Match (>75%) - AI Classification
     let bestMatch = null;
     let maxScore = 0;
     for (const sig of fmtSigs) {
@@ -122,16 +127,11 @@ async function classifyDeck(rawDecklist, format, goldfishName = null) {
     }
     if (bestMatch) return { name: bestMatch, score: maxScore, method: 'HighConfAI' };
 
-    // 2. Manual Rules
+    // 3. Manual Rules
     for (const rule of RULES) {
         if (rule.required.every(card => list.includes(card))) {
             return { name: rule.target, score: 1.0, method: 'ManualRule' };
         }
-    }
-
-    // 3. Fallback to Goldfish (if specific)
-    if (goldfishName && !isGeneric(goldfishName)) {
-        return { name: goldfishName, score: 0, method: 'Goldfish' };
     }
 
     // 4. Aggressive Match for Generics (>50%)

@@ -734,11 +734,8 @@ app.get('/api/challenges', async (req, res) => {
             const dateObj = new Date(dateStr);
             const isoKey = dateObj.toISOString();
 
-            // DEDUP LOGIC: Use a "Content Hash" based on Top 4 players
-            // If another event on the same day has the same players in the same ranks, it's a dupe.
-            // But simpler for now: Group by (Stripped Name + Date)
-            const strippedName = d.event_name.replace(/\s?\(\d+\)$/, '').replace(/\s?\(Run\s\d+\)$/i, '').trim();
-            const uniqueKey = `${strippedName}_${isoKey}`;
+            // DEDUP/GROUPING: Group by (Raw Name + Date) to keep Run (1) and (2) separate
+            const uniqueKey = `${d.event_name}_${isoKey}`;
 
             if (!eventsMap[uniqueKey]) {
                 const options = {
@@ -751,6 +748,10 @@ app.get('/api/challenges', async (req, res) => {
                 };
                 const estTimeStr = new Intl.DateTimeFormat('en-US', options).format(dateObj);
 
+                // For display name, strip (1) but we've kept them separate in the map via uniqueKey
+                // Adding the time helps the user distinguish the separate headings.
+                const strippedName = d.event_name.replace(/\s?\(\d+\)$/, '').replace(/\s?\(Run\s\d+\)$/i, '').trim();
+
                 eventsMap[uniqueKey] = {
                     name: `${strippedName} (${estTimeStr} EST)`,
                     raw_date: isoKey,
@@ -758,8 +759,7 @@ app.get('/api/challenges', async (req, res) => {
                 };
             }
 
-            // Internal Dedup: Don't add if player + rank already in this event's Top 4!
-            // This catches MTGGoldfish duplicate entries with different URLs but same content.
+            // Internal Dedup: Don't add if player + rank already in this specific Run!
             const isDuplicateDeck = eventsMap[uniqueKey].decks.some(existing =>
                 existing.player_name === d.player_name && existing.rank === d.rank
             );
@@ -772,7 +772,7 @@ app.get('/api/challenges', async (req, res) => {
             }
         });
 
-        // Convert to array and Sort by Date
+        // Sort events by EST time
         const events = Object.values(eventsMap)
             .sort((a, b) => new Date(a.raw_date).getTime() - new Date(b.raw_date).getTime())
             .map(group => ({
