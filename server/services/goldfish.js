@@ -7,6 +7,35 @@ const { classifyDeck } = require('./heuristicService');
 
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+/**
+ * Convert any date/datetime string to EST date-only format (YYYY-MM-DD)
+ * This ensures all events are stored with their EST date, preventing UTC midnight bleed
+ */
+function convertToESTDate(dateStr) {
+    if (!dateStr) return null;
+
+    // Parse the date - handle both date-only and full ISO strings
+    let date;
+    if (dateStr.length === 10) {
+        // Already date-only format, assume it's correct
+        date = new Date(dateStr + 'T12:00:00Z'); // Use noon UTC to avoid edge cases
+    } else {
+        date = new Date(dateStr);
+    }
+
+    // Convert to EST using Intl API
+    const estDateStr = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).format(date);
+
+    // Convert from MM/DD/YYYY to YYYY-MM-DD
+    const [month, day, year] = estDateStr.split('/');
+    return `${year}-${month}-${day}`;
+}
+
 /*
  * Scrapes a single deck URL
  */
@@ -245,11 +274,14 @@ async function syncPlayerDecks(playerName, days = 30) {
             // If needed, can restore full logic from Step 6128
         } catch (err) { }
 
+        // Convert date to EST format before storage
+        const estDate = convertToESTDate(d.event_date);
+
         try {
             await db.execute({
                 sql: `INSERT INTO decks (player_name, event_name, event_date, format, rank, archetype_id, source_url, raw_decklist, sideboard, spice_count, spice_cards) 
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                args: [playerName, finalEventName, d.event_date, d.format, d.rank || 0, archId, d.url, details.raw_decklist, details.sideboard, spiceCount, spiceCardsJSON]
+                args: [playerName, finalEventName, estDate, d.format, d.rank || 0, archId, d.url, details.raw_decklist, details.sideboard, spiceCount, spiceCardsJSON]
             });
         } catch (dbErr) {
             // Constraint check
@@ -415,11 +447,14 @@ async function scrapeTournament(url, force = false) {
             } catch (e) { }
             if (!archId) archId = 0;
 
+            // Convert date to EST format before storage
+            const estDate = convertToESTDate(dateISO);
+
             try {
                 await db.execute({
                     sql: `INSERT INTO decks (player_name, event_name, event_date, format, rank, archetype_id, source_url, raw_decklist, sideboard, spice_count, spice_cards) 
                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    args: [d.player, finalEventName, dateISO, format, d.rank, archId, d.url, details.raw_decklist, details.sideboard, 0, '[]']
+                    args: [d.player, finalEventName, estDate, format, d.rank, archId, d.url, details.raw_decklist, details.sideboard, 0, '[]']
                 });
                 console.log(`Inserted: ${d.player} (#${d.rank}) - ${format}`);
             } catch (dbErr) {
