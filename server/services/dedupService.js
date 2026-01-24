@@ -101,9 +101,12 @@ async function isEventExists(format, dateStr, eventName) {
             if (normName.includes('challenge') && dbNorm.includes('challenge')) {
                 const nums1 = normName.match(/\d+/g);
                 const nums2 = dbNorm.match(/\d+/g);
-                if (nums1 && nums2 && nums1[0] === nums2[0]) return true;
+                // STRICT DATE CHECK for Challenges:
+                // Prevents "Standard Challenge 32" on Saturday from being skipped because
+                // "Standard Challenge 32" exists on Friday (within 1 day range).
+                if (nums1 && nums2 && nums1[0] === nums2[0] && isoDate === dbDate) return true;
                 if (nums1 || nums2) continue;
-                if (normName === dbNorm) return true;
+                if (normName === dbNorm && isoDate === dbDate) return true;
             }
         }
         return false;
