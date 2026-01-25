@@ -395,9 +395,11 @@ async function scrapeTournament(url, force = false) {
             let rank = currentRank;
 
             // Handle LCQ/League 5-0 logic
-            const isLeagueOrLCQ = eventName.toLowerCase().includes('league') || eventName.toLowerCase().includes('lcq');
-            if (isLeagueOrLCQ) {
-                if (placeText !== '5 - 0' && placeText !== '5-0') {
+            const isLeague = eventName.toLowerCase().includes('league');
+            const isLCQ = eventName.toLowerCase().includes('lcq');
+
+            if (isLeague || isLCQ) {
+                if (!placeText.includes('5-0') && !placeText.includes('5 - 0')) {
                     // Skip non 5-0 results for these events as per user request
                     return;
                 }
@@ -414,7 +416,7 @@ async function scrapeTournament(url, force = false) {
 
             if (deckUrl && deckUrl.includes('/deck/') && player) {
                 deckLinks.push({ url: deckUrl, rank, player, archetype });
-                if (!isLeagueOrLCQ) currentRank++;
+                if (!isLeague && !isLCQ) currentRank++;
             }
         });
 
@@ -422,33 +424,39 @@ async function scrapeTournament(url, force = false) {
 
         // 4. Process Decks
         for (const d of deckLinks) {
-            // Insert
             const details = await scrapeDeck(d.url);
             if (!details) continue;
 
-            const { classifyDeck } = require('./heuristicService');
-            const classification = await classifyDeck(details.raw_decklist, format, d.archetype);
+            // Archetype Labeling: Use Goldfish label unless generic (UR, UBG, etc.)
+            let archName = d.archetype;
+            const genericColorsRegex = /^(W|U|B|R|G|WU|WB|WR|WG|UB|UR|UG|BR|BG|RG|WUB|WUR|WUG|WBR|WBG|WRG|UBR|UBG|URG|BRG|WUBR|WUBG|WURG|WBRG|UBRG|WUBRG)$|^(Mono|Azorius|Dimir|Rakdos|Gruul|Selesnya|Orzhov|Izzet|Golgari|Boros|Simic|Esper|Grixis|Jund|Naya|Bant|Abzan|Jeskai|Sultai|Mardu|Temur)[\s-]*([WUBRG\s-]*)$/i;
+
+            if (!archName || archName === 'Unknown' || genericColorsRegex.test(archName)) {
+                const { classifyDeck } = require('./heuristicService');
+                const classification = await classifyDeck(details.raw_decklist, format, d.archetype);
+                archName = classification.name;
+            }
+
             const finalEventName = normalizeEventNameForStorage(eventName, format);
+            // Convert date to EST format before storage (assuming dateISO is already EST YYYY-MM-DD from scraper)
+            const estDate = convertToESTDate(dateISO);
 
             let archId = null;
             try {
                 const exArch = await db.execute({
                     sql: 'SELECT id FROM archetypes WHERE name = ? AND format = ?',
-                    args: [classification.name, format]
+                    args: [archName, format]
                 });
                 if (exArch.rows.length > 0) archId = exArch.rows[0].id;
                 else {
                     const ins = await db.execute({
                         sql: 'INSERT INTO archetypes (name, format) VALUES (?, ?) RETURNING id',
-                        args: [classification.name, format]
+                        args: [archName, format]
                     });
                     archId = ins.rows[0].id;
                 }
             } catch (e) { }
             if (!archId) archId = 0;
-
-            // Convert date to EST format before storage
-            const estDate = convertToESTDate(dateISO);
 
             try {
                 await db.execute({

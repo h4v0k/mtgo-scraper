@@ -18,7 +18,7 @@ import { CardLookup } from './components/CardLookup/CardLookup'
 import { ChallengeView } from './components/Challenges/ChallengeView'
 import { MaintenanceBanner } from './components/MaintenanceBanner'
 
-const MAINTENANCE_MODE = true;
+const MAINTENANCE_MODE = false;
 
 function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('spyglass_token'));

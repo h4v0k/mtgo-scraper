@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import html2canvas from 'html2canvas';
 import { fetchChallengeResults } from '../../services/api';
-import type { ChallengeResult, DeckDetail } from '../../services/api';
+import type { ChallengeResult, DeckDetail, Card } from '../../services/api';
 import { DeckView } from '../Dashboard/DeckView';
 import './ChallengeView.css';
 
@@ -10,20 +11,53 @@ export const ChallengeView: React.FC = () => {
     const [data, setData] = useState<ChallengeResult | null>(null);
     const [loading, setLoading] = useState(false);
     const [selectedDeckId, setSelectedDeckId] = useState<number | null>(null);
+    const eventRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
     useEffect(() => {
         setLoading(true);
         fetchChallengeResults(format, date)
             .then(res => {
                 setData(res);
-                if (res.date) setDate(res.date); // Update date if we fetched latest
+                if (res.date) setDate(res.date);
             })
             .catch(console.error)
             .finally(() => setLoading(false));
-    }, [format, date]); // If date is empty, API finds latest.
+    }, [format, date]);
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setDate(e.target.value);
+    };
+
+    const exportTop4 = async (eventName: string) => {
+        const element = eventRefs.current[eventName];
+        if (!element) return;
+
+        try {
+            const canvas = await html2canvas(element, {
+                backgroundColor: '#1a1a1a',
+                useCORS: true,
+                scale: 2 // Higher quality
+            });
+            const link = document.createElement('a');
+            link.download = `${eventName.replace(/[:/@\s]+/g, '_')}_Top4.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } catch (err) {
+            console.error("Failed to export top 4 image:", err);
+            alert("Export failed. Please try again.");
+        }
+    };
+
+    const handleExportDeck = (deck: DeckDetail) => {
+        const main = deck.cards.map(c => `${c.count} ${c.name}`).join('\n');
+        const side = (deck.sideboard || []).map(c => `${c.count} ${c.name}`).join('\n');
+        const content = `${main}\n\nSideboard\n${side}`;
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${deck.player_name}_${deck.archetype}.txt`;
+        link.click();
     };
 
     if (selectedDeckId !== null) {
@@ -62,17 +96,44 @@ export const ChallengeView: React.FC = () => {
                 <div className="empty-state">No challenge results found for this date.</div>
             ) : (
                 <div className="results-container">
-                    <h2 className="results-header">Top 4 - {data.date} ({format})</h2>
+                    <h2 className="results-header">Daily Results - {data.date} ({format})</h2>
 
                     {data.events.map((event, idx) => (
-                        <div key={idx} className="event-section" style={{ marginBottom: '3rem' }}>
-                            <h3 className="event-subheader" style={{ color: '#88aaff', borderBottom: '1px solid #444', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
-                                {event.event_name}
-                            </h3>
-                            <div className="top-decks-grid">
-                                {event.decks.map((deck) => (
-                                    <DeckCardGrid key={deck.id} deck={deck} onView={() => setSelectedDeckId(deck.id)} />
-                                ))}
+                        <div key={idx} className="event-section">
+                            <div className="event-header-row">
+                                <h3 className="event-subheader">
+                                    {event.event_name}
+                                    {!event.is_valid_top4 && <span className="validation-warning">⚠️ Incomplete Top 4</span>}
+                                </h3>
+                                <button
+                                    onClick={() => exportTop4(event.event_name)}
+                                    className="export-graphic-btn"
+                                >
+                                    📸 Export Top 4 Graphic
+                                </button>
+                            </div>
+
+                            <div
+                                className="top-decks-visual-container"
+                                ref={el => { eventRefs.current[event.event_name] = el; }}
+                            >
+                                <div className="graphic-overlay-header">
+                                    <span className="graphic-title">{event.event_name}</span>
+                                    <span className="graphic-date">{data.date}</span>
+                                </div>
+                                <div className="top-decks-grid">
+                                    {event.decks.slice(0, 4).map((deck) => (
+                                        <DeckCardGrid
+                                            key={deck.id}
+                                            deck={deck}
+                                            onView={() => setSelectedDeckId(deck.id)}
+                                            onExport={() => handleExportDeck(deck)}
+                                        />
+                                    ))}
+                                </div>
+                                <div className="graphic-footer">
+                                    Havok's Spyglass | mtgo-scraper
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -82,67 +143,71 @@ export const ChallengeView: React.FC = () => {
     );
 };
 
-const DeckCardGrid: React.FC<{ deck: DeckDetail; onView: () => void }> = ({ deck, onView }) => {
-    // We want to show a nice grid of cards. 
-    const mainNonLands = (deck.cards || [])
-        .filter(c => !['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'].includes(c.name));
+interface DeckCardProps {
+    deck: DeckDetail;
+    onView: () => void;
+    onExport: () => void;
+}
 
-    const sideNonLands = (deck.sideboard || [])
-        .filter(c => !['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'].includes(c.name));
+const DeckCardGrid: React.FC<DeckCardProps> = ({ deck, onView, onExport }) => {
+    // Priority cards for visual display (non-lands, high impact)
+    const mainCards = (deck.cards || [])
+        .filter(c => !isBasicLand(c.name))
+        .slice(0, 12); // Show top 12 mainboard
+
+    const sideCards = (deck.sideboard || [])
+        .filter(c => !isBasicLand(c.name))
+        .slice(0, 6); // Show top 6 sideboard
 
     return (
         <div className="deck-graphic-card">
-            <div className="deck-header">
-                <div className="rank-badge">#{deck.rank}</div>
-                <div className="deck-info">
-                    <h3 className="player-name">{deck.player_name}</h3>
-                    <span className="archetype-name">{deck.archetype || 'Unknown Archetype'}</span>
+            <div className="deck-card-header">
+                <div className="rank-and-player">
+                    <span className="rank-badge">#{deck.rank}</span>
+                    <div className="player-archetype">
+                        <span className="player-name">{deck.player_name}</span>
+                        <span className="archetype-label">{deck.archetype || 'Unknown'}</span>
+                    </div>
                 </div>
-                <button
-                    onClick={(e) => {
-                        e.preventDefault();
-                        onView();
-                    }}
-                    className="view-btn"
-                >
-                    View
-                </button>
+                <div className="card-actions">
+                    <button onClick={onView} className="action-btn view">View</button>
+                    <button onClick={onExport} className="action-btn export">List</button>
+                </div>
             </div>
-            <div className="visual-sections">
-                <div className="grid-section">
-                    <div className="section-label">Mainboard</div>
-                    <div className="visual-grid">
-                        {mainNonLands.map((card, idx) => (
-                            <div key={idx} className="card-item">
-                                <img
-                                    src={`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card.name)}&format=image&version=small`}
-                                    alt={card.name}
-                                    className="card-img"
-                                />
-                                <span className="card-qty-badge">{card.count}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
 
-                {sideNonLands.length > 0 && (
-                    <div className="grid-section sideboard-section">
-                        <div className="section-label">Sideboard</div>
-                        <div className="visual-grid">
-                            {sideNonLands.map((card, idx) => (
-                                <div key={idx} className="card-item sideboard-item">
-                                    <img
-                                        src={`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card.name)}&format=image&version=small`}
-                                        alt={card.name}
-                                        className="card-img"
-                                    />
-                                    <span className="card-qty-badge side-badge">{card.count}</span>
-                                </div>
-                            ))}
+            <div className="visual-display">
+                <div className="display-section mainboard">
+                    {mainCards.map((card, i) => (
+                        <div key={i} className="small-card-preview">
+                            <img
+                                src={`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card.name)}&format=image&version=small`}
+                                alt={card.name}
+                                title={card.name}
+                                loading="lazy"
+                            />
+                            <span className="qty">{card.count}</span>
                         </div>
-                    </div>
-                )}
+                    ))}
+                </div>
+                <div className="display-section sideboard">
+                    {sideCards.map((card, i) => (
+                        <div key={i} className="small-card-preview side">
+                            <img
+                                src={`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card.name)}&format=image&version=small`}
+                                alt={card.name}
+                                title={card.name}
+                                loading="lazy"
+                            />
+                            <span className="qty">{card.count}</span>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );
 };
+
+function isBasicLand(name: string): boolean {
+    return ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'].some(land => name.includes(land) && !name.includes(' '));
+}
+

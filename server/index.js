@@ -320,7 +320,7 @@ app.get('/api/meta', async (req, res) => {
         cutoffStr = cutoffDate.toISOString();
     }
 
-    // Updated Event Filter: If "Standard Challenge 32" is selected, match "Standard Challenge 32 (1)", etc.
+    // Updated Event Filter: Support category grouping for Challenges
     let eventFilter = '';
     const eventParams = [];
     if (eventList && eventList.length > 0) {
@@ -328,11 +328,18 @@ app.get('/api/meta', async (req, res) => {
             if (e === 'LCQ') {
                 return `event_name LIKE '%LCQ%'`;
             }
+            if (e.includes('Challenge')) {
+                // Category match for Challenges (e.g. "Standard Challenge 32")
+                return `event_name = ?`;
+            }
             return `event_name LIKE ?`;
         }).join(' OR ')})`;
 
         eventList.forEach(e => {
-            if (e !== 'LCQ') {
+            if (e === 'LCQ') return;
+            if (e.includes('Challenge')) {
+                eventParams.push(e);
+            } else {
                 eventParams.push(`${e}%`);
             }
         });
@@ -341,7 +348,7 @@ app.get('/api/meta', async (req, res) => {
     // Strict Rank Filter: Top 8 should EXCLUDE LCQs and Leagues
     let rankFilter = '';
     if (top8 === 'true') {
-        rankFilter = "AND rank <= 8 AND event_name NOT LIKE '%League%' AND event_name NOT LIKE '%LCQ%'";
+        rankFilter = "AND rank > 0 AND rank <= 8 AND event_name NOT LIKE '%League%' AND event_name NOT LIKE '%LCQ%'";
     }
 
     let query = `
@@ -729,32 +736,28 @@ app.get('/api/challenges', async (req, res) => {
         const eventsMap = {};
 
         processedDecks.forEach(d => {
+            // event_date is YYYY-MM-DD, but we need the timestamp if available
+            // Actually, the scraper should have stored the full ISO string or YYYY-MM-DD HH:mm:ss
             let dateStr = d.event_date;
-            if (dateStr.length === 10) dateStr += 'T00:00:00Z';
             const dateObj = new Date(dateStr);
-            const isoKey = dateObj.toISOString();
 
-            // DEDUP/GROUPING: Group by (Raw Name + Date) to keep Run (1) and (2) separate
-            const uniqueKey = `${d.event_name}_${isoKey}`;
+            // Format time in EST
+            const timeEST = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'America/New_York',
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true
+            }).format(dateObj);
+
+            // DEDUP/GROUPING: Group by (Raw Name + Time) to keep separate challenges apart
+            // Using the full dateObj for the key ensures separation
+            const uniqueKey = `${d.event_name}_${dateObj.getTime()}`;
 
             if (!eventsMap[uniqueKey]) {
-                const options = {
-                    timeZone: 'America/New_York',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true,
-                    month: 'numeric',
-                    day: 'numeric'
-                };
-                const estTimeStr = new Intl.DateTimeFormat('en-US', options).format(dateObj);
-
-                // For display name, strip (1) but we've kept them separate in the map via uniqueKey
-                // Adding the time helps the user distinguish the separate headings.
-                const strippedName = d.event_name.replace(/\s?\(\d+\)$/, '').replace(/\s?\(Run\s\d+\)$/i, '').trim();
-
                 eventsMap[uniqueKey] = {
-                    name: `${strippedName} (${estTimeStr} EST)`,
-                    raw_date: isoKey,
+                    name: d.event_name,
+                    raw_date: d.event_date,
+                    time_est: timeEST,
                     decks: []
                 };
             }
@@ -775,10 +778,17 @@ app.get('/api/challenges', async (req, res) => {
         // Sort events by EST time
         const events = Object.values(eventsMap)
             .sort((a, b) => new Date(a.raw_date).getTime() - new Date(b.raw_date).getTime())
-            .map(group => ({
-                event_name: group.name,
-                decks: group.decks
-            }));
+            .map(group => {
+                // Validation: Ensure we have 1-4
+                const ranksFound = new Set(group.decks.map(d => d.rank));
+                const isValidTop4 = [1, 2, 3, 4].every(r => ranksFound.has(r));
+
+                return {
+                    event_name: `${group.name} @ ${group.time_est} EST`,
+                    is_valid_top4: isValidTop4,
+                    decks: group.decks.sort((x, y) => x.rank - y.rank)
+                };
+            });
 
         res.json({ date: datePart, events });
 
@@ -889,15 +899,23 @@ app.get('/api/cards/lookup', async (req, res) => {
 
     try {
         const query = `
-            SELECT d.id, d.player_name, d.event_name, d.event_date, d.rank, d.format, d.spice_count, d.raw_decklist,
-                   (SELECT name FROM archetypes WHERE id = d.archetype_id) as archetype
-            FROM decks d
-            WHERE d.raw_decklist LIKE ?
-            AND d.event_date >= ?
-            ${format ? 'AND d.format = ?' : ''}
-            ORDER BY d.event_date DESC
-            LIMIT 100
-        `;
+                SELECT d.id, d.player_name, d.event_name, d.event_date, d.rank, d.format, d.spice_count, d.raw_decklist,
+                       (SELECT name FROM archetypes WHERE id = d.archetype_id) as archetype
+                FROM decks d
+                WHERE d.raw_decklist LIKE ?
+                AND d.event_date >= ?
+                ${format ? 'AND d.format = ?' : ''}
+                ORDER BY 
+                    CASE 
+                        WHEN d.event_name LIKE '%Challenge%' THEN 1
+                        WHEN d.event_name LIKE '%Qualifier%' OR d.event_name LIKE '%Championship%' THEN 2
+                        WHEN d.event_name LIKE '%LCQ%' THEN 3
+                        WHEN d.event_name LIKE '%League%' THEN 4
+                        ELSE 5
+                    END ASC,
+                    d.event_date DESC
+                LIMIT 100
+            `;
 
         const args = [`%${card}%`, cutoffStr];
         if (format) args.push(format);

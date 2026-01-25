@@ -18,84 +18,110 @@ const FORMATS = [
 // Helper to delay
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-async function scrapeGoldfishEvents(maxDays = 2, forceUpdate = false) {
+async function scrapeGoldfishEvents(maxDays = 10, forceUpdate = false) {
     console.log(`\n=== Starting Goldfish Scraper (Last ${maxDays} days) ===`);
 
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - maxDays);
+
+    const formatDate = (d) => {
+        return `${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getDate().toString().padStart(2, '0')}/${d.getFullYear()}`;
+    };
+
+    const dateRange = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+    console.log(`Searching for events in range: ${dateRange}`);
+
     for (const fmt of FORMATS) {
-        await scrapeFormat(fmt.code, fmt.name, maxDays, forceUpdate);
+        await scrapeFormat(fmt.code, fmt.name, dateRange, forceUpdate);
+        await delay(3000); // Wait between formats
     }
 
     console.log("=== Goldfish Scraper Complete ===");
 }
 
-async function scrapeFormat(formatCode, formatName, maxDays, forceUpdate = false) {
+async function scrapeFormat(formatCode, formatName, dateRange, forceUpdate = false) {
     console.log(`Checking ${formatName}...`);
-    const listUrl = `${BASE_URL}/tournaments/${formatCode}`;
 
-    try {
-        const { data } = await httpClient.get(listUrl);
-        const $ = cheerio.load(data);
+    let page = 1;
+    let hasMore = true;
 
-        // Find events: H4 > A
-        // Then parse date from the <nobr> inside the H4 or next to it
-        // Structure: <h4><a href="...">Name</a> <nobr>on YYYY-MM-DD</nobr></h4>
+    while (hasMore) {
+        const searchUrl = `${BASE_URL}/tournament_searches/create?tournament_search[name]=&tournament_search[format]=${formatCode}&tournament_search[date_range]=${encodeURIComponent(dateRange)}&commit=Search&page=${page}`;
+        console.log(`Fetching Search Results Page ${page}: ${searchUrl}`);
 
-        const events = [];
-        const cutoffDate = new Date();
-        cutoffDate.setDate(cutoffDate.getDate() - maxDays);
+        try {
+            const { data } = await httpClient.get(searchUrl);
+            const $ = cheerio.load(data);
 
-        $('.similar-events-container h4').each((i, el) => {
-            const link = $(el).find('a').first();
-            const dateText = $(el).find('nobr').text().replace('on ', '').trim(); // "2026-01-22"
+            const events = [];
+            const rows = $('.table-striped tbody tr');
 
-            if (!link.length || !dateText) return;
+            if (rows.length === 0) {
+                console.log(`No events found on page ${page} for ${formatName}.`);
+                hasMore = false;
+                break;
+            }
 
-            let name = link.text().trim();
-            const href = link.attr('href');
+            rows.each((i, el) => {
+                const tds = $(el).find('td');
+                if (tds.length < 2) return;
 
-            // Date check
-            const evDate = new Date(dateText);
-            if (evDate < cutoffDate) return; // Too old
+                const dateText = $(tds[0]).text().trim(); // "01/24/2026"
+                const link = $(tds[1]).find('a').first();
 
-            // Filter: Only Challenge/League/Showcase/Qualifier
-            if (!name.match(/(Challenge|League|Showcase|Qualifier|Championship|Open)/i)) return;
+                if (!link.length || !dateText) return;
 
-            // Strip date from name (e.g. "Standard Challenge 32 2026-01-22" -> "Standard Challenge 32")
-            name = name.replace(/\s\d{4}-\d{2}-\d{2}$/, '').trim();
+                let name = link.text().trim();
+                const href = link.attr('href');
 
-            const { normalizeEventNameForStorage } = require('./dedupService');
-            name = normalizeEventNameForStorage(name, formatName);
+                // Normalize date from MM/DD/YYYY to YYYY-MM-DD
+                const [m, d, y] = dateText.split('/');
+                const normalizedDate = `${y}-${m}-${d}`;
 
-            events.push({
-                name,
-                url: BASE_URL + href,
-                date: dateText,
-                format: formatName
+                // Filter: Only Challenge/League/Showcase/Qualifier/LCQ
+                if (!name.match(/(Challenge|League|Showcase|Qualifier|Championship|Open|LCQ)/i)) return;
+
+                const { normalizeEventNameForStorage } = require('./dedupService');
+                const cleanName = normalizeEventNameForStorage(name, formatName);
+
+                events.push({
+                    name: cleanName,
+                    rawName: name,
+                    url: BASE_URL + href,
+                    date: normalizedDate,
+                    format: formatName
+                });
             });
-        });
 
-        console.log(`Found ${events.length} potential events for ${formatName}.`);
+            console.log(`Found ${events.length} potential events on page ${page}.`);
 
-        // Process Events
-        for (const ev of events) {
-            // DEDUP CHECK
-            const exists = await isEventExists(ev.format, ev.date, ev.name);
-            if (exists && !forceUpdate) {
-                console.log(`[SKIP] Exists: ${ev.name} (${ev.date})`);
-                continue;
+            for (const ev of events) {
+                // DEDUP CHECK
+                const exists = await isEventExists(ev.format, ev.date, ev.name);
+                if (exists && !forceUpdate) {
+                    console.log(`[SKIP] Exists: ${ev.name} (${ev.date})`);
+                    continue;
+                }
+
+                console.log(`[PROCESS] ${exists ? 'Updating' : 'New'} Event: ${ev.name} (${ev.date})`);
+                const { scrapeTournament } = require('./goldfish');
+                await scrapeTournament(ev.url, forceUpdate);
+                await delay(2000);
             }
 
-            if (forceUpdate && exists) {
-                console.log(`[UPDATE] Backfilling: ${ev.name} (${ev.date})`);
+            // Check for pagination
+            const nextLink = $('.pagination .next_page');
+            if (nextLink.length > 0 && !nextLink.hasClass('disabled')) {
+                page++;
             } else {
-                console.log(`[PROCESS] New Event: ${ev.name} (${ev.date})`);
+                hasMore = false;
             }
-            await processEvent(ev);
-            await delay(2000); // Be polite
-        }
 
-    } catch (e) {
-        console.error(`Error scraping ${formatName} list:`, e.message);
+        } catch (e) {
+            console.error(`Error scraping ${formatName} search results page ${page}:`, e.message);
+            hasMore = false;
+        }
     }
 }
 

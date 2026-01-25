@@ -28,42 +28,51 @@ function normalizeEventNameForStorage(name, format) {
     if (!name) return '';
     let normalized = name.trim();
 
-    // 1. Strip dates (Robust - multiple formats)
+    // 1. Handle LCQs specifically: "RC *Location* LCQ"
+    if (normalized.toLowerCase().includes('lcq')) {
+        // Try to find the location. If Portland is mentioned, it's RC Portland LCQ
+        if (normalized.toLowerCase().includes('portland')) {
+            return `RC Portland LCQ`;
+        }
+        // Generic fallback if location not found
+        const lcqMatch = normalized.match(/RC\s+([\w\s]+)\s+LCQ/i);
+        if (lcqMatch) return `RC ${lcqMatch[1]} LCQ`;
+
+        return `${format} LCQ`;
+    }
+
+    // 2. Normalize Challenges: Keep "Challenge 32" or "Challenge 64" part
+    const challengeMatch = normalized.match(/Challenge\s*(32|64)/i);
+    if (challengeMatch) {
+        return `${format} Challenge ${challengeMatch[1]}`;
+    }
+
+    // 3. Strip dates (Robust - multiple formats)
     normalized = normalized.replace(/\b\d{4}-\d{2}-\d{2}\b/g, ''); // 2026-01-22
     normalized = normalized.replace(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/g, ''); // 1/22/2026
     normalized = normalized.replace(/\b\d{2}\.\d{2}\.\d{4}\b/g, ''); // 21.01.2026
 
-    // 2. Strip parenthetical content with dates/years AND brackets
+    // 4. Strip parenthetical content with dates/years AND brackets
     normalized = normalized.replace(/\([^)]*\d{2,4}[^)]*\)/g, ''); // (WntrSpr '26), (2026-01-22), etc.
     normalized = normalized.replace(/\[.*?\]/g, ''); // [Lyon Sat 09:00]
 
-    // 3. Strip indices (1), (2), etc.
-    // normalized = normalized.replace(/\s?\(\d+\)/g, ''); // STOP STRIPPING (1) suffix to distinguish multiple events per day
-
-    // 4. Standardize MTGO prefix to Format name
+    // 5. Standardize MTGO prefix to Format name
     if (normalized.toLowerCase().startsWith('mtgo ')) {
         normalized = normalized.substring(5);
     }
 
-    // 5. Ensure format name is prepended exactly once
+    // 6. Ensure format name is prepended exactly once
     if (format) {
-        // Strip the format name anywhere it exists as a word or suffix
         const formatEscaped = format.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const fmtRegexAnywhere = new RegExp(`\\s*-\\s*${formatEscaped}|\\b${formatEscaped}\\b`, 'gi');
         normalized = normalized.replace(fmtRegexAnywhere, '').trim();
-
-        // Remove trailing dashes/punctuation after stripping format
         normalized = normalized.replace(/\s*-\s*$/, '').trim();
-
-        // NEW: Strip generic suffixes that might contain years (e.g. " - Lyon 2026")
         normalized = normalized.replace(/\s+-\s+.*\d{4}.*$/, '');
-        // Also strip just trailing dates if they survived step 1
         normalized = normalized.replace(/\s+\d{4}-\d{2}-\d{2}$/, '');
-
         normalized = format + ' ' + normalized;
     }
 
-    // 6. Final cleanup of empty parentheses and double spaces
+    // 7. Final cleanup
     return normalized
         .replace(/\(\s*\)/g, '')
         .replace(/\s+/g, ' ')

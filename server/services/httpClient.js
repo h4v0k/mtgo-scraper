@@ -28,6 +28,9 @@ class HttpClient {
         // Secondary Proxy (e.g. ScrapeOps) for Player Search
         this.apiKey2 = process.env.SCRAPER_API_KEY_2;
         this.serviceUrl2 = process.env.SCRAPER_SERVICE_URL_2;
+
+        this.requestCount = 0;
+        this.PROXY_THRESHOLD = 10;
     }
 
     /**
@@ -36,9 +39,14 @@ class HttpClient {
      * @param {Object} options - { headers: {}, params: {}, forceProxy: boolean, useSecondary: boolean }
      */
     async get(url, options = {}) {
+        this.requestCount++;
         const useSecondary = options.useSecondary && !!this.apiKey2;
-        const usePrimary = !!this.apiKey && (options.forceProxy || process.env.USE_PROXY === 'true');
+        const usePrimary = !!this.apiKey && (options.forceProxy || process.env.USE_PROXY === 'true' || this.requestCount > this.PROXY_THRESHOLD);
         const useProxy = useSecondary || usePrimary;
+
+        if (this.requestCount > this.PROXY_THRESHOLD) {
+            console.log(`[HttpClient] Proxy threshold reached (${this.requestCount}). Forcing proxy for: ${url}`);
+        }
 
         const maxRetries = options.retries !== undefined ? options.retries : 3;
         let attempt = 0;

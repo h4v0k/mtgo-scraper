@@ -380,6 +380,7 @@ export async function fetchDecksByCard(cardName: string, format: string, days: s
 
 export interface ChallengeEvent {
     event_name: string;
+    is_valid_top4: boolean;
     decks: DeckDetail[];
 }
 
