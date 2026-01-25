@@ -139,6 +139,7 @@ async function findExistingDeckForPlayer(playerName, format, dateStr, eventName,
     const normName = normalizeEventName(eventName);
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return false;
+    // Strictly normalize to YYYY-MM-DD
     const isoDate = d.toISOString().split('T')[0];
 
     const dPrev = new Date(d); dPrev.setDate(d.getDate() - 1);
@@ -155,8 +156,10 @@ async function findExistingDeckForPlayer(playerName, format, dateStr, eventName,
 
     for (const cand of candidates.rows) {
         const candNorm = normalizeEventName(cand.event_name);
-        // Use simpler date split to handle Turso strings/objects reliably
-        const candDate = (typeof cand.event_date === 'string' ? cand.event_date : cand.event_date.toISOString()).split(/[ T]/)[0];
+        // Use strictly YYYY-MM-DD comparison
+        let candDateRaw = cand.event_date;
+        if (typeof candDateRaw !== 'string') candDateRaw = candDateRaw.toISOString();
+        const candDate = candDateRaw.split(/[ T]/)[0];
 
         // 1. Precise Match (Event Name + Date)
         if (normName === candNorm && isoDate === candDate) return true;

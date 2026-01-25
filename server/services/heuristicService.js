@@ -75,7 +75,6 @@ const RULES = [
     { target: 'Naya Allies', required: ['Kabira Evangel', 'Hada Freeblade'] },
     { target: 'Naya Allies', required: ['Earthen Ally', 'Allies at Last'] },
     { target: 'Naya Allies', required: ['South Pole Voyager', 'Earthen Ally'] },
-    { target: 'Izzet Lessons', required: ['Firebending Lesson'] },
     { target: 'Izzet Looting', required: ['Inti, Seneschal of the Sun', 'Professional Face-Breaker'] },
     { target: 'GX Landfall', required: ['Earthbender Ascension'] },
     { target: 'Kona Combo', required: ['Kona, Rescue Beastie', 'Breeding Pool'] },
@@ -108,7 +107,12 @@ async function classifyDeck(rawDecklist, format, goldfishName = null) {
 
     // 1. Fallback to Goldfish (if specific) - PRIORITIZED per user request
     if (goldfishName && !isGeneric(goldfishName)) {
-        return { name: goldfishName, score: 0, method: 'Goldfish' };
+        // Robust Normalization for known variations
+        let name = goldfishName;
+        if (name === 'Izzet Lesson' || name === 'Isset Lesson' || name === 'Isset Lessons') {
+            name = 'Izzet Lessons';
+        }
+        return { name, score: 0, method: 'Goldfish' };
     }
 
     // 2. High Confidence Match (>75%) - AI Classification

@@ -12,8 +12,8 @@ async function syncAll() {
 
         // 1. Goldfish Sync (6h cycle)
         console.log("\n--- Step 1: MTGGoldfish Scrape (6h Cycle) ---");
-        // Scrape last 3 days to catch any missed updates
-        await scrapeGoldfishEvents(3);
+        // Scrape last 7 days to catch any missed updates and ensute full coverage
+        await scrapeGoldfishEvents(7);
 
         // 2. MTGTop8 Sync (12h cycle)
         const currentHour = new Date().getUTCHours();

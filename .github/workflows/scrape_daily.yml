@@ -42,13 +42,13 @@ jobs:
           npm install
 
       - name: Run Scraper
-        # If manually triggered, use force-top8 if requested
+        # If manually triggered, always force MTGTop8 to ensure 7-day coverage
         run: |
           FORCE_TOP8_FLAG=""
-          if [[ "${{ github.event.inputs.force_top8 }}" == "true" ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             FORCE_TOP8_FLAG="--force-top8"
           fi
           
-          echo "Running Unified Global Sync (Goldfish (6h) + MTGTop8 (12h))..."
+          echo "Running Unified Global Sync (Goldfish (7d) + MTGTop8 (7d))..."
           node server/sync_all_remotes.js $FORCE_TOP8_FLAG
           echo "Sync Complete!"

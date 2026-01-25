@@ -106,6 +106,8 @@ async function scrapeFormat(formatCode, formatName, dateRange, forceUpdate = fal
 
                 console.log(`[PROCESS] ${exists ? 'Updating' : 'New'} Event: ${ev.name} (${ev.date})`);
                 const { scrapeTournament } = require('./goldfish');
+                // Ensure ev.date is strictly YYYY-MM-DD
+                const simpleDate = ev.date.includes('T') ? ev.date.split('T')[0] : ev.date;
                 await scrapeTournament(ev.url, forceUpdate);
                 await delay(2000);
             }
