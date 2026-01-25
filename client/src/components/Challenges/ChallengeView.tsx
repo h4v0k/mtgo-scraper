@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import { fetchChallengeResults } from '../../services/api';
-import type { ChallengeResult, DeckDetail, Card } from '../../services/api';
+import type { ChallengeResult, DeckDetail } from '../../services/api';
 import { DeckView } from '../Dashboard/DeckView';
 import './ChallengeView.css';
 
