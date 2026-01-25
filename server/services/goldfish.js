@@ -270,9 +270,24 @@ async function syncPlayerDecks(playerName, days = 30) {
         let spiceCount = 0;
         let spiceCardsJSON = '[]';
         try {
-            // Spice calc omitted for brevity in restoration, leaving simplified
-            // If needed, can restore full logic from Step 6128
-        } catch (err) { }
+            // Context-aware Spice Calculation
+            const contextRes = await db.execute({
+                sql: `SELECT raw_decklist, sideboard FROM decks 
+                      WHERE archetype_id = ? 
+                      AND event_date >= date('now', '-60 days') 
+                      LIMIT 50`,
+                args: [archId]
+            });
+            const spiceRes = calculateSpice({
+                raw_decklist: details.raw_decklist,
+                sideboard: details.sideboard
+            }, contextRes.rows);
+
+            spiceCount = spiceRes.count;
+            spiceCardsJSON = JSON.stringify(spiceRes.cards);
+        } catch (err) {
+            console.error(`[SYNC] Spice calculation error for ${d.url}:`, err.message);
+        }
 
         // Convert date to EST format before storage
         const estDate = convertToESTDate(d.event_date);
@@ -283,8 +298,9 @@ async function syncPlayerDecks(playerName, days = 30) {
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 args: [playerName, finalEventName, estDate, d.format, d.rank || 0, archId, d.url, details.raw_decklist, details.sideboard, spiceCount, spiceCardsJSON]
             });
+            console.log(`[SYNC] Persisted: ${playerName} | ${archName} | Spice: ${spiceCount}`);
         } catch (dbErr) {
-            // Constraint check
+            console.error(`[SYNC] DB Error for ${d.url}:`, dbErr.message);
         }
 
         return true;

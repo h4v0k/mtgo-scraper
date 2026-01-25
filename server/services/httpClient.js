@@ -40,11 +40,14 @@ class HttpClient {
      */
     async get(url, options = {}) {
         this.requestCount++;
+        const isGoldfish = url.includes('mtggoldfish.com');
         const useSecondary = options.useSecondary && !!this.apiKey2;
-        const usePrimary = !!this.apiKey && (options.forceProxy || process.env.USE_PROXY === 'true' || this.requestCount > this.PROXY_THRESHOLD);
+        const usePrimary = !!this.apiKey && (options.forceProxy || process.env.USE_PROXY === 'true' || this.requestCount > this.PROXY_THRESHOLD || isGoldfish);
         const useProxy = useSecondary || usePrimary;
 
-        if (this.requestCount > this.PROXY_THRESHOLD) {
+        if (isGoldfish && !!this.apiKey) {
+            console.log(`[HttpClient] Forcing proxy for Goldfish: ${url}`);
+        } else if (this.requestCount > this.PROXY_THRESHOLD) {
             console.log(`[HttpClient] Proxy threshold reached (${this.requestCount}). Forcing proxy for: ${url}`);
         }
 
