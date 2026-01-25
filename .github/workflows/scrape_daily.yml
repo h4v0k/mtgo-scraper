@@ -49,6 +49,6 @@ jobs:
             FORCE_TOP8_FLAG="--force-top8"
           fi
           
-          echo "Running Unified Global Sync (Goldfish (7d) + MTGTop8 (7d))..."
-          node server/sync_all_remotes.js $FORCE_TOP8_FLAG
+          echo "Running Unified Global Sync (Goldfish (2d))..."
+          node server/sync_all_remotes.js
           echo "Sync Complete!"
