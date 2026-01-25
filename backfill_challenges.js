@@ -8,14 +8,15 @@ async function backfillChallenges() {
 
     try {
         // Find events in the last 7 days with fewer than 4 decks
-        // We look for Standard Challenges specifically first but can expand
         const query = `
             SELECT event_name, event_date, source_url, COUNT(*) as deck_count
             FROM decks
             WHERE event_name LIKE '%Challenge%'
             AND event_date >= date('now', '-7 days')
             GROUP BY event_name, event_date, source_url
-            HAVING deck_count < 4
+            HAVING (event_name LIKE '%Challenge%' AND deck_count < 32)
+               OR (event_name LIKE '%League%' AND deck_count < 1)
+               OR deck_count < 4
         `;
 
         const res = await db.execute(query);
@@ -25,18 +26,25 @@ async function backfillChallenges() {
 
         for (const ev of incompleteEvents) {
             if (!ev.source_url || !ev.source_url.includes('mtggoldfish.com')) {
-                console.log(`Skipping event with no valid Goldfish URL: ${ev.event_name}`);
+                console.log(`[SKIP] Missing/Invalid URL: ${ev.event_name}`);
                 continue;
             }
 
-            console.log(`[BACKFILL] Re-scraping: ${ev.event_name} (${ev.event_date}) - ${ev.source_url}`);
+            let targetUrl = ev.source_url;
+            console.log(`[BACKFILL] Processing: ${ev.event_name} (${ev.event_date})`);
+
             try {
-                // Force = true to bypass unique constraint if we handle it inside scrapeTournament
-                // Actually scrapeTournament uses "INSERT" so it will skip duplicates anyway, 
-                // but we want to catch the ones we missed.
-                await scrapeTournament(ev.source_url, true);
+                // If it's a deck URL (e.g., /deck/7589084), we might need to find the tournament link
+                // or just trust that scrapeTournament handles redirection/discovery if we improve it.
+                // For now, let's at least log it clearly.
+                if (targetUrl.includes('/deck/')) {
+                    console.log(`  Source is a DECK URL. Attempting discovery...`);
+                }
+
+                await scrapeTournament(targetUrl, true);
+                console.log(`  Finished processing ${ev.event_name}`);
             } catch (err) {
-                console.error(`Failed to re-scrape ${ev.event_name}:`, err.message);
+                console.error(`  [ERROR] ${ev.event_name}:`, err.message);
             }
         }
 

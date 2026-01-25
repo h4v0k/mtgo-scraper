@@ -337,11 +337,57 @@ async function scrapeTournament(url, force = false) {
         console.log(`HTML Sample (200 chars): ${html.substring(0, 200).replace(/\n/g, ' ')}`);
         const $ = cheerio.load(html);
 
+        // 0. Check if this is a DECK page instead of a tournament page
+        const isDeckPage = url.includes('/deck/') && !url.includes('/tournament/');
+
+        let eventLink = null;
+        if (isDeckPage) {
+            // Priority 1: "From event:" link
+            $('a').each((i, el) => {
+                const txt = $(el).text().toLowerCase();
+                const h = $(el).attr('href');
+                if ((txt.includes('from event:') || txt.includes('tournament')) && h && h.includes('/tournament/')) {
+                    eventLink = h;
+                    return false;
+                }
+            });
+            // Priority 2: Any /tournament/ link that isn't search
+            if (!eventLink) {
+                $('a[href*="/tournament/"]').each((i, el) => {
+                    const h = $(el).attr('href');
+                    if (h && !h.includes('search')) {
+                        eventLink = h;
+                        return false;
+                    }
+                });
+            }
+        }
+
+        if (isDeckPage && eventLink) {
+            const absoluteEventUrl = eventLink.startsWith('http') ? eventLink : 'https://www.mtggoldfish.com' + eventLink;
+            console.log(`[REDIRECT] URL is a deck page. Redirecting to tournament: ${absoluteEventUrl}`);
+            // Recursion limit: only redirect once
+            if (!url.includes('redirected=true')) {
+                const separator = absoluteEventUrl.includes('?') ? '&' : '?';
+                return scrapeTournament(absoluteEventUrl + separator + 'redirected=true', force);
+            }
+        }
+
+        if (isDeckPage && !url.includes('redirected=true')) {
+            console.error(`[ERROR] URL is a deck page but no tournament link found: ${url}`);
+            return;
+        }
+
         // 1. Extract Event Name Safely
-        // Use Document Title as ground truth, strip trailing " Decks"
+        // If it still looks like a deck title (contains " by " or " Deck"), it's likely NOT a tournament page
         let rawEventName = $('title').text().replace(' Decks', '').trim();
         if (!rawEventName || rawEventName === 'MTGGoldfish') {
             rawEventName = $('h1.desktop-title').text().trim();
+        }
+
+        if (rawEventName.includes(' by ') || rawEventName.endsWith(' Deck')) {
+            console.warn(`[SKIP] Title looks like a deck, not a tournament: ${rawEventName}`);
+            return;
         }
 
         // Infer Format from Name or URL
@@ -366,10 +412,8 @@ async function scrapeTournament(url, force = false) {
             dateISO = dateMatch[1];
             console.log(`Extracted Date: ${dateISO}`);
         } else {
-            console.warn("Could not find 'Date: YYYY-MM-DD' in body. Falling back to Today is dangerous.");
-            // Try simpler format?
-            // If failed, throw error or strictly fallback
-            if (!dateISO) dateISO = new Date().toISOString().split('T')[0];
+            console.warn(`[ABORT] Could not find valid tournament date for: ${url}`);
+            return;
         }
 
         // 3. Extract Decks
